@@ -31,15 +31,16 @@
 }
 
 .CheckersSquare {
-    background-color: black;
     height: 100px;
     width: 100px;
 }
 .CheckersSquare.PlaySquare {
+    background-color: black;
     margin-left: 12.5%;
 }
 
 .CheckersSquare.DeadSquare {
+    background-color: red;
     margin-right: 12.5%
 }
 
