@@ -11,6 +11,8 @@
 
 #CheckersBoardWrapper {
     box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
     height: 100%;
     flex-grow: 4;
 }
@@ -30,18 +32,33 @@
     "ds ls ds ls ds ls ds ls";
 }
 
-.CheckersSquare {
-    height: 100px;
-    width: 100px;
-}
-.CheckersSquare.PlaySquare {
-    background-color: black;
-    margin-left: 12.5%;
+.CheckersSquares {
+    display: flex;
+    flex: 1 0 25%;
+    .EmptySquare {
+        flex: 1;
+        color: white;
+        background-color: black;
+    }
+    .FullSquare {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex: 1;
+        background-color: black;
+    }
+    .DeadSquare {
+        flex: 1;
+        background-color: red;
+    }
 }
 
-.CheckersSquare.DeadSquare {
-    background-color: red;
-    margin-right: 12.5%
+.CheckersPiece {
+    height: 70%;
+    width: 70%;
+    border-radius: 50%;
+    background-color: white;
+    color: blue;
 }
 
 #MoveListWrapper {
