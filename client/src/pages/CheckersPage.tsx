@@ -66,7 +66,7 @@ const CheckersBoard = ({ board }: { board: string[] }) => {
         );
     });
     console.log(GameBoard);
-    return <ul id="CheckersBoardWrapper">{GameBoard}</ul>;
+    return <ul id="CheckersBoard">{GameBoard}</ul>;
 };
 const MoveList = () => {
     return <div id="MoveListWrapper"></div>;
@@ -74,7 +74,9 @@ const MoveList = () => {
 const CheckersPage = ({ board }: { board: string[] }) => {
     return (
         <div id="CheckersPageWrapper">
-            <CheckersBoard board={board} />
+            <div id="CheckersBoardWrapper">
+                <CheckersBoard board={board} />
+            </div>
         </div>
     );
 };

@@ -10,31 +10,24 @@
 }
 
 #CheckersBoardWrapper {
-    box-sizing: border-box;
     display: flex;
+    align-items: center;
+    justify-content: center;
     flex-wrap: wrap;
-    height: 100%;
+    width: 50%;
     flex-grow: 4;
 }
-/* #CheckersBoardWrapper:after {
+#CheckersBoardWrapper:after {
     content: "";
     display: block;
-    padding-bottom: 50%;
-} */
+    padding-bottom: 100%;
+}
 
 #CheckersBoard {
-    display: grid;
-    height: 100%;
-    width: 100%;
-    grid-template-areas: 
-    "ls ds ls ds ls ds ls ds"
-    "ds ls ds ls ds ls ds ls"
-    "ls ds ls ds ls ds ls ds"
-    "ds ls ds ls ds ls ds ls"
-    "ls ds ls ds ls ds ls ds"
-    "ds ls ds ls ds ls ds ls"
-    "ls ds ls ds ls ds ls ds"
-    "ds ls ds ls ds ls ds ls";
+    box-sizing: border-box;
+    display: flex;
+    position: absolute;
+    flex-wrap: wrap;
 }
 
 .CheckersSquares {
