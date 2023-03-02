@@ -12,7 +12,10 @@ const CheckersSquare = ({ elem, index }: { elem: string; index: number }) => {
         case "p":
             return (
                 <div className="FullSquare">
-                    <div className="CheckersPiece">
+                    <div
+                        className="CheckersPiece"
+                        style={{ backgroundColor: "white" }}
+                    >
                         <p>{index}</p>
                     </div>
                 </div>
@@ -20,10 +23,11 @@ const CheckersSquare = ({ elem, index }: { elem: string; index: number }) => {
         case "P":
             return (
                 <div className="FullSquare">
-                    <div className="CheckersPiece">
-                        <div className="CheckersPiece">
-                            <p>{index}</p>
-                        </div>
+                    <div
+                        className="CheckersPiece"
+                        style={{ backgroundColor: "red" }}
+                    >
+                        <p>{index}</p>
                     </div>
                 </div>
             );

@@ -16,6 +16,11 @@
     height: 100%;
     flex-grow: 4;
 }
+/* #CheckersBoardWrapper:after {
+    content: "";
+    display: block;
+    padding-bottom: 50%;
+} */
 
 #CheckersBoard {
     display: grid;
@@ -52,13 +57,17 @@
         background-color: red;
     }
 }
+/* .CheckersSquares:after {
+    content: "";
+    display: block;
+    padding-bottom:50%;
+} */
 
 .CheckersPiece {
     height: 70%;
     width: 70%;
     border-radius: 50%;
-    background-color: white;
-    color: blue;
+    color: green;
 }
 
 #MoveListWrapper {
