@@ -1,6 +1,17 @@
+import { useState } from "react";
+import { DEFAULT_CHECKERS_BOARD } from "../lib/checkersClientLogic";
 import "./CheckersPage.scss";
 
-const CheckersSquare = ({ elem, index }: { elem: string; index: number }) => {
+const CheckersSquare = ({
+    elem,
+    index,
+    onClick,
+}: {
+    elem: string;
+    index: number;
+    onClick: () => void;
+}) => {
+    const [status, setStatus] = useState("none"); //none, hover, select
     console.log("Rendering individual square: " + elem);
     switch (elem) {
         case "E":
@@ -36,8 +47,11 @@ const CheckersSquare = ({ elem, index }: { elem: string; index: number }) => {
     }
 };
 const CheckersBoard = ({ board }: { board: string[] }) => {
+    const [status, setStatus] = useState("selecting"); //populate?, select, move, submit
     let isFlippedRow = true;
     let rowNum = 0;
+
+    function clickHandler() {}
     const GameBoard = board.map((elem, index) => {
         if (index % 4 == 0) {
             isFlippedRow = !isFlippedRow;
@@ -53,7 +67,11 @@ const CheckersBoard = ({ board }: { board: string[] }) => {
         if (isFlippedRow) {
             return (
                 <div className="CheckersSquares" key={index}>
-                    <CheckersSquare elem={elem} index={index} />
+                    <CheckersSquare
+                        elem={elem}
+                        index={index}
+                        onClick={clickHandler}
+                    />
                     <div className="DeadSquare"></div>
                 </div>
             );
@@ -61,7 +79,11 @@ const CheckersBoard = ({ board }: { board: string[] }) => {
         return (
             <div className="CheckersSquares" key={index}>
                 <div className="DeadSquare"></div>
-                <CheckersSquare elem={elem} index={index} />
+                <CheckersSquare
+                    elem={elem}
+                    index={index}
+                    onClick={clickHandler}
+                />
             </div>
         );
     });
@@ -72,6 +94,10 @@ const MoveList = () => {
     return <div id="MoveListWrapper"></div>;
 };
 const CheckersPage = ({ board }: { board: string[] }) => {
+    const [gameBoard, setGameBoard] = useState<string[]>(
+        DEFAULT_CHECKERS_BOARD
+    );
+
     return (
         <div id="CheckersPageWrapper">
             <div id="CheckersBoardWrapper">

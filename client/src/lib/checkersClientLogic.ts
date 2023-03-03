@@ -1,34 +1,61 @@
-export const LEGAL_MOVES_MAP = {
-    "0": [4, 5],
-    "1": [5, 6],
-    "2": [6, 7],
-    "3": [7],
-    "4": [0, 8],
-    "5": [0, 1, 8, 9],
-    "6": [1, 2, 9, 10],
-    "7": [2, 3, 10, 11],
-    "8": [4, 5, 12, 13],
-    "9": [5, 6, 13, 14],
-    "10": [6, 7, 14, 15],
-    "11": [7, 15],
-    "12": [8, 16],
-    "13": [8, 9, 16, 17],
-    "14": [9, 10, 17, 18],
-    "15": [10, 11, 18, 19],
-    "16": [12, 13, 20, 21],
-    "17": [13, 14, 21, 22],
-    "18": [14, 15, 22, 23],
-    "19": [15, 23],
-    "20": [16, 24],
-    "21": [16, 17, 24, 25],
-    "22": [17, 18, 25, 26],
-    "23": [18, 19, 26, 27],
-    "24": [20, 21, 28, 29],
-    "25": [21, 22, 29, 30],
-    "26": [22, 23, 30, 31],
-    "27": [23, 31],
-    "28": [24],
-    "29": [24, 25],
-    "30": [25, 26],
-    "31": [26, 27],
-};
+import {LEGAL_MOVES_MAP, VALID_TOKENS} from "./checkersData";
+
+export function validMoves(boardState: string[], selectIndex: number) {
+	const selToken = boardState[selectIndex];
+	const posToCheck: number[] | undefined = LEGAL_MOVES_MAP.get(
+		String(selectIndex)
+	);
+	const validMoves: number[] = [];
+	if (!VALID_TOKENS.includes(selToken) || selToken == "E" || !posToCheck) {
+		console.log(
+			"ERROR: INVALID TOKEN PASSED TO FUNC validMoves() in clientLogic"
+		);
+		return [-1];
+	}
+	posToCheck.forEach((checkPos) => {
+		const posToken = boardState[checkPos];
+		if (posToken == "E") {
+			validMoves.push(checkPos);
+		} else if (posToken == selToken) {
+			return;
+		} else if (posToken.toLowerCase() == selToken.toLowerCase()) {
+		}
+	});
+}
+
+/* selTok: original token type*/
+function checkMoveValidity(
+	boardState: string[],
+	selToken: string,
+	curPosition: number
+): number[] {
+	const validMoves: number[] = [];
+	const posToCheck: number[] = getPositionsToCheck(selToken, curPosition);
+	posToCheck.forEach((checkPos) => {
+		const posToken = boardState[checkPos];
+		if (posToken == "E") {
+			/* If position is empty and , is valid move */
+			validMoves.push(checkPos);
+		} else if (posToken == selToken) {
+			/* Do Nothing */
+		} else if (posToken.toLowerCase() == selToken.toLowerCase()) {
+			validMoves.concat(checkMoveValidity(boardState, selToken, checkPos));
+		} else {
+			console.log(
+				"ERROR: INVALID TOKEN IN FUNC CHECKMOVEVALIDITY IN CLIENT LOGIC"
+			);
+		}
+	});
+	return validMoves;
+}
+
+function getPositionsToCheck(selToken: string, curPosition: number) {
+	return LEGAL_MOVES_MAP.get(String(curPosition))!.filter((elem) => {
+		if (["P", "K"].includes(selToken)) {
+			if (elem < curPosition) return elem;
+		}
+		if (["p", "k"].includes(selToken)) {
+			if (elem > curPosition) return elem;
+		}
+	});
+}
