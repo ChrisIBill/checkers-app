@@ -2,9 +2,6 @@ import {LEGAL_MOVES_MAP, VALID_TOKENS} from "./checkersData";
 
 export function findValidMoves(boardState: string[], selectIndex: number) {
 	const selToken = boardState[selectIndex];
-	/* const posToCheck: number[] | undefined = LEGAL_MOVES_MAP.get(
-		String(selectIndex)
-	); */
 	const validMoves: number[] = [];
 	if (!VALID_TOKENS.includes(selToken) || selToken == "E") {
 		console.log(
@@ -14,15 +11,6 @@ export function findValidMoves(boardState: string[], selectIndex: number) {
 	}
 	const ret = checkMoveValidity(boardState, selToken, selectIndex);
 	console.log("Return value of valid Moves: ", ret);
-	/* posToCheck.forEach((checkPos) => {
-		const posToken = boardState[checkPos];
-		if (posToken == "E") {
-			validMoves.push(checkPos);
-		} else if (posToken == selToken) {
-			return;
-		} else if (posToken.toLowerCase() == selToken.toLowerCase()) {
-		}
-	}); */
 	return ret;
 }
 

@@ -80,13 +80,16 @@ const CheckersBoard = ({board}: {board: string[]}) => {
 
 	function handleSquareClick(sel: number) {
 		console.log("click");
-		if (validMoves.includes(sel)) {
+		if (status == "select") {
+			setSelectIndex(sel);
+			setValidMoves(findValidMoves(board, sel));
+			setStatus("move");
+		}
+		if (status == "move" && validMoves.includes(sel)) {
 			console.log("valid move");
 			[board[sel], board[selectIndex]] = [board[selectIndex], board[sel]];
 			console.log(board);
 		} else {
-			setSelectIndex(sel);
-			setValidMoves(findValidMoves(board, sel));
 		}
 	}
 	const GameBoard = board.map((elem, index) => {
