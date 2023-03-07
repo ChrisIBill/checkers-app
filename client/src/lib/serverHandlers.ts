@@ -25,18 +25,23 @@ export function serverGameStateParse(str: string): string[] {
 export function compressGameState(gameState: string[]): string {
 	//[p,p,p,p,p,p,p,p,p,p,p,p,E,E,E,E...] -> p12/E8/P12/
 	let i = 0;
-	let num = 0;
+	let num = 1;
 	let prevChar = gameState[0];
-	return gameState.reduce((acc, curVal) => {
-		if (curVal != prevChar) {
-			let ret = acc + "/" + prevChar + num;
-			prevChar = curVal;
-			return ret;
-		} else {
+	const ret = gameState.reduce((acc, curVal, index) => {
+		if (curVal == prevChar) {
 			num++;
+			return acc;
+		} else if (curVal != prevChar) {
+			let ret = num > 1 ? num + "/" + curVal : "/" + curVal;
+			prevChar = curVal;
+			num = 1;
+			return acc + ret;
+		} else {
 			return acc;
 		}
 	});
+	console.log("Comp gameState: ", ret);
+	return ret;
 }
 export async function request<TResponse>(
 	url: string,

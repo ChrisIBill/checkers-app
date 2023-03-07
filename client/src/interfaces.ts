@@ -1,3 +1,5 @@
+import {PIECE_TOKENS, VALID_TOKENS} from "./lib/checkersData";
+
 export interface ExpressServerConnectionEvent {
 	message: string;
 }
@@ -31,3 +33,12 @@ export interface CheckersBoardJSON {
 
 /*  */
 type squareStatus = "default" | "selected" | "valid";
+export type ValidTokens = "p" | "P" | "k" | "K" | "E";
+export type PlayerTokens = typeof PIECE_TOKENS[number];
+
+/* Function and Component Props */
+export interface CheckersBoardProps {
+	board: string[];
+	curPlayer: string; //PK or pk
+	onMove(arg: string[]): void;
+}

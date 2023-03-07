@@ -1,14 +1,15 @@
+import {ValidTokens} from "../interfaces";
 import {LEGAL_MOVES_MAP, VALID_TOKENS} from "./checkersData";
 
-export function findValidMoves(boardState: string[], selectIndex: number) {
+export function findValidMoves(boardState: ValidTokens[], selectIndex: number) {
 	const selToken = boardState[selectIndex];
 	const validMoves: number[] = [];
-	if (!VALID_TOKENS.includes(selToken) || selToken == "E") {
+	/* if (!VALID_TOKENS.includes(selToken) || selToken == "E") {
 		console.log(
 			"ERROR: INVALID TOKEN PASSED TO FUNC validMoves() in clientLogic"
 		);
 		return [-1];
-	}
+	} */
 	const ret = checkMoveValidity(boardState, selToken, selectIndex);
 	console.log("Return value of valid Moves: ", ret);
 	return ret;

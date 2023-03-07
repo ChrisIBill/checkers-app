@@ -1,7 +1,12 @@
 import {useState} from "react";
 import {findValidMoves} from "../lib/checkersClientLogic";
-import {DEFAULT_CHECKERS_BOARD} from "../lib/checkersData";
+import {
+	COMPRESSED_DEFAULT_CHECKERS_BOARD,
+	DEFAULT_CHECKERS_BOARD,
+} from "../lib/checkersData";
+import {compressGameState} from "../lib/serverHandlers";
 import "./CheckersPage.scss";
+import {CheckersBoardProps} from "../interfaces";
 
 const CheckersSquare = ({
 	elem,
@@ -71,23 +76,27 @@ const CheckersSquare = ({
 	}
 };
 
-const CheckersBoard = ({board}: {board: string[]}) => {
+const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 	const [status, setStatus] = useState("select"); //populate?, select, move, submit
 	const [selectIndex, setSelectIndex] = useState<number>(-1);
 	const [validMoves, setValidMoves] = useState<number[]>([]);
+	//let validMoves: number[] = [];
+	let board = props.board;
 	let isFlippedRow = true;
 	let rowNum = 0;
-
 	function handleSquareClick(sel: number) {
 		console.log("click");
 		if (status == "select") {
-			setSelectIndex(sel);
-			setValidMoves(findValidMoves(board, sel));
-			setStatus("move");
+			if (props.curPlayer == props.board[sel]) {
+				setSelectIndex(sel);
+				setValidMoves(findValidMoves(board, sel));
+				setStatus("move");
+			}
 		}
 		if (status == "move" && validMoves.includes(sel)) {
 			console.log("valid move");
 			[board[sel], board[selectIndex]] = [board[selectIndex], board[sel]];
+			props.onMove(board);
 			console.log(board);
 		} else {
 		}
@@ -144,13 +153,27 @@ const MoveList = () => {
 	return <div id="MoveListWrapper"></div>;
 };
 const CheckersPage = ({board}: {board: string[]}) => {
+	const [gameHistory, setGameHistory] = useState<string[]>([
+		COMPRESSED_DEFAULT_CHECKERS_BOARD,
+	]); //Stored in compressed format?
 	const [gameBoard, setGameBoard] = useState<string[]>(DEFAULT_CHECKERS_BOARD);
-	const [status, setStatus] = useState("selecting"); //populate?, select, move, submit
-
+	const [status, setStatus] = useState("selecting"); //populate?, playing?, waitingForOtherPlayer?
+	const [gameType, setGameType] = useState("PVP"); //local, pvp, AI
+	const [curPlayer, setCurPlayer] = useState("P");
+	function handleMove(board: string[]) {
+		setGameBoard(board);
+		let str = compressGameState(board);
+		console.log("Page Board: ", str);
+		setGameHistory([...gameHistory, compressGameState(board)]);
+	}
 	return (
 		<div id="CheckersPageWrapper">
 			<div id="CheckersBoardWrapper">
-				<CheckersBoard board={board} />
+				<CheckersBoard
+					board={gameBoard}
+					curPlayer={curPlayer}
+					onMove={handleMove}
+				/>
 			</div>
 		</div>
 	);
