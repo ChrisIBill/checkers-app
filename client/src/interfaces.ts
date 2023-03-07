@@ -35,7 +35,8 @@ export interface CheckersBoardJSON {
 type squareStatus = "default" | "selected" | "valid";
 export type ValidTokens = typeof VALID_TOKENS[number]; //"p" | "P" | "k" | "K" | "E";
 export type PlayerTokens = typeof PIECE_TOKENS[number];
-
+export type ValidMoves = (number | number[] | undefined)[];
+export type Direction = "left" | "right" | "up" | "down";
 /* Function and Component Props */
 /**
  * @member board: ValidTokens[]

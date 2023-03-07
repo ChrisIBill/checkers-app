@@ -1,6 +1,8 @@
 import {ValidTokens} from "../interfaces";
-
-export const VALID_TOKENS = ["p", "P", "k", "K", "E"] as const;
+export const BOARD_ROW_LENGTH = 4;
+export const BOARD_COLUMN_LENGTH = 8;
+export const NUM_PLAYER_TOKEN_TYPES = 2;
+export const VALID_TOKENS = ["p", "k", "P", "K", "E"] as const;
 export const PIECE_TOKENS = ["PK", "pk"] as const; //caps for red, lowers for white
 export const LEGAL_MOVES_MAP = new Map([
 	["0", [4, 5]],
@@ -36,16 +38,17 @@ export const LEGAL_MOVES_MAP = new Map([
 	["30", [25, 26]],
 	["31", [26, 27]],
 ]);
+export const BOARD_EDGES = new Set([3, 4, 11, 12, 19, 20, 27, 28]);
 // prettier-ignore
 export const DEFAULT_CHECKERS_BOARD: ValidTokens[] = [
     "p","p","p","p",
     "p","p","p","p",
     "p","p","p","p",
     "E","E","E","E",
-    "E","E","E","E",
+    "E","K","E","E",
     "P","P","P","P",
     "P","P","P","P",
-    "P","P","P","E",
+    "P","P","P","K",
 ];
 
 export const COMPRESSED_DEFAULT_CHECKERS_BOARD = "p12/E8/P12";

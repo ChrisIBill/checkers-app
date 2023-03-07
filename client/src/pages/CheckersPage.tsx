@@ -60,6 +60,21 @@ const CheckersSquare = ({
 					</div>
 				</div>
 			);
+		case "k":
+			return (
+				<div
+					className="FullSquare"
+					style={squareStyle}
+					onClick={onSquareClick}
+				>
+					<div
+						className="CheckersPiece"
+						style={{backgroundColor: "white", border: "thick solid gold"}}
+					>
+						<p>{index}</p>
+					</div>
+				</div>
+			);
 		case "P":
 			return (
 				<div
@@ -68,6 +83,21 @@ const CheckersSquare = ({
 					onClick={onSquareClick}
 				>
 					<div className="CheckersPiece" style={{backgroundColor: "red"}}>
+						<p>{index}</p>
+					</div>
+				</div>
+			);
+		case "K":
+			return (
+				<div
+					className="FullSquare"
+					style={squareStyle}
+					onClick={onSquareClick}
+				>
+					<div
+						className="CheckersPiece"
+						style={{backgroundColor: "red", border: "thick solid gold"}}
+					>
 						<p>{index}</p>
 					</div>
 				</div>
@@ -89,7 +119,8 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 		console.log("click");
 		if (props.curPlayer.includes(board[sel])) {
 			setSelectIndex(sel);
-			setValidMoves(findValidMoves(board, sel));
+			const [valid, isReq] = findValidMoves(board, sel);
+			setValidMoves(valid);
 		}
 		if (validMoves.includes(sel)) {
 			console.log("valid move");
@@ -108,15 +139,6 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 		} else if (validMoves.includes(index)) {
 			squareStatus = "valid";
 		}
-
-		/* console.log(
-			"Rendering checkers square, elem: " +
-				elem +
-				" index: " +
-				index +
-				" flip: " +
-				isFlippedRow
-        ); */
 
 		if (isFlippedRow) {
 			return (
