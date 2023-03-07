@@ -33,12 +33,16 @@ export interface CheckersBoardJSON {
 
 /*  */
 type squareStatus = "default" | "selected" | "valid";
-export type ValidTokens = "p" | "P" | "k" | "K" | "E";
+export type ValidTokens = typeof VALID_TOKENS[number]; //"p" | "P" | "k" | "K" | "E";
 export type PlayerTokens = typeof PIECE_TOKENS[number];
 
 /* Function and Component Props */
+/**
+ * @member board: ValidTokens[]
+ * @field curPlayer: PlayerTokens */
 export interface CheckersBoardProps {
-	board: string[];
-	curPlayer: string; //PK or pk
-	onMove(arg: string[]): void;
+	/** Board */
+	board: ValidTokens[];
+	curPlayer: PlayerTokens; //PK or pk
+	onMove(arg: ValidTokens[]): void;
 }

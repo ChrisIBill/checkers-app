@@ -25,11 +25,14 @@ function checkMoveValidity(
 	const posToCheck: number[] = getPositionsToCheck(selToken, curPosition);
 	posToCheck.forEach((checkPos) => {
 		const posToken = boardState[checkPos];
+		console.log("posToCheck: ", checkPos, posToken, selToken, curPosition);
 		if (posToken == "E") {
-			/* If position is empty and , is valid move */
+			console.log("Empty");
+			/* If position is empty is valid move */
 			validMoves.push(checkPos);
 		} else if (posToken == selToken) {
-			/* Do Nothing */
+			console.log("Same");
+			/* If position has token thats the same as player token, do nothing */
 		} else if (posToken.toLowerCase() == selToken.toLowerCase()) {
 			console.log("Pre-Check: ", selToken, checkPos);
 			validMoves.concat(checkMoveValidity(boardState, selToken, checkPos));

@@ -1,3 +1,5 @@
+import {ValidTokens} from "../interfaces";
+
 export const VALID_TOKENS = ["p", "P", "k", "K", "E"] as const;
 export const PIECE_TOKENS = ["PK", "pk"] as const; //caps for red, lowers for white
 export const LEGAL_MOVES_MAP = new Map([
@@ -35,7 +37,7 @@ export const LEGAL_MOVES_MAP = new Map([
 	["31", [26, 27]],
 ]);
 // prettier-ignore
-export const DEFAULT_CHECKERS_BOARD = [
+export const DEFAULT_CHECKERS_BOARD: ValidTokens[] = [
     "p","p","p","p",
     "p","p","p","p",
     "p","p","p","p",

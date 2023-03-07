@@ -3,10 +3,11 @@ import {findValidMoves} from "../lib/checkersClientLogic";
 import {
 	COMPRESSED_DEFAULT_CHECKERS_BOARD,
 	DEFAULT_CHECKERS_BOARD,
+	PIECE_TOKENS,
 } from "../lib/checkersData";
 import {compressGameState} from "../lib/serverHandlers";
 import "./CheckersPage.scss";
-import {CheckersBoardProps} from "../interfaces";
+import {CheckersBoardProps, PlayerTokens, ValidTokens} from "../interfaces";
 
 const CheckersSquare = ({
 	elem,
@@ -86,18 +87,14 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 	let rowNum = 0;
 	function handleSquareClick(sel: number) {
 		console.log("click");
-		if (status == "select") {
-			if (props.curPlayer == props.board[sel]) {
-				setSelectIndex(sel);
-				setValidMoves(findValidMoves(board, sel));
-				setStatus("move");
-			}
+		if (props.curPlayer.includes(board[sel])) {
+			setSelectIndex(sel);
+			setValidMoves(findValidMoves(board, sel));
 		}
-		if (status == "move" && validMoves.includes(sel)) {
+		if (validMoves.includes(sel)) {
 			console.log("valid move");
 			[board[sel], board[selectIndex]] = [board[selectIndex], board[sel]];
 			props.onMove(board);
-			console.log(board);
 		} else {
 		}
 	}
@@ -156,22 +153,26 @@ const CheckersPage = ({board}: {board: string[]}) => {
 	const [gameHistory, setGameHistory] = useState<string[]>([
 		COMPRESSED_DEFAULT_CHECKERS_BOARD,
 	]); //Stored in compressed format?
-	const [gameBoard, setGameBoard] = useState<string[]>(DEFAULT_CHECKERS_BOARD);
+	const [gameBoard, setGameBoard] = useState<ValidTokens[]>(
+		DEFAULT_CHECKERS_BOARD
+	);
 	const [status, setStatus] = useState("selecting"); //populate?, playing?, waitingForOtherPlayer?
 	const [gameType, setGameType] = useState("PVP"); //local, pvp, AI
-	const [curPlayer, setCurPlayer] = useState("P");
-	function handleMove(board: string[]) {
+	const [curPlayer, setCurPlayer] = useState<number>(0);
+	let turnNum = 0;
+	function handleMove(board: ValidTokens[]) {
 		setGameBoard(board);
 		let str = compressGameState(board);
 		console.log("Page Board: ", str);
-		setGameHistory([...gameHistory, compressGameState(board)]);
+		setGameHistory([...gameHistory, str]);
+		setCurPlayer(curPlayer == PIECE_TOKENS.length - 1 ? 0 : curPlayer + 1);
 	}
 	return (
 		<div id="CheckersPageWrapper">
 			<div id="CheckersBoardWrapper">
 				<CheckersBoard
 					board={gameBoard}
-					curPlayer={curPlayer}
+					curPlayer={PIECE_TOKENS[curPlayer]}
 					onMove={handleMove}
 				/>
 			</div>
