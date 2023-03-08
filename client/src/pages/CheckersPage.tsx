@@ -1,5 +1,5 @@
 import {useState} from "react";
-import {findValidMoves} from "../lib/checkersClientLogic";
+import {findValidMoves, getReqSelections} from "../lib/checkersClientLogic";
 import {
 	COMPRESSED_DEFAULT_CHECKERS_BOARD,
 	DEFAULT_CHECKERS_BOARD,
@@ -7,7 +7,12 @@ import {
 } from "../lib/checkersData";
 import {compressGameState} from "../lib/serverHandlers";
 import "./CheckersPage.scss";
-import {CheckersBoardProps, PlayerTokens, ValidTokens} from "../interfaces";
+import {
+	CheckersBoardProps,
+	PlayerTokens,
+	ValidTokens,
+	RequiredMoves,
+} from "../interfaces";
 
 const CheckersSquare = ({
 	elem,
@@ -111,22 +116,46 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 	const [status, setStatus] = useState("select"); //populate?, select, move, submit
 	const [selectIndex, setSelectIndex] = useState<number>(-1);
 	const [validMoves, setValidMoves] = useState<number[]>([]);
+	const [piecesToTake, setPiecesToTake] = useState<number[] | undefined>([]);
+	console.log("ReqSels: ", props.reqSels);
 	//let validMoves: number[] = [];
 	let board = props.board;
 	let isFlippedRow = true;
-	let rowNum = 0;
 	function handleSquareClick(sel: number) {
-		console.log("click");
-		if (props.curPlayer.includes(board[sel])) {
-			setSelectIndex(sel);
-			const [valid, isReq] = findValidMoves(board, sel);
-			setValidMoves(valid);
-		}
-		if (validMoves.includes(sel)) {
+		console.log("click: ", sel);
+		if (validMoves.length && validMoves.includes(sel)) {
+			//If validMoves has been set and includes selection
+			const index = validMoves.indexOf(sel);
 			console.log("valid move");
 			[board[sel], board[selectIndex]] = [board[selectIndex], board[sel]];
+			if (piecesToTake && piecesToTake[index]) {
+				//if jump
+				const remIndex = piecesToTake[index];
+				board[remIndex] = "E";
+			}
+			//Logic for Kinging
+			board[sel] =
+				board[sel] == "p" && sel >= 28
+					? "k"
+					: board[sel] == "P" && sel <= 3
+					? "K"
+					: board[sel];
+			//do while valid moves for selection available?
 			props.onMove(board);
+		} else if (
+			!props.curPlayer.includes(board[sel]) ||
+			(props.reqSels && !props.reqSels.includes(sel))
+		) {
+			console.log("Invalid Selection.");
+			console.log("Required Selections: ", props.reqSels);
 		} else {
+			//Selection is valid
+			console.log("Valid Selection.");
+			setSelectIndex(sel);
+			const [valid, canTake] = findValidMoves(board, sel);
+			setPiecesToTake(canTake);
+			console.log("Valid Moves: ", valid);
+			setValidMoves(valid);
 		}
 	}
 	const GameBoard = board.map((elem, index) => {
@@ -196,6 +225,7 @@ const CheckersPage = ({board}: {board: string[]}) => {
 					board={gameBoard}
 					curPlayer={PIECE_TOKENS[curPlayer]}
 					onMove={handleMove}
+					reqSels={getReqSelections(PIECE_TOKENS[curPlayer], gameBoard)}
 				/>
 			</div>
 		</div>

@@ -10,7 +10,6 @@ import {
 
 export function findValidMoves(boardState: ValidTokens[], selectIndex: number) {
 	const selToken = boardState[selectIndex];
-	const validMoves: number[] = [];
 	return checkMoveValidity(boardState, selToken, selectIndex);
 }
 
@@ -18,32 +17,32 @@ export function findValidMoves(boardState: ValidTokens[], selectIndex: number) {
 function checkMoveValidity(
 	boardState: ValidTokens[],
 	selToken: ValidTokens,
-	curPosition: number,
-	direction?: Direction
-): [number[], boolean] {
+	curPosition: number
+): [number[], number[] | undefined] {
 	const validMoves: number[] = [];
 	const reqMoves: number[] = [];
+	const piecesToTake: number[] = [];
 	const posToCheck: number[] = getPositionsToCheck(selToken, curPosition);
 	console.log("Checking Moves Validity", posToCheck);
 	const isCurFlipped: boolean = Boolean(Math.floor(curPosition / 4) % 2);
 	const isEdge = BOARD_EDGES.has(curPosition);
-	console.log("Flipped?: ", isCurFlipped);
 	posToCheck.forEach((checkPos, index) => {
 		const posToken = boardState[checkPos];
-		console.log(
+		/* console.log(
 			"Checking position: ",
 			checkPos,
 			posToken,
 			selToken,
 			curPosition
-		);
+		); */
 		if (posToken == "E") {
 			/* If position is empty is valid move */
-			console.log("Empty");
 			validMoves.push(checkPos);
-		} else if (posToken == selToken) {
+		} else if (
+			Math.floor(VALID_TOKENS.indexOf(posToken) / NUM_PLAYER_TOKEN_TYPES) ==
+			Math.floor(VALID_TOKENS.indexOf(selToken) / NUM_PLAYER_TOKEN_TYPES)
+		) {
 			/* If position has token thats the same as player token, do nothing */
-			console.log("Same");
 		} else if (
 			/* Since there are only two token types in checkers, normal piece and kings
 			 ** With VALID_TOKENS organized with each players tokens back to back in the index
@@ -54,8 +53,6 @@ function checkMoveValidity(
 			/* If tokens are of different players, need to check if viable squares to jump to are empty
 			 ** the viable square to jump to must be diagonal from the original piece, with the pos being
 			 ** jumped as the midpoint */
-			console.log("Opponent piece at checkPos: ", checkPos);
-			const isCheckEdge = BOARD_EDGES.has(checkPos);
 			const leftOrRight = findleftOrRight(
 				curPosition,
 				checkPos,
@@ -76,10 +73,9 @@ function checkMoveValidity(
 					return true;
 				}
 			);
-			console.log("Check Diag: ", checkDiag);
-			console.log(leftOrRight, upOrDown, isEdge, isCheckEdge);
 			if (boardState[checkDiag[0]] == "E") {
 				reqMoves.push(checkDiag[0]);
+				piecesToTake.push(checkPos);
 			}
 		} else {
 			console.log(
@@ -88,12 +84,10 @@ function checkMoveValidity(
 			return [-1];
 		}
 	});
-	console.log(validMoves);
-	console.log(posToCheck);
 	if (reqMoves.length > 0) {
-		return [reqMoves, true];
+		return [reqMoves, piecesToTake];
 	}
-	return [validMoves.flatMap((num) => num), false];
+	return [validMoves, undefined];
 }
 
 function getPositionsToCheck(selToken: string, curPosition: number) {
@@ -128,25 +122,43 @@ function getUpOrDown(curPos: number, checkPos: number): Direction {
 function isBoardRowFlipped(pos: number): boolean {
 	return Boolean(Math.floor(pos / 4) % 2);
 }
-
+/**
+ * @returns number[] w/ elems corresponding to positions in which the cur player has pieces
+ *
+ */
+function getValidIndexes(tokens: PlayerTokens, compGameState: string) {}
 /**
  * @param tokens: tokens to check
  * @param boardState: current board
  * @returns number[]: w/ each element corresponding to the index of a token included in tokens
  * which must be moved
  */
-export function getRequiredMoves(
+export function getReqSelections(
 	tokens: PlayerTokens,
 	boardState: ValidTokens[]
-): number[] {
-	const reqPoss: number[] = [];
+): number[] | undefined {
+	const reqSels: number[] = [];
 	for (let i = 0; i < boardState.length; i++) {
 		if (tokens.includes(boardState[i])) {
 			const [moves, isReq] = findValidMoves(boardState, i);
 			if (isReq) {
-				reqPoss.push(i);
+				reqSels.push(i);
 			}
 		}
 	}
-	return reqPoss;
+	if (reqSels.length) {
+		return reqSels;
+	}
 }
+
+/* export function getValidSelections(tokens: PlayerTokens, boardState: ValidTokens[]): number[] {
+	const reqPositions = getRequiredMoves(tokens, boardState);
+	if (reqPositions.length) {
+		return reqPositions
+	}
+	else {
+		return 
+	}
+	return  ? reqPositions : 
+}
+ */

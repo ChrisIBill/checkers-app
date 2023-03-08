@@ -45,7 +45,7 @@ export const DEFAULT_CHECKERS_BOARD: ValidTokens[] = [
     "p","p","p","p",
     "p","p","p","p",
     "E","E","E","E",
-    "E","K","E","E",
+    "E","E","E","E",
     "P","P","P","P",
     "P","P","P","P",
     "P","P","P","K",
