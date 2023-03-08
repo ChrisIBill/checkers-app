@@ -11,18 +11,9 @@ import {
 export function findValidMoves(boardState: ValidTokens[], selectIndex: number) {
 	const selToken = boardState[selectIndex];
 	const validMoves: number[] = [];
-	/* if (!VALID_TOKENS.includes(selToken) || selToken == "E") {
-		console.log(
-			"ERROR: INVALID TOKEN PASSED TO FUNC validMoves() in clientLogic"
-		);
-		return [-1];
-	} */
-	const ret = checkMoveValidity(boardState, selToken, selectIndex);
-	console.log("Return value of valid Moves: ", ret);
-	return ret;
+	return checkMoveValidity(boardState, selToken, selectIndex);
 }
 
-/* selTok: original token type*/
 /**Returns array of numbers containing valid move indexes and bool for if theyre required or not */
 function checkMoveValidity(
 	boardState: ValidTokens[],
@@ -34,9 +25,9 @@ function checkMoveValidity(
 	const reqMoves: number[] = [];
 	const posToCheck: number[] = getPositionsToCheck(selToken, curPosition);
 	console.log("Checking Moves Validity", posToCheck);
-	const isFlipped: boolean = Boolean(Math.floor(curPosition / 4) % 2);
+	const isCurFlipped: boolean = Boolean(Math.floor(curPosition / 4) % 2);
 	const isEdge = BOARD_EDGES.has(curPosition);
-	console.log("Flipped?: ", isFlipped);
+	console.log("Flipped?: ", isCurFlipped);
 	posToCheck.forEach((checkPos, index) => {
 		const posToken = boardState[checkPos];
 		console.log(
@@ -54,37 +45,42 @@ function checkMoveValidity(
 			/* If position has token thats the same as player token, do nothing */
 			console.log("Same");
 		} else if (
+			/* Since there are only two token types in checkers, normal piece and kings
+			 ** With VALID_TOKENS organized with each players tokens back to back in the index
+			 ** This will check if tokens are of different players. */
 			Math.floor(VALID_TOKENS.indexOf(posToken) / NUM_PLAYER_TOKEN_TYPES) !=
 			Math.floor(VALID_TOKENS.indexOf(selToken) / NUM_PLAYER_TOKEN_TYPES)
 		) {
-			//direction = ()
-			//if index is 0, either check pos is left or legal moves is size 1
-			//if index is 1 check pos is right
+			/* If tokens are of different players, need to check if viable squares to jump to are empty
+			 ** the viable square to jump to must be diagonal from the original piece, with the pos being
+			 ** jumped as the midpoint */
 			console.log("Opponent piece at checkPos: ", checkPos);
-			const check = getPositionsToCheck(selToken, checkPos);
-			console.log(check);
-			//const curPosFlattened = (curPosition % BOARD_ROW_LENGTH) - isFlipped;
 			const isCheckEdge = BOARD_EDGES.has(checkPos);
-			const leftOrRight = findleftOrRight(curPosition, checkPos, isFlipped);
-			const upOrDown = curPosition - checkPos > 0 ? "up" : "down";
-			console.log(leftOrRight, upOrDown, isEdge, isCheckEdge);
-			if (isCheckEdge) {
-				if (
-					leftOrRight == findleftOrRight(checkPos, check[0], !isFlipped) &&
-					boardState[check[0]] == "E"
-				) {
-					reqMoves.push(check[0]);
-				} else {
-					console.log("Opponent piece on edge and no valid moves");
+			const leftOrRight = findleftOrRight(
+				curPosition,
+				checkPos,
+				isCurFlipped
+			);
+			const upOrDown = getUpOrDown(curPosition, checkPos);
+			const checkDiag = getPositionsToCheck(selToken, checkPos).filter(
+				(elem) => {
+					if (
+						leftOrRight !=
+						findleftOrRight(checkPos, elem, isBoardRowFlipped(checkPos))
+					) {
+						return false;
+					}
+					if (upOrDown != getUpOrDown(checkPos, elem)) {
+						return false;
+					}
+					return true;
 				}
-			} else if (leftOrRight == "right" && boardState[check[1]] == "E") {
-				//if index is
-				reqMoves.push(check[1]);
-			} else if (leftOrRight == "left" && boardState[check[0]] == "E") {
-				reqMoves.push(check[0]);
+			);
+			console.log("Check Diag: ", checkDiag);
+			console.log(leftOrRight, upOrDown, isEdge, isCheckEdge);
+			if (boardState[checkDiag[0]] == "E") {
+				reqMoves.push(checkDiag[0]);
 			}
-			//validMoves.push(checkMoveValidity(boardState, selToken, checkPos));
-			//console.log("Valid moves post-check: ", validMoves);
 		} else {
 			console.log(
 				"ERROR: INVALID TOKEN IN FUNC CHECKMOVEVALIDITY IN CLIENT LOGIC"
@@ -114,7 +110,6 @@ function getPositionsToCheck(selToken: string, curPosition: number) {
 	});
 }
 
-//function isFlipped
 function findleftOrRight(
 	curPos: number,
 	checkPos: number,
@@ -126,4 +121,10 @@ function findleftOrRight(
 		0
 		? "left"
 		: "right";
+}
+function getUpOrDown(curPos: number, checkPos: number): Direction {
+	return Math.floor(curPos / 4) - Math.floor(checkPos / 4) > 0 ? "up" : "down";
+}
+function isBoardRowFlipped(pos: number): boolean {
+	return Boolean(Math.floor(pos / 4) % 2);
 }
