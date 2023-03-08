@@ -1,5 +1,5 @@
 import {dir} from "console";
-import {Direction, ValidMoves, ValidTokens} from "../interfaces";
+import {Direction, ValidMoves, ValidTokens, PlayerTokens} from "../interfaces";
 import {
 	BOARD_EDGES,
 	LEGAL_MOVES_MAP,
@@ -127,4 +127,26 @@ function getUpOrDown(curPos: number, checkPos: number): Direction {
 }
 function isBoardRowFlipped(pos: number): boolean {
 	return Boolean(Math.floor(pos / 4) % 2);
+}
+
+/**
+ * @param tokens: tokens to check
+ * @param boardState: current board
+ * @returns number[]: w/ each element corresponding to the index of a token included in tokens
+ * which must be moved
+ */
+export function getRequiredMoves(
+	tokens: PlayerTokens,
+	boardState: ValidTokens[]
+): number[] {
+	const reqPoss: number[] = [];
+	for (let i = 0; i < boardState.length; i++) {
+		if (tokens.includes(boardState[i])) {
+			const [moves, isReq] = findValidMoves(boardState, i);
+			if (isReq) {
+				reqPoss.push(i);
+			}
+		}
+	}
+	return reqPoss;
 }
