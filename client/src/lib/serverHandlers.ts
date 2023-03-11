@@ -1,28 +1,39 @@
-export function serverGameStateParse(str: string): string[] {
-	const board: string[] = [];
+import {PlayerTokens, ValidTokens} from "../interfaces";
+import {VALID_TOKENS, VALID_TOKENS_STRING} from "./checkersData";
+
+export function unzipGameState(str: string): ValidTokens[] {
+	const board: ValidTokens[] = [];
 	const tokens: string[] = str.split("/");
 	console.log("Parsing Game State: " + str);
-	for (const t of tokens) {
-		if (t == "") {
+	for (let i = 0; i < tokens.length; i++) {
+		const t = tokens[i];
+		if (t.length == 0) {
 			//Should fix this
+			console.log("ERROR: Invalid Token Length");
 			break;
 		}
-		let c: string = t.at(0)!;
-		let num = "";
-		let j = t.length;
-		if (j != 1) {
-			num = t.slice(1, j + 1);
-		} else num = "1";
+		let token: ValidTokens;
+		if (!VALID_TOKENS_STRING.includes(t.at(0)!)) {
+			console.log("ERROR: Invalid Token Start, Token: ", t);
+			break;
+		} else {
+			token = t.charAt(0)! as ValidTokens;
+		}
+		let num = parseInt(t.slice(1));
+		if (isNaN(num)) {
+			num = 1;
+		}
 		for (let k = 0; k < Number(num); k++) {
-			board.push(c);
+			board.push(token);
 		}
 	}
+
 	console.log("Parsed Board:");
 	console.log(board);
 	return board;
 }
 
-export function compressGameState(gameState: string[]): string {
+export function zipGameState(gameState: string[]): string {
 	//[p,p,p,p,p,p,p,p,p,p,p,p,E,E,E,E...] -> p12/E8/P12/
 	let i = 0;
 	let num = 1;

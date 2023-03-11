@@ -51,3 +51,12 @@ export interface CheckersBoardProps {
 	onMove(arg: ValidTokens[]): void;
 	reqSels?: number[];
 }
+export interface CheckersHistoryProps {
+	history: CompressedCheckersGameState[];
+	onElementClick(arg: CompressedCheckersGameState): void;
+}
+export interface CompressedCheckersGameState {
+	boardState: string;
+	curPlayer: number;
+	turnNum?: number;
+}

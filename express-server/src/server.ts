@@ -21,6 +21,7 @@ import { NodeEnvs } from "@src/constants/misc";
 import { RouteError } from "@src/other/classes";
 import { createServer } from "http";
 import { Server } from "socket.io";
+import { runCheckersRooms } from "./sockets/checkers-socket";
 
 // **** Variables **** //
 
@@ -29,7 +30,9 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
     /* Options */
 });
-
+/* const numRooms = 1;
+const playersInRooms: number[] = [0];
+const checkersRoomHandler = []; */
 /* const io = new Server<
     ClientToServerEvents,
     ServerToClientEvents,
@@ -91,15 +94,37 @@ app.get("/GameData/Checkers", (res, req) => {
     }); */
 });
 
-io.of("/GameData/Checkers").on("connection", (socket) => {
+/* io.of(Paths.Games.Checkers).on("connection", (socket) => {
     console.log("a user connected");
     console.log("Socket ID: " + socket.id);
-    socket.emit("initServerHandshake", "start", "p12/E8/P12/");
-    socket.on("hello", (args) => {
+    let roomsFull = false;
+    for (let i = 0; i < playersInRooms.length; i++) {
+        if (playersInRooms[i] < 2) {
+            playersInRooms[i] += 1;
+            socket.join(`checkers-room${i}`);
+            console.log("Found Room for player");
+        } else roomsFull = true;
+    }
+    if (roomsFull) {
+        socket.join(`checkers-room${playersInRooms.length}`);
+        playersInRooms.push(1);
+    }
+    const rooms = io.of(Paths.Games.Checkers).adapter.rooms;
+    socket.emit("initCheckers", "p12/E8/P12", 0, "PK");
+    socket.on("ClientTurn", (args) => {
         console.log(args);
     });
+}); */
+runCheckersRooms(io);
+/* io.of(Paths.Games.Checkers).adapter.on("create-room", (room, id) => {
+    console.log(`room ${room} was created`);
 });
-io.emit("initServerHandshake", "start", "a12n8b12");
+io.of(Paths.Games.Checkers).adapter.on("join-room", (room, id) => {
+    //Emit player joined, gamestate to both players
+    console.log(`socket ${id} has joined room ${room}`);
+}); */
+
+//io.emit("initServerHandshake", "start", "a12n8b12");
 // Set views directory (html)
 /* const viewsDir = path.join(__dirname, "views");
 app.set("views", viewsDir);

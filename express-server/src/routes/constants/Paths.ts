@@ -2,10 +2,16 @@
  * Express router paths go here.
  */
 
-import { Immutable } from '@src/other/types';
-
+import { Immutable } from "@src/other/types";
 
 const Paths = {
+    Base: "/",
+    Games: {
+        Base: "/Games",
+        Checkers: "/Games/Checkers",
+    },
+};
+/* const Paths = {
   Base: '/api',
   Auth: {
     Base: '/auth',
@@ -19,8 +25,7 @@ const Paths = {
     Update: '/update',
     Delete: '/delete/:id',
   },
-};
-
+}; */
 
 // **** Export **** //
 

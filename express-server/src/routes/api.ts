@@ -1,17 +1,16 @@
-import { Router } from 'express';
-import jetValidator from 'jet-validator';
+import { Router } from "express";
+import jetValidator from "jet-validator";
 
-import adminMw from './middleware/adminMw';
-import Paths from './constants/Paths';
-import User from '@src/models/User';
-import AuthRoutes from './AuthRoutes';
-import UserRoutes from './UserRoutes';
-
+import adminMw from "./middleware/adminMw";
+import Paths from "./constants/Paths";
+import User from "@src/models/User";
+import AuthRoutes from "./AuthRoutes";
+import UserRoutes from "./UserRoutes";
 
 // **** Variables **** //
 
-const apiRouter = Router(),
-  validate = jetValidator();
+const apiRouter = Router();
+/*  validate = jetValidator();
 
 
 // **** Setup **** //
@@ -67,8 +66,7 @@ userRouter.delete(
 );
 
 // Add UserRouter
-apiRouter.use(Paths.Users.Base, adminMw, userRouter);
-
+apiRouter.use(Paths.Users.Base, adminMw, userRouter); */
 
 // **** Export default **** //
 

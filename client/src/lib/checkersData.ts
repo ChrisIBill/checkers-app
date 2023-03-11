@@ -1,7 +1,8 @@
-import {ValidTokens} from "../interfaces";
+import {CompressedCheckersGameState, ValidTokens} from "../interfaces";
 export const BOARD_ROW_LENGTH = 4;
 export const BOARD_COLUMN_LENGTH = 8;
 export const NUM_PLAYER_TOKEN_TYPES = 2;
+export const VALID_TOKENS_STRING = "pkPKE" as const;
 export const VALID_TOKENS = ["p", "k", "P", "K", "E"] as const;
 export const PIECE_TOKENS = ["PK", "pk"] as const; //caps for red, lowers for white
 export const LEGAL_MOVES_MAP = new Map([
@@ -51,4 +52,7 @@ export const DEFAULT_CHECKERS_BOARD: ValidTokens[] = [
     "P","P","P","K",
 ];
 
-export const COMPRESSED_DEFAULT_CHECKERS_BOARD = "p12/E8/P12";
+export const COMPRESSED_DEFAULT_GAME_STATE: CompressedCheckersGameState = {
+	boardState: "p12/E8/P12/0,P",
+	curPlayer: 0,
+};

@@ -9,9 +9,9 @@ import {
 	ExpressServerConnectionEvent,
 	ServerToClientEvents,
 } from "./interfaces";
-import {serverGameStateParse} from "./lib/serverHandlers";
+import {zipGameState, unzipGameState} from "./lib/serverHandlers";
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> =
-	io("/GameData/Checkers");
+	io("/Games/Checkers");
 
 function App() {
 	const test = 12;
@@ -38,7 +38,7 @@ function App() {
 			if (moveDesc != "start") {
 				console.log("Error: Bad Handshake");
 			}
-			setBoardState(serverGameStateParse(gameState));
+			setBoardState(unzipGameState(gameState));
 		});
 	});
 	useEffect(() => {}, [boardState]);

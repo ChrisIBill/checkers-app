@@ -1,17 +1,20 @@
 import {useState} from "react";
 import {findValidMoves, getReqSelections} from "../lib/checkersClientLogic";
 import {
-	COMPRESSED_DEFAULT_CHECKERS_BOARD,
+	COMPRESSED_DEFAULT_GAME_STATE,
 	DEFAULT_CHECKERS_BOARD,
+	NUM_PLAYER_TOKEN_TYPES,
 	PIECE_TOKENS,
 } from "../lib/checkersData";
-import {compressGameState} from "../lib/serverHandlers";
+import {zipGameState, unzipGameState} from "../lib/serverHandlers";
 import "./CheckersPage.scss";
 import {
 	CheckersBoardProps,
 	PlayerTokens,
 	ValidTokens,
 	RequiredMoves,
+	CompressedCheckersGameState,
+	CheckersHistoryProps,
 } from "../interfaces";
 
 const CheckersSquare = ({
@@ -123,23 +126,38 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 	let isFlippedRow = true;
 	function handleSquareClick(sel: number) {
 		console.log("click: ", sel);
+		console.log("Status: ", status);
 		if (validMoves.length && validMoves.includes(sel)) {
 			//If validMoves has been set and includes selection
-			const index = validMoves.indexOf(sel);
-			console.log("valid move");
-			[board[sel], board[selectIndex]] = [board[selectIndex], board[sel]];
-			if (piecesToTake && piecesToTake[index]) {
-				//if jump
-				const remIndex = piecesToTake[index];
-				board[remIndex] = "E";
+			let jump = "move";
+			setStatus(jump);
+			if (jump == "move") {
+				const index = validMoves.indexOf(sel);
+				console.log("valid move");
+				[board[sel], board[selectIndex]] = [board[selectIndex], board[sel]];
+				if (piecesToTake && piecesToTake[index]) {
+					//if jump
+					const remIndex = piecesToTake[index];
+					board[remIndex] = "E";
+				}
+				//Logic for Kinging
+				board[sel] =
+					board[sel] == "p" && sel >= 28
+						? "k"
+						: board[sel] == "P" && sel <= 3
+						? "K"
+						: board[sel];
+				if (piecesToTake) {
+					const [moves, canTake] = findValidMoves(board, sel);
+					if (canTake) {
+						setPiecesToTake(canTake);
+						setValidMoves(moves);
+					}
+				} else {
+					jump = "select";
+					setStatus("select");
+				}
 			}
-			//Logic for Kinging
-			board[sel] =
-				board[sel] == "p" && sel >= 28
-					? "k"
-					: board[sel] == "P" && sel <= 3
-					? "K"
-					: board[sel];
 			//do while valid moves for selection available?
 			props.onMove(board);
 		} else if (
@@ -148,7 +166,7 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 		) {
 			console.log("Invalid Selection.");
 			console.log("Required Selections: ", props.reqSels);
-		} else {
+		} else if (status == "select") {
 			//Selection is valid
 			console.log("Valid Selection.");
 			setSelectIndex(sel);
@@ -197,29 +215,53 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 	console.log(GameBoard);
 	return <ul id="CheckersBoard">{GameBoard}</ul>;
 };
-const MoveList = () => {
-	return <div id="MoveListWrapper"></div>;
+const GameHistory: React.FC<CheckersHistoryProps> = (props) => {
+	const histList = props.history.map((elem, index) => {
+		return (
+			<div key="index">
+				<li onClick={() => props.onElementClick(props.history[index])}>
+					{index}
+				</li>
+			</div>
+		);
+	});
+	return <div id="MoveListWrapper">{histList}</div>;
 };
 const CheckersPage = ({board}: {board: string[]}) => {
-	const [gameHistory, setGameHistory] = useState<string[]>([
-		COMPRESSED_DEFAULT_CHECKERS_BOARD,
-	]); //Stored in compressed format?
+	const [gameHistory, setGameHistory] = useState<
+		CompressedCheckersGameState[]
+	>([COMPRESSED_DEFAULT_GAME_STATE]); //Stored in compressed format?
 	const [gameBoard, setGameBoard] = useState<ValidTokens[]>(
 		DEFAULT_CHECKERS_BOARD
 	);
 	const [status, setStatus] = useState("selecting"); //populate?, playing?, waitingForOtherPlayer?
 	const [gameType, setGameType] = useState("PVP"); //local, pvp, AI
 	const [curPlayer, setCurPlayer] = useState<number>(0);
-	let turnNum = 0;
+	const [turnNum, setTurnNum] = useState<number>(0);
+	function handleHistoryClick(compGameState: CompressedCheckersGameState) {
+		const boardState = unzipGameState(compGameState.boardState);
+		setGameBoard(boardState);
+		setCurPlayer(compGameState.curPlayer);
+		//setTurnNum(turn);
+	}
 	function handleMove(board: ValidTokens[]) {
 		setGameBoard(board);
-		let str = compressGameState(board);
-		console.log("Page Board: ", str);
-		setGameHistory([...gameHistory, str]);
+		const turn: CompressedCheckersGameState = {
+			boardState: zipGameState(board),
+			curPlayer: curPlayer,
+		};
+		console.log("Compressed Game State: ", turn);
+		setGameHistory([...gameHistory, turn]);
 		setCurPlayer(curPlayer == PIECE_TOKENS.length - 1 ? 0 : curPlayer + 1);
 	}
 	return (
 		<div id="CheckersPageWrapper">
+			{/* <div id="CheckersHistoryWrapper">
+				<GameHistory
+					history={gameHistory}
+					onElementClick={handleHistoryClick}
+				/>
+			</div> */}
 			<div id="CheckersBoardWrapper">
 				<CheckersBoard
 					board={gameBoard}
