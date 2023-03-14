@@ -7,14 +7,18 @@ import {
 
 export type ValidTokens = typeof VALID_TOKENS[number]; //"p" | "P" | "k" | "K" | "E";
 export type PlayerTokens = typeof PIECE_TOKENS[number];
-export interface CheckersGameState {}
+export interface CheckersGameState {
+    boardState: ValidTokens[];
+    curPlayer: number;
+    history?: string[]; //Compressed
+}
 export interface CompressedCheckersGameState {
     boardState: string;
     curPlayer: number;
     turnNum?: number;
 }
 
-export type Checkers_Game_Status = typeof CHECKERS_GAME_STATUS;
+export type Checkers_Game_Status = typeof CHECKERS_GAME_STATUS[number];
 export type PlayerType = typeof PLAYER_TYPE[number];
 export interface CheckersPlayer {
     id: string;

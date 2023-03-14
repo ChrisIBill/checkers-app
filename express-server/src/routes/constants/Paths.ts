@@ -6,6 +6,9 @@ import { Immutable } from "@src/other/types";
 
 const Paths = {
     Base: "/",
+    Auth: {
+        Login: "/Login",
+    },
     Games: {
         Base: "/Games",
         Checkers: "/Games/Checkers",

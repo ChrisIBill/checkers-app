@@ -1,4 +1,5 @@
-import {PIECE_TOKENS, VALID_TOKENS} from "./lib/checkersData";
+import {PIECE_TOKENS, VALID_TOKENS} from "../lib/checkersData";
+import {CompressedCheckersGameState} from "./checkersInterfaces";
 
 export interface ExpressServerConnectionEvent {
 	message: string;
@@ -9,6 +10,7 @@ export interface ServerToClientEvents {
 	basicEmit: (a: number, b: string, c: Buffer) => void;
 	withAck: (d: string, callback: (e: number) => void) => void;
 	initServerHandshake: (move_desc: string, gameState: string) => void;
+	checkersRoomInit: (gameState: string) => void;
 }
 
 export interface ClientToServerEvents {
@@ -54,9 +56,4 @@ export interface CheckersBoardProps {
 export interface CheckersHistoryProps {
 	history: CompressedCheckersGameState[];
 	onElementClick(arg: CompressedCheckersGameState): void;
-}
-export interface CompressedCheckersGameState {
-	boardState: string;
-	curPlayer: number;
-	turnNum?: number;
 }

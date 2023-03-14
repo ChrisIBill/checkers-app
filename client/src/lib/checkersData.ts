@@ -1,4 +1,5 @@
-import {CompressedCheckersGameState, ValidTokens} from "../interfaces";
+import {CompressedCheckersGameState} from "../interfaces/checkersInterfaces";
+import {ValidTokens} from "../interfaces/interfaces";
 export const BOARD_ROW_LENGTH = 4;
 export const BOARD_COLUMN_LENGTH = 8;
 export const NUM_PLAYER_TOKEN_TYPES = 2;

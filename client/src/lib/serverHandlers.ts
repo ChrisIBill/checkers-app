@@ -1,4 +1,4 @@
-import {PlayerTokens, ValidTokens} from "../interfaces";
+import {PlayerTokens, ValidTokens} from "../interfaces/interfaces";
 import {VALID_TOKENS, VALID_TOKENS_STRING} from "./checkersData";
 
 export function unzipGameState(str: string): ValidTokens[] {
@@ -54,6 +54,10 @@ export function zipGameState(gameState: string[]): string {
 	console.log("Comp gameState: ", ret);
 	return ret;
 }
+/* export async function (params:type) {
+	
+} */
+
 export async function request<TResponse>(
 	url: string,
 	config: RequestInit = {}

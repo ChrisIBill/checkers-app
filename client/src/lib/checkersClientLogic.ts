@@ -1,5 +1,10 @@
 import {dir} from "console";
-import {Direction, ValidMoves, ValidTokens, PlayerTokens} from "../interfaces";
+import {
+	Direction,
+	ValidMoves,
+	ValidTokens,
+	PlayerTokens,
+} from "../interfaces/interfaces";
 import {
 	BOARD_EDGES,
 	LEGAL_MOVES_MAP,

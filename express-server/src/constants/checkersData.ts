@@ -1,4 +1,5 @@
 import {
+    CheckersGameState,
     CheckersRoom,
     CompressedCheckersGameState,
     ValidTokens,
@@ -57,12 +58,17 @@ export const DEFAULT_CHECKERS_BOARD: ValidTokens[] = [
     "P","P","P","K",
 ];
 
+export const DEFAULT_GAME_STATE: CheckersGameState = {
+    boardState: DEFAULT_CHECKERS_BOARD,
+    curPlayer: 0,
+};
 export const COMPRESSED_DEFAULT_GAME_STATE: CompressedCheckersGameState = {
     boardState: "p12/E8/P12",
     curPlayer: 0,
 };
 export const CHECKERS_GAME_STATUS = [
     "waitingForPlayers",
+    "missingPlayer",
     "initializing",
     "p1_turn",
     "p2_turn",

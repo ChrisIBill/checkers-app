@@ -13,10 +13,18 @@ import {
 	PlayerTokens,
 	ValidTokens,
 	RequiredMoves,
-	CompressedCheckersGameState,
 	CheckersHistoryProps,
-} from "../interfaces";
+	ServerToClientEvents,
+	ClientToServerEvents,
+} from "../interfaces/interfaces";
+import {Socket, io} from "socket.io-client";
+import {
+	CheckersGameState,
+	CompressedCheckersGameState,
+} from "../interfaces/checkersInterfaces";
 
+const socket: Socket<ServerToClientEvents, ClientToServerEvents> =
+	io("/Games/Checkers");
 const CheckersSquare = ({
 	elem,
 	index,
@@ -227,16 +235,16 @@ const GameHistory: React.FC<CheckersHistoryProps> = (props) => {
 	});
 	return <div id="MoveListWrapper">{histList}</div>;
 };
-const CheckersPage = ({board}: {board: string[]}) => {
+const CheckersPage = ({game}: {game: CheckersGameState}) => {
 	const [gameHistory, setGameHistory] = useState<
 		CompressedCheckersGameState[]
 	>([COMPRESSED_DEFAULT_GAME_STATE]); //Stored in compressed format?
-	const [gameBoard, setGameBoard] = useState<ValidTokens[]>(
-		DEFAULT_CHECKERS_BOARD
-	);
+	const [gameBoard, setGameBoard] = useState<ValidTokens[]>(game.boardState);
 	const [status, setStatus] = useState("selecting"); //populate?, playing?, waitingForOtherPlayer?
 	const [gameType, setGameType] = useState("PVP"); //local, pvp, AI
-	const [curPlayer, setCurPlayer] = useState<number>(0);
+	const [curPlayer, setCurPlayer] = useState<number>(
+		PIECE_TOKENS.indexOf(game.player)
+	);
 	const [turnNum, setTurnNum] = useState<number>(0);
 	function handleHistoryClick(compGameState: CompressedCheckersGameState) {
 		const boardState = unzipGameState(compGameState.boardState);
