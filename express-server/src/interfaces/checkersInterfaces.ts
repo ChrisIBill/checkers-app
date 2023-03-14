@@ -1,4 +1,9 @@
-import { PIECE_TOKENS, VALID_TOKENS } from "@src/constants/checkersData";
+import {
+    CHECKERS_GAME_STATUS,
+    PIECE_TOKENS,
+    PLAYER_TYPE,
+    VALID_TOKENS,
+} from "@src/constants/checkersData";
 
 export type ValidTokens = typeof VALID_TOKENS[number]; //"p" | "P" | "k" | "K" | "E";
 export type PlayerTokens = typeof PIECE_TOKENS[number];
@@ -8,9 +13,17 @@ export interface CompressedCheckersGameState {
     curPlayer: number;
     turnNum?: number;
 }
+
+export type Checkers_Game_Status = typeof CHECKERS_GAME_STATUS;
+export type PlayerType = typeof PLAYER_TYPE[number];
+export interface CheckersPlayer {
+    id: string;
+    playerType: PlayerType;
+    status: "connected" | "error";
+}
 export interface CheckersRoom {
     id: string;
-    numPlayers: 0 | 1 | 2;
+    players: CheckersPlayer[];
     status:
         | "waitingForPlayers"
         | "initializing"
@@ -19,5 +32,3 @@ export interface CheckersRoom {
         | "error";
     boardState: string;
 }
-
-export interface CheckersPlayer {}

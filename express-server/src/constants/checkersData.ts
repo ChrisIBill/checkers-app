@@ -61,10 +61,17 @@ export const COMPRESSED_DEFAULT_GAME_STATE: CompressedCheckersGameState = {
     boardState: "p12/E8/P12",
     curPlayer: 0,
 };
-
+export const CHECKERS_GAME_STATUS = [
+    "waitingForPlayers",
+    "initializing",
+    "p1_turn",
+    "p2_turn",
+    "error",
+];
+export const PLAYER_TYPE = ["player1", "player2", "spectator"] as const;
 export const DEFAULT_CHECKERS_ROOM: CheckersRoom = {
     id: "0",
-    numPlayers: 0,
+    players: [],
     status: "waitingForPlayers",
     boardState: "p12/E8/P12",
 };
