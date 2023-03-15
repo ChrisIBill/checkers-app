@@ -30,14 +30,15 @@ async function userSignupAuth(user: IUser): Promise<boolean> {
         return true;
     }
 }
-export function handleAuthorization(io: Server, socket: Socket) {
-    io.of(Paths.Auth.Login).on("connection", (socket) => {
+export async function handleAuthorization(io: Server, socket: Socket) {
+    /* io.of(Paths.Auth.Login).on("connection", (socket) => {
         console.log("User connected with Auth Server", socket.id);
         socket.on("auth:user-login", (...args: any[]) => {
             console.log(args);
         });
         socket.on("auth:user-signup", () => {});
-    });
+    }); */
+    //socket.on("")
 }
 
 /* module.exports = (io: Server) => {

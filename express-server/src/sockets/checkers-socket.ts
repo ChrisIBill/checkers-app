@@ -1,5 +1,6 @@
 import { CheckersPlayer, CheckersRoom } from "@src/models/CheckersRoom";
 import { IUser } from "@src/models/myUser";
+import { findUserFomToken } from "@src/services/myAuthService";
 import { createServer } from "http";
 import { Server, Socket } from "socket.io";
 import Paths from "../routes/constants/Paths";
@@ -13,7 +14,7 @@ import Paths from "../routes/constants/Paths";
 export function runCheckersRooms(io: Server, socket: Socket) {
     const playersInRooms = new Map<string, number>();
     const checkersRooms: CheckersRoom[] = [];
-
+    let user: IUser;
     const onConnection = () => {
         console.log("a user connected");
         console.log("Socket ID: " + socket.id);
@@ -56,8 +57,10 @@ export function runCheckersRooms(io: Server, socket: Socket) {
     };
 
     /* Middlewares */
+    /* Validation */
     io.use((socket, next) => {
         const token = socket.handshake.auth.token;
+        user = await findUserFromToken(token);
         next();
     });
 

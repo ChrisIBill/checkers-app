@@ -22,6 +22,7 @@ import { RouteError } from "@src/other/classes";
 import { createServer } from "http";
 import { Server, Socket } from "socket.io";
 import { runCheckersRooms } from "./sockets/checkers-socket";
+import { handleAuthorization } from "./sockets/base-socket";
 
 // **** Variables **** //
 
@@ -98,6 +99,7 @@ const onConnection = (socket: Socket) => {
     //Default Connection, nav to auth
     socket.emit("redirect-path", Paths.Auth.Login);
     console.log("Base Connection Detedcted: Rerouting to Auth");
+    handleAuthorization(io, socket);
     //socket.on("order:create", create)
 };
 io.of(Paths.Base).on("connection", onConnection);
