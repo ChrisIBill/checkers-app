@@ -1,6 +1,6 @@
 import { CheckersPlayer, CheckersRoom } from "@src/models/CheckersRoom";
 import { IUser } from "@src/models/myUser";
-import { findUserFomToken } from "@src/services/myAuthService";
+import { findUserFromToken } from "@src/services/myAuthService";
 import { createServer } from "http";
 import { Server, Socket } from "socket.io";
 import Paths from "../routes/constants/Paths";
@@ -10,10 +10,10 @@ import Paths from "../routes/constants/Paths";
  * @param io CheckersRoomPath
  * @param socket Client Socket
  */
+const playersInRooms = new Map<string, number>();
+const checkersRooms: CheckersRoom[] = [];
 
 export function runCheckersRooms(io: Server, socket: Socket) {
-    const playersInRooms = new Map<string, number>();
-    const checkersRooms: CheckersRoom[] = [];
     let user: IUser;
     const onConnection = () => {
         console.log("a user connected");
@@ -58,11 +58,7 @@ export function runCheckersRooms(io: Server, socket: Socket) {
 
     /* Middlewares */
     /* Validation */
-    io.use((socket, next) => {
-        const token = socket.handshake.auth.token;
-        user = await findUserFromToken(token);
-        next();
-    });
+    //Is validation needed here???
 
     /* Sockets */
     io.of(Paths.Games.Checkers).on("connection", onConnection);

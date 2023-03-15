@@ -3,6 +3,7 @@ import { Server, Socket } from "socket.io";
 import myUserRepo from "@src/repos/myUserRepo";
 import Paths from "../routes/constants/Paths";
 import { IUser } from "@src/models/User";
+import httpServer from "@src/server";
 
 async function userLoginAuth(user: IUser): Promise<boolean> {
     const persists = await myUserRepo.uNamePersists(user.name);
@@ -27,6 +28,7 @@ async function userSignupAuth(user: IUser): Promise<boolean> {
         console.log("Unique user received. Registering new User");
         console.log("User: ", user);
         myUserRepo.add(user);
+        Socket.em;
         return true;
     }
 }
@@ -38,7 +40,7 @@ export async function handleAuthorization(io: Server, socket: Socket) {
         });
         socket.on("auth:user-signup", () => {});
     }); */
-    //socket.on("")
+    socket.on("");
 }
 
 /* module.exports = (io: Server) => {
@@ -47,3 +49,5 @@ export async function handleAuthorization(io: Server, socket: Socket) {
     }
 }
  */
+
+//export default httpServer
