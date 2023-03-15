@@ -30,6 +30,15 @@ async function persists(id: number): Promise<boolean> {
     return false;
 }
 
+async function uNamePersists(name: string): Promise<boolean> {
+    const db = await orm.openDb();
+    for (const user of db.users) {
+        if (user.name === name) {
+            return true;
+        }
+    }
+    return false;
+}
 /**
  * Get all users.
  */
@@ -79,6 +88,7 @@ async function delete_(id: number): Promise<void> {
 export default {
     getOne,
     persists,
+    uNamePersists,
     getAll,
     add,
     update,

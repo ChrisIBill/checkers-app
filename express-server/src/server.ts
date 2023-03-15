@@ -20,7 +20,7 @@ import HttpStatusCodes from "@src/constants/HttpStatusCodes";
 import { NodeEnvs } from "@src/constants/misc";
 import { RouteError } from "@src/other/classes";
 import { createServer } from "http";
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 import { runCheckersRooms } from "./sockets/checkers-socket";
 
 // **** Variables **** //
@@ -94,6 +94,13 @@ app.get("/GameData/Checkers", (res, req) => {
     }); */
 });
 
+const onConnection = (socket: Socket) => {
+    //Default Connection, nav to auth
+    socket.emit("redirect-path", Paths.Auth.Login);
+    console.log("Base Connection Detedcted: Rerouting to Auth");
+    //socket.on("order:create", create)
+};
+io.of(Paths.Base).on("connection", onConnection);
 /* io.of(Paths.Games.Checkers).on("connection", (socket) => {
     console.log("a user connected");
     console.log("Socket ID: " + socket.id);

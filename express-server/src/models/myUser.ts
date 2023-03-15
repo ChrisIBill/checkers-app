@@ -12,8 +12,8 @@ export enum UserRoles {
 // **** Types **** //
 
 export interface IUser {
-    id: number;
     name: string;
+    id?: number;
     pwdHash?: string;
     role?: UserRoles;
 }
@@ -27,16 +27,16 @@ export interface ISessionUser {
 // **** User **** //
 
 class User implements IUser {
-    public id: number;
     public name: string;
+    public id?: number;
     public pwdHash?: string;
     public role?: UserRoles;
     /**
      * Constructor()
      */
-    constructor(id: number, name: string, pwdHash?: string, role?: UserRoles) {
+    constructor(name: string, id?: number, pwdHash?: string, role?: UserRoles) {
         this.name = name;
-        this.id = id;
+        this.id = id ?? -1;
         this.pwdHash = pwdHash ?? "";
         this.role = role ?? UserRoles.Standard;
     }
@@ -51,7 +51,7 @@ class User implements IUser {
         }
         // Get user instance
         const p = param as IUser;
-        return new User(p.id, p.name);
+        return new User(p.name);
     }
 
     /**

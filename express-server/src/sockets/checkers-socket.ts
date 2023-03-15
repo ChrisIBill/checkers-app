@@ -1,12 +1,20 @@
 import { CheckersPlayer, CheckersRoom } from "@src/models/CheckersRoom";
+import { IUser } from "@src/models/myUser";
 import { createServer } from "http";
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 import Paths from "../routes/constants/Paths";
-export function runCheckersRooms(io: Server) {
-    const numRooms = 1;
-    const playersInRooms: number[] = [0];
+
+/**
+ *
+ * @param io CheckersRoomPath
+ * @param socket Client Socket
+ */
+
+export function runCheckersRooms(io: Server, socket: Socket) {
+    const playersInRooms = new Map<string, number>();
     const checkersRooms: CheckersRoom[] = [];
-    io.of(Paths.Games.Checkers).on("connection", (socket) => {
+
+    const onConnection = () => {
         console.log("a user connected");
         console.log("Socket ID: " + socket.id);
         let roomsFull = true;
@@ -28,7 +36,7 @@ export function runCheckersRooms(io: Server) {
             } else roomsFull = true;
         }
         if (roomsFull) {
-            socket.join(`checkers-room${playersInRooms.length}`);
+            socket.join(`checkers-room${playersInRooms.size}`);
             const newRoom = new CheckersRoom(
                 checkersRooms.length,
                 "waitingForPlayers"
@@ -36,16 +44,25 @@ export function runCheckersRooms(io: Server) {
             newRoom.addPlayer(socket.id);
             checkersRooms.push(newRoom);
             socket
-                .to(`checkers-room${playersInRooms.length}`)
+                .to(`checkers-room${playersInRooms.size}`)
                 .emit("checkers room data", checkersRooms.at(-1));
             console.log("Created new room", checkersRooms);
         }
-        const rooms = io.of(Paths.Games.Checkers).adapter.rooms;
+
         socket.emit("initCheckers", "p12/E8/P12", 0, "PK");
         socket.on("PlayerTurn", (args) => {
             console.log(args);
         });
+    };
+
+    /* Middlewares */
+    io.use((socket, next) => {
+        const token = socket.handshake.auth.token;
+        next();
     });
+
+    /* Sockets */
+    io.of(Paths.Games.Checkers).on("connection", onConnection);
     /* io.of(Paths.Games.Checkers).adapter.on("join-room", (room, id) => {
         const players = io.of(Paths.Games.Checkers).adapter.rooms.get(room);
         //Emit player joined, gamestate to both players

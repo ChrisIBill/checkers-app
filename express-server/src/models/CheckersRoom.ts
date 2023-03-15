@@ -20,6 +20,10 @@ export interface ICheckersRoom {
     status: Checkers_Game_Status;
     gameState: CheckersGameState;
 }
+
+/**
+ * @param
+ */
 export class CheckersRoom implements ICheckersRoom {
     public id: number;
     public players: [CheckersPlayer | undefined, CheckersPlayer | undefined];
