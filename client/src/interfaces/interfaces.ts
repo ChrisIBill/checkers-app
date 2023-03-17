@@ -1,5 +1,6 @@
 import {PIECE_TOKENS, VALID_TOKENS} from "../lib/checkersData";
 import {CompressedCheckersGameState} from "./checkersInterfaces";
+import {UserData} from "./user";
 
 export interface ExpressServerConnectionEvent {
 	message: string;
@@ -11,9 +12,16 @@ export interface ServerToClientEvents {
 	withAck: (d: string, callback: (e: number) => void) => void;
 	initServerHandshake: (move_desc: string, gameState: string) => void;
 	checkersRoomInit: (gameState: string) => void;
+	authTokenValidation: (...args: any) => void;
+	authSignUpRes: (...args: any[]) => void;
+	authLoginRes: (...args: any[]) => void;
+	redirect: (red: string) => void;
 }
 
 export interface ClientToServerEvents {
+	authTokenValidation: (tok: string) => void;
+	authSignUpReq: (userData: UserData) => void;
+	authLoginReq: (userData: UserData) => void;
 	hello: (args: string) => void;
 }
 

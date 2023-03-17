@@ -6,12 +6,14 @@ import { Immutable } from "@src/other/types";
 
 const Paths = {
     Base: "/",
+    App: "/App",
     Auth: {
-        Login: "/Login",
+        Base: "/Auth",
+        Login: "/Auth/Login",
     },
     Games: {
-        Base: "/Games",
-        Checkers: "/Games/Checkers",
+        Base: "Games",
+        Checkers: "Games/Checkers",
     },
 };
 /* const Paths = {

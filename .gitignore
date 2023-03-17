@@ -5,8 +5,8 @@
 /.pnp
 .pnp.js
 
-/express-server/node_modules
-express-server/dist/
+node_modules/
+dist/
 # testing
 /coverage
 

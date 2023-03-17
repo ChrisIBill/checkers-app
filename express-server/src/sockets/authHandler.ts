@@ -28,11 +28,18 @@ async function userSignupAuth(user: IUser): Promise<boolean> {
         console.log("Unique user received. Registering new User");
         console.log("User: ", user);
         myUserRepo.add(user);
-        Socket.em;
         return true;
     }
 }
+
 export async function handleAuthorization(io: Server, socket: Socket) {
+    const authNamespace = io.of(Paths.Auth.Base);
+    const loginNamespace = io.of(Paths.Auth.Login);
+    console.log("User connected with Auth Server", socket.id);
+    socket.on("authTokenValidation", (tok) => {});
+    socket.on("UserLogin", (...args: any[]) => {
+        console.log(args);
+    });
     /* io.of(Paths.Auth.Login).on("connection", (socket) => {
         console.log("User connected with Auth Server", socket.id);
         socket.on("auth:user-login", (...args: any[]) => {
@@ -40,7 +47,6 @@ export async function handleAuthorization(io: Server, socket: Socket) {
         });
         socket.on("auth:user-signup", () => {});
     }); */
-    socket.on("");
 }
 
 /* module.exports = (io: Server) => {

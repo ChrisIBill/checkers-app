@@ -14,7 +14,7 @@ async function login(user: IUser) {
     }
 }
 
-export async function findUserFomToken(token: string): Promise<IUser | null> {
+export async function findUserFromToken(token: string): Promise<IUser | null> {
     const persists = await myUserRepo.uNamePersists(token);
     if (!persists) {
         console.log("ERROR: COULD NOT FIND USER FROM TOKEN");

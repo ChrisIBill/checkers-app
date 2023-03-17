@@ -66,7 +66,14 @@ if (EnvVars.NodeEnv === NodeEnvs.Production) {
 io.use((socket, next) => {
     console.log("Validation Middleware firing for socket id: ", socket.id);
     const token = socket.handshake.auth.token;
-    const user = await findUserFromToken(token);
+    const user = token ? findUserFromToken(token) : undefined;
+    if (user) {
+        console.log("User from token: ", user);
+        socket.emit("authTokenValidation", user);
+    } else {
+        console.log("No user found, redirecting");
+        socket.emit("redirect", Paths.Auth.Login);
+    }
     //If token doesnt exist reroute user to auth login
     //else send valid, maybe find where user should be?
     next();
@@ -110,15 +117,20 @@ app.get("/GameData/Checkers", (res, req) => {
 
 const onConnection = (socket: Socket) => {
     //Default Connection, nav to auth
-    socket.emit("redirect-path", Paths.Auth.Login);
-    console.log("Base Connection Detedcted: Rerouting to Auth");
-    handleAuthorization(io, socket);
+    console.log("Base Connection Detected: Rerouting to Auth");
+    //handleAuthorization(io.of(Paths.Auth.Login), socket);
     //socket.on("order:create", create)
 };
+const authConnection = (socket: Socket) => {
+    console.log("AuthConnection");
+};
+const checkersConnection = (socket: Socket) => {
+    console.log("checkersConnection");
+};
 io.of(Paths.Base).on("connection", onConnection);
-io.of(Paths.Auth.Login).on("connection", onConnection);
-io.of(Paths.Games.Checkers).on("connection", onConnection);
-runCheckersRooms(io);
+io.of(Paths.Auth.Base).on("connection", authConnection);
+io.of(Paths.Games.Checkers).on("connection", checkersConnection);
+// runCheckersRooms(io);
 /* io.of(Paths.Games.Checkers).adapter.on("create-room", (room, id) => {
     console.log(`room ${room} was created`);
 });

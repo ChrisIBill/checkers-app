@@ -13,19 +13,27 @@ import {
 } from "./interfaces/interfaces";
 import {zipGameState, unzipGameState} from "./lib/serverHandlers";
 import {UserData} from "./interfaces/user";
-import {LoginPage} from "./pages/loginPage";
+import {LoginPage} from "./pages/LoginPage";
 import {
 	CheckersGameState,
 	CheckersRoomState,
 } from "./interfaces/checkersInterfaces";
 import {PIECE_TOKENS} from "./lib/checkersData";
-const socket: Socket<ServerToClientEvents, ClientToServerEvents> =
-	io("/Games/Checkers");
+import {Paths} from "./paths/SocketPaths";
+const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
+	Paths.Base,
+	{
+		auth: (cb) => {
+			cb({token: localStorage.token});
+		},
+	}
+);
 
 function App() {
 	const test = 12;
 	let args: any[];
 	const [userData, setUserData] = useState<UserData>();
+	const [userToken, setUserToken] = useState<string>();
 	const [checkersServerData, setCheckersServerData] =
 		useState<CheckersBoardJSON>();
 	const [player, setPlayer] = useState<PlayerTokens>();
@@ -42,16 +50,14 @@ function App() {
             console.log("Connected with server: " + serverData)
         );
     }); */
+	/* const initHandshake = (token: string) => {
+		localStorage.setItem("token", token);
+	}; */
 	socket.on("connect", () => {
-		console.log("Connected with Checkers Server: ", socket.id);
-		socket.emit("hello", "hello");
-		socket.on("initServerHandshake", (moveDesc, gameState) => {
-			/* Should use to pass any existing cookies? */
-			if (moveDesc != "start") {
-				console.log("Error: Bad Handshake");
-			}
-			//setGameState(unzipGameState(gameState));
-		});
+		console.log("Connected with Server: ", socket.id);
+		//socket.emit("authTokenValidation", localStorage.token);
+		//If auth, should move forward
+		//else should login
 		socket.on("checkersRoomInit", (gameState) => {
 			console.log("init: ", gameState);
 			const init: CheckersRoomState = JSON.parse(gameState);
@@ -63,6 +69,15 @@ function App() {
 				boardState: unzipGameState(init.boardState),
 			});
 		});
+	});
+	socket.on("redirect", (red) => {
+		console.log("Redirecting: ", red);
+	});
+	socket.on("authTokenValidation", (...args) => {
+		console.log("Valid Token Received In App: ", args);
+		if (args[0] > 0) {
+			setUserData(args[1]);
+		}
 	});
 
 	return (
