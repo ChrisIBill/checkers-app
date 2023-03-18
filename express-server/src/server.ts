@@ -22,11 +22,13 @@ import { RouteError } from "@src/other/classes";
 import { createServer } from "http";
 import { Server, Socket } from "socket.io";
 import { runCheckersRooms } from "./sockets/checkers-socket";
-import { handleAuthorization } from "./sockets/base-socket";
 import jwt from "jsonwebtoken";
 
 //import authSocket from "@src/sockets/authHandler"
 import { findUserFromToken } from "./services/myAuthService";
+import { userSignupAuth } from "./sockets/authHandler";
+import User, { IUser } from "./models/myUser";
+import myUserService from "./services/myUserService";
 // **** Variables **** //
 
 const app = express();
@@ -121,8 +123,37 @@ const onConnection = (socket: Socket) => {
     //handleAuthorization(io.of(Paths.Auth.Login), socket);
     //socket.on("order:create", create)
 };
+
 const authConnection = (socket: Socket) => {
     console.log("AuthConnection");
+    socket.on("authTokenValReq", (tok: string) => {
+        //Dont think i actually need to validate here, but maybe could use it to properly redirect?
+        socket.emit("authTokenValRes", "ServerRes");
+    });
+    socket.on("authSignUpReq", async (payload) => {
+        console.log("Received Signup Request");
+        console.log("Signup Details: ", payload);
+        if (!("name" in payload)) {
+            console.log("Error: Bad Response");
+        }
+        const isValid = await userSignupAuth(socket, payload.name);
+        let user;
+        if (isValid == true) {
+            console.log("Valid signup");
+            user = myUserService.getUser(payload.name);
+        } else if (isValid == false) {
+            console.log("Invalid Signup");
+        }
+        socket.emit("authSignUpRes", {
+            status: isValid,
+            user: user,
+        });
+    });
+    socket.on("authLoginReq", (args: any[]) => {
+        console.log("Received Login Request");
+        console.log("Login Details: ", args);
+        socket.emit("authLoginRes", "ServerRes");
+    });
 };
 const checkersConnection = (socket: Socket) => {
     console.log("checkersConnection");

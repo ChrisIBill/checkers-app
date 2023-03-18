@@ -5,8 +5,7 @@ import {io, Socket} from "socket.io-client";
 import {
 	ClientToServerAuthEvents,
 	ServerToClientAuthEvents,
-} from "../interfaces/authInterfaces";
-import {ServerToClientEvents} from "../interfaces/interfaces";
+} from "../interfaces/socketInterfaces";
 import {UserData} from "../interfaces/user";
 import {Paths} from "../paths/SocketPaths";
 
@@ -29,11 +28,13 @@ const getAuthLoginRes = (args: any[]) => {
 export const LoginPage = () => {
 	const [userData, setUserData] = useState<UserData>();
 	const handleLoginPress = () => {
+		console.log("Login Click.");
 		userData
 			? socket.emit("authLoginReq", userData)
 			: console.log("Error: No User Data");
 	};
 	const handleSignUpPress = () => {
+		console.log("Sign-Up Click.");
 		userData
 			? socket.emit("authSignUpReq", userData)
 			: console.log("No user data");
@@ -44,7 +45,7 @@ export const LoginPage = () => {
 	socket.on("disconnect", () => {
 		console.log("Disconnected from auth server");
 	});
-	socket.on("authSignUpRes", (args: any[]) => {
+	socket.on("authSignUpRes", (args) => {
 		console.log("Server Sign Up Res: ", args);
 		if (args[0] > 0) {
 			localStorage.setItem("token", args[1]);

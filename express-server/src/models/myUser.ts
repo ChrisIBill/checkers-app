@@ -10,7 +10,12 @@ export enum UserRoles {
 }
 
 // **** Types **** //
-
+/**
+ * @param name: string
+ * @param id?: number
+ * @param pwdHash?: string
+ * @param role?: UserRoles;
+ */
 export interface IUser {
     name: string;
     id?: number;
@@ -46,7 +51,7 @@ class User implements IUser {
      */
     public static from(param: object): User {
         // Check is user
-        if (!User.isUser(param)) {
+        if (!User.isMyUser(param)) {
             throw new Error(INVALID_CONSTRUCTOR_PARAM);
         }
         // Get user instance
@@ -57,6 +62,9 @@ class User implements IUser {
     /**
      * Is this an object which contains all the user keys.
      */
+    public static isMyUser(this: void, arg: unknown): boolean {
+        return !!arg && typeof arg === "object" && "name" in arg;
+    }
     public static isUser(this: void, arg: unknown): boolean {
         return (
             !!arg &&

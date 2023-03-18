@@ -2,11 +2,12 @@ import { Server, Socket } from "socket.io";
 
 import myUserRepo from "@src/repos/myUserRepo";
 import Paths from "../routes/constants/Paths";
-import { IUser } from "@src/models/User";
+import User, { IUser } from "@src/models/myUser";
 import httpServer from "@src/server";
 
-async function userLoginAuth(user: IUser): Promise<boolean> {
-    const persists = await myUserRepo.uNamePersists(user.name);
+async function userLoginAuth(user: string): Promise<boolean> {
+    console.log("Authenticating User: ", user);
+    const persists = await myUserRepo.uNamePersists(user);
     if (!persists) {
         console.log("ERROR: COULD NOT FIND USER");
         console.log("User: ", user);
@@ -18,8 +19,13 @@ async function userLoginAuth(user: IUser): Promise<boolean> {
         return true;
     }
 }
-async function userSignupAuth(user: IUser): Promise<boolean> {
-    const persists = await myUserRepo.uNamePersists(user.name);
+export async function userSignupAuth(
+    socket: Socket,
+    user: string
+): Promise<boolean> {
+    console.log("User Signup Authentication");
+    const persists = await myUserRepo.uNamePersists(user);
+    console.log("Persists: ");
     if (persists) {
         console.log("ERROR: User already exists");
         console.log("User: ", user);
@@ -27,7 +33,11 @@ async function userSignupAuth(user: IUser): Promise<boolean> {
     } else {
         console.log("Unique user received. Registering new User");
         console.log("User: ", user);
-        myUserRepo.add(user);
+        const newUser: IUser = {
+            name: user,
+        };
+        myUserRepo.add(newUser);
+        socket.emit("authSignUpRes", "ret");
         return true;
     }
 }

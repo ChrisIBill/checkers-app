@@ -12,13 +12,13 @@ import {
 	RouterProvider,
 } from "react-router-dom";
 import {Paths} from "./paths/SocketPaths";
-import {Root} from "./pages/RootPage";
+import {RootPage} from "./pages/RootPage";
 import {AuthPage, LoginPage} from "./pages/LoginPage";
 import {ErrorPage} from "./pages/ErrorPage";
 const routes = [
 	{
 		path: Paths.Base,
-		element: <Root />,
+		element: <RootPage />,
 		errorElement: <ErrorPage />,
 		children: [
 			{
@@ -36,6 +36,10 @@ const routes = [
 		],
 	},
 ];
+/* const eRoutes = createRoutesFromElements(
+	<Route path={Paths.Base} element={<RootPage />} />
+	<Route path={Paths.Auth.Base} element={<RootPage />} />
+); */
 const router = createBrowserRouter(routes);
 console.log(router);
 console.log("Routes: ", routes);

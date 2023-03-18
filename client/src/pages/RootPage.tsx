@@ -1,10 +1,10 @@
 import {useEffect, useState} from "react";
-import {useNavigate} from "react-router-dom";
+import {Navigate, Outlet, useNavigate} from "react-router-dom";
 import {Socket, io} from "socket.io-client";
 import {
 	ServerToClientEvents,
 	ClientToServerEvents,
-} from "../interfaces/interfaces";
+} from "../interfaces/socketInterfaces";
 import {Paths} from "../paths/SocketPaths";
 
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
@@ -16,9 +16,10 @@ const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
 	}
 );
 
-export const Root = () => {
-	const [display, setDisplay] = useState<number>(0);
+export const RootPage = () => {
+	const [navLink, setNavLink] = useState<string>("");
 	const navigate = useNavigate();
+	console.log("Loading Root");
 	function onConnect() {
 		console.log("Connected With Base Server: ", socket.id);
 	}
@@ -28,5 +29,6 @@ export const Root = () => {
 	}
 	socket.on("connect", onConnect);
 	socket.on("redirect", onRedirect);
-	return <h1>Loading...{display}</h1>;
+
+	return <Outlet />;
 };
