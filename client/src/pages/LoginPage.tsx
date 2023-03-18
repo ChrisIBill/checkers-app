@@ -53,8 +53,8 @@ export const LoginPage = () => {
 	});
 	socket.on("authLoginRes", (args: any[]) => {
 		console.log("Server Login Res: ", args);
-		if (args[0] > 0) {
-			localStorage.setItem("token", args[1]);
+		if ("name" in args[0]) {
+			localStorage.setItem("token", args[0].name);
 		}
 	});
 	/* useEffect(() => {
