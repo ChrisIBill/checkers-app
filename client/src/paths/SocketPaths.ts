@@ -9,4 +9,13 @@ export const Paths = {
 		Base: "/Games",
 		Checkers: "/Games/Checkers",
 	},
-};
+} as const;
+
+export const PathsSet = [
+	"/",
+	"/App",
+	"/Auth",
+	"/Auth/Login",
+	"/Games",
+	"/Games/Checkers",
+] as const;

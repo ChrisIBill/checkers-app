@@ -14,14 +14,16 @@ import {
 	ValidTokens,
 	RequiredMoves,
 	CheckersHistoryProps,
-	ServerToClientEvents,
-	ClientToServerEvents,
 } from "../interfaces/interfaces";
 import {Socket, io} from "socket.io-client";
 import {
 	CheckersGameState,
 	CompressedCheckersGameState,
 } from "../interfaces/checkersInterfaces";
+import {
+	ClientToServerEvents,
+	ServerToClientEvents,
+} from "../interfaces/socketInterfaces";
 
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> =
 	io("/Games/Checkers");

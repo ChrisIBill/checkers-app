@@ -5,10 +5,7 @@ import {io, Socket} from "socket.io-client";
 import {CheckersPage} from "./pages/CheckersPage";
 import {
 	CheckersBoardJSON,
-	ClientToServerEvents,
-	ExpressServerConnectionEvent,
 	PlayerTokens,
-	ServerToClientEvents,
 	ValidTokens,
 } from "./interfaces/interfaces";
 import {zipGameState, unzipGameState} from "./lib/serverHandlers";
@@ -20,6 +17,10 @@ import {
 } from "./interfaces/checkersInterfaces";
 import {PIECE_TOKENS} from "./lib/checkersData";
 import {Paths} from "./paths/SocketPaths";
+import {
+	ServerToClientEvents,
+	ClientToServerEvents,
+} from "./interfaces/socketInterfaces";
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
 	Paths.Base,
 	{

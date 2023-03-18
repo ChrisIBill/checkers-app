@@ -13,14 +13,31 @@ async function login(user: IUser) {
         return true;
     }
 }
-
-export async function findUserFromToken(token: string): Promise<IUser | null> {
-    const persists = await myUserRepo.uNamePersists(token);
+export async function userSignupAuth(user: string): Promise<IUser | null> {
+    console.log("User Signup Authentication");
+    const persists = await myUserRepo.uNamePersists(user);
+    if (!persists) {
+        console.log("ERROR: User already exists");
+        console.log("User: ", user);
+        return null;
+    } else {
+        console.log("Unique user received. Registering new User");
+        console.log("User: ", user);
+        const newUser: IUser = {
+            name: user,
+        };
+        myUserRepo.add(newUser);
+        return myUserRepo.getOne(user);
+    }
+}
+export async function findUserFromToken(token: number): Promise<IUser | null> {
+    const persists = await myUserRepo.persists(Number(token));
     if (!persists) {
         console.log("ERROR: COULD NOT FIND USER FROM TOKEN");
         console.log("Token: ", token);
+        console.log(typeof token);
         return null;
     } else {
-        return myUserRepo.getOne(token);
+        return persists;
     }
 }

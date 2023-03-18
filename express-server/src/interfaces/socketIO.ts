@@ -20,3 +20,8 @@ interface SocketData {
     name: string;
     age: number;
 }
+
+export interface IPayload {
+    data: any;
+    status: {};
+}

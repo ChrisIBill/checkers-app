@@ -1,3 +1,4 @@
+import HttpStatusCode from "../constants/HttpStatusCodes";
 import {UserData} from "./user";
 
 export interface ExpressServerConnectionEvent {
@@ -13,20 +14,23 @@ export interface ServerToClientEvents {
 	authTokenValidation: (...args: any) => void;
 	authSignUpRes: (...args: any[]) => void;
 	authLoginRes: (...args: any[]) => void;
-	redirect: (red: string) => void;
+	redirect: (args: IPayload) => void;
 }
 
 export interface ClientToServerEvents {
-	authTokenValReq: (tok: string) => void;
-	authSignUpReq: (userData: UserData) => void;
-	authLoginReq: (userData: UserData) => void;
+	authTokenValReq: (args: IPayload) => void;
+	authSignUpReq: (args: IPayload) => void;
+	authLoginReq: (args: IPayload) => void;
 	hello: (args: string) => void;
 }
 
 export interface InterServerEvents {
 	ping: () => void;
 }
-
+export interface IPayload {
+	data: any;
+	status: HttpStatusCode;
+}
 export interface SocketData {
 	name: string;
 	age: number;
@@ -37,13 +41,14 @@ export interface ServerToClientAuthEvents {
 	withAck: (d: string, callback: (e: number) => void) => void;
 	initServerHandshake: (move_desc: string, gameState: string) => void;
 	checkersRoomInit: (gameState: string) => void;
+	redirect: (args: IPayload) => void;
 	authSignUpRes: (...args: any[]) => void;
 	authLoginRes: (...args: any[]) => void;
 }
 
 export interface ClientToServerAuthEvents {
-	authSignUpReq: (userData: UserData) => void;
-	authLoginReq: (userData: UserData) => void;
+	authSignUpReq: (args: IPayload) => void;
+	authLoginReq: (args: IPayload) => void;
 }
 
 export interface InterServerEvents {

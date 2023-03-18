@@ -26,7 +26,11 @@ import jwt from "jsonwebtoken";
 
 //import authSocket from "@src/sockets/authHandler"
 import { findUserFromToken } from "./services/myAuthService";
-import { userSignupAuth } from "./sockets/authHandler";
+import {
+    handleLoginRequest,
+    handleSignUpRequest,
+    userLoginAuth,
+} from "./sockets/authHandler";
 import User, { IUser } from "./models/myUser";
 import myUserService from "./services/myUserService";
 // **** Variables **** //
@@ -65,10 +69,10 @@ if (EnvVars.NodeEnv === NodeEnvs.Production) {
     app.use(helmet());
 }
 
-io.use((socket, next) => {
+io.use(async (socket, next) => {
     console.log("Validation Middleware firing for socket id: ", socket.id);
     const token = socket.handshake.auth.token;
-    const user = token ? findUserFromToken(token) : undefined;
+    const user = await findUserFromToken(token);
     if (user) {
         console.log("User from token: ", user);
         socket.emit("authTokenValidation", user);
@@ -130,30 +134,21 @@ const authConnection = (socket: Socket) => {
         //Dont think i actually need to validate here, but maybe could use it to properly redirect?
         socket.emit("authTokenValRes", "ServerRes");
     });
-    socket.on("authSignUpReq", async (payload) => {
-        console.log("Received Signup Request");
-        console.log("Signup Details: ", payload);
+    socket.on("authSignUpReq", handleSignUpRequest);
+    socket.on("authLoginReq", handleLoginRequest);
+    /* socket.on("authLoginReq", async (payload) => {
+        console.log("Received Login Request");
+        console.log("Login Details: ", payload);
         if (!("name" in payload)) {
             console.log("Error: Bad Response");
         }
-        const isValid = await userSignupAuth(socket, payload.name);
-        let user;
-        if (isValid == true) {
-            console.log("Valid signup");
-            user = myUserService.getUser(payload.name);
-        } else if (isValid == false) {
-            console.log("Invalid Signup");
-        }
-        socket.emit("authSignUpRes", {
-            status: isValid,
+        const user = await userLoginAuth(payload.name);
+
+        socket.emit("authLoginRes", {
+            status: "Accepted",
             user: user,
         });
-    });
-    socket.on("authLoginReq", (args: any[]) => {
-        console.log("Received Login Request");
-        console.log("Login Details: ", args);
-        socket.emit("authLoginRes", "ServerRes");
-    });
+    }); */
 };
 const checkersConnection = (socket: Socket) => {
     console.log("checkersConnection");

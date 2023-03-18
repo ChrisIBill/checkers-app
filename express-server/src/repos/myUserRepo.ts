@@ -20,14 +20,15 @@ async function getOne(name: string): Promise<IUser | null> {
 /**
  * See if a user with the given id exists.
  */
-async function persists(id: number): Promise<boolean> {
+async function persists(id: number): Promise<IUser | null> {
     const db = await orm.openDb();
     for (const user of db.users) {
+        console.log(user.id);
         if (user.id === id) {
-            return true;
+            return user;
         }
     }
-    return false;
+    return null;
 }
 
 async function uNamePersists(name: string): Promise<boolean> {

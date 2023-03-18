@@ -4,8 +4,9 @@ import {Socket, io} from "socket.io-client";
 import {
 	ServerToClientEvents,
 	ClientToServerEvents,
+	IPayload,
 } from "../interfaces/socketInterfaces";
-import {Paths} from "../paths/SocketPaths";
+import {Paths, PathsSet} from "../paths/SocketPaths";
 
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
 	Paths.Base,
@@ -23,9 +24,9 @@ export const RootPage = () => {
 	function onConnect() {
 		console.log("Connected With Base Server: ", socket.id);
 	}
-	function onRedirect(red: string) {
-		console.log("Redirect Requested", red);
-		navigate(red);
+	function onRedirect(args: IPayload) {
+		console.log("Redirect Requested here", args);
+		if (PathsSet.includes(args.data)) navigate(args.data);
 	}
 	socket.on("connect", onConnect);
 	socket.on("redirect", onRedirect);
