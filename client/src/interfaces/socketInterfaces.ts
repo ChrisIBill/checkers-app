@@ -17,7 +17,7 @@ export interface ServerToClientEvents {
 }
 
 export interface ClientToServerEvents {
-	authTokenValidation: (tok: string) => void;
+	authTokenValReq: (tok: string) => void;
 	authSignUpReq: (userData: UserData) => void;
 	authLoginReq: (userData: UserData) => void;
 	hello: (args: string) => void;

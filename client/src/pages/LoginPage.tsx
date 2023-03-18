@@ -45,16 +45,16 @@ export const LoginPage = () => {
 	socket.on("disconnect", () => {
 		console.log("Disconnected from auth server");
 	});
-	socket.on("authSignUpRes", (args) => {
+	socket.on("authSignUpRes", (args: any[]) => {
 		console.log("Server Sign Up Res: ", args);
-		if (args[0] > 0) {
-			localStorage.setItem("token", args[1]);
+		if ("name" in args[0]) {
+			localStorage.setItem("token", args[0].id);
 		}
 	});
 	socket.on("authLoginRes", (args: any[]) => {
 		console.log("Server Login Res: ", args);
-		if ("name" in args[0]) {
-			localStorage.setItem("token", args[0].name);
+		if ("id" in args[0]) {
+			localStorage.setItem("token", args[0].id);
 		}
 	});
 	/* useEffect(() => {

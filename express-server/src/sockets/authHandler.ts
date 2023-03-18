@@ -25,7 +25,6 @@ export async function userSignupAuth(
 ): Promise<boolean> {
     console.log("User Signup Authentication");
     const persists = await myUserRepo.uNamePersists(user);
-    console.log("Persists: ");
     if (persists) {
         console.log("ERROR: User already exists");
         console.log("User: ", user);
@@ -37,7 +36,7 @@ export async function userSignupAuth(
             name: user,
         };
         myUserRepo.add(newUser);
-        socket.emit("authSignUpRes", "ret");
+        socket.emit("authSignUpRes", myUserRepo.getOne(user));
         return true;
     }
 }
