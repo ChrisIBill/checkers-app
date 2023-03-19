@@ -1,3 +1,5 @@
+import { CLIENT_PATHS } from "@src/constants/ClientPaths";
+
 interface ExpressServerConnectionEvent {
     message: string;
 }
@@ -25,3 +27,5 @@ export interface IPayload {
     data: any;
     status: {};
 }
+
+export type ClientPaths = typeof CLIENT_PATHS[number];
