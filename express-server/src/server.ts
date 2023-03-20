@@ -33,6 +33,7 @@ import {
 } from "./sockets/authHandler";
 import User, { IUser } from "./models/myUser";
 import myUserService from "./services/myUserService";
+import { redirectEmit } from "./sockets/emits";
 // **** Variables **** //
 
 const app = express();
@@ -78,7 +79,7 @@ io.use(async (socket, next) => {
         socket.emit("authTokenValidation", user);
     } else {
         console.log("No user found, redirecting");
-        socket.emit("redirect", Paths.Auth.Login);
+        redirectEmit(socket, Paths.Auth.Login);
     }
     //If token doesnt exist reroute user to auth login
     //else send valid, maybe find where user should be?
