@@ -76,7 +76,8 @@ io.use(async (socket, next) => {
     const user = await findUserFromToken(token);
     if (user) {
         console.log("User from token: ", user);
-        socket.emit("authTokenValidation", user);
+        //Do i need to redirect here?
+        redirectEmit(socket, Paths.App, HttpStatusCodes.PERMANENT_REDIRECT);
     } else {
         console.log("No user found, redirecting");
         redirectEmit(socket, Paths.Auth.Login);
@@ -124,7 +125,7 @@ app.get("/GameData/Checkers", (res, req) => {
 
 const onConnection = (socket: Socket) => {
     //Default Connection, nav to auth
-    console.log("Base Connection Detected: Rerouting to Auth");
+    console.log("Base Connection Detected");
     //handleAuthorization(io.of(Paths.Auth.Login), socket);
     //socket.on("order:create", create)
 };
@@ -151,11 +152,23 @@ const authConnection = (socket: Socket) => {
         });
     }); */
 };
+const appConnection = async (socket: Socket) => {
+    //Should already be valid user, if not should get immediately rerouted
+    console.log("User connected with App");
+    const token = socket.handshake.auth.token;
+    const user = await findUserFromToken(token);
+    if (!user) {
+        console.log("ERROR: UNAUTHORIZED");
+    } else {
+        console.log(user);
+    }
+};
 const checkersConnection = (socket: Socket) => {
     console.log("checkersConnection");
 };
 io.of(Paths.Base).on("connection", onConnection);
 io.of(Paths.Auth.Base).on("connection", authConnection);
+io.of(Paths.App).on("connection", appConnection);
 io.of(Paths.Games.Checkers).on("connection", checkersConnection);
 // runCheckersRooms(io);
 /* io.of(Paths.Games.Checkers).adapter.on("create-room", (room, id) => {

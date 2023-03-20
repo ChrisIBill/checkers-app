@@ -1,5 +1,10 @@
 import {useEffect, useState} from "react";
-import {Navigate, Outlet, useNavigate} from "react-router-dom";
+import {
+	Navigate,
+	NavigateFunction,
+	Outlet,
+	useNavigate,
+} from "react-router-dom";
 import {Socket, io} from "socket.io-client";
 import {
 	ServerToClientEvents,
@@ -16,7 +21,11 @@ const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
 		},
 	}
 );
-
+function onRedirect(this: any, args: IPayload) {
+	const navigate = useNavigate();
+	console.log("Redirect Requested here", args);
+	if (PathsSet.includes(args.data.path)) navigate(args.data.path);
+}
 export const RootPage = () => {
 	const [navLink, setNavLink] = useState<string>("");
 	const navigate = useNavigate();
@@ -24,12 +33,8 @@ export const RootPage = () => {
 	function onConnect() {
 		console.log("Connected With Base Server: ", socket.id);
 	}
-	function onRedirect(args: IPayload) {
-		console.log("Redirect Requested here", args);
-		if (PathsSet.includes(args.data)) navigate(args.data);
-	}
+
 	socket.on("connect", onConnect);
 	socket.on("redirect", onRedirect);
-
 	return <Outlet />;
 };

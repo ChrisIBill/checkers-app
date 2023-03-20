@@ -1,19 +1,20 @@
 /**
  * Express router paths go here.
  */
-
+import { CLIENT_PATHS } from "@src/constants/ClientPaths";
+import { ClientPaths } from "@src/interfaces/socketIO";
 import { Immutable } from "@src/other/types";
 
 const Paths = {
-    Base: "/",
-    App: "/App",
+    Base: <ClientPaths>"/",
+    App: <ClientPaths>"/App",
     Auth: {
-        Base: "/Auth",
-        Login: "/Auth/Login",
+        Base: <ClientPaths>"/Auth",
+        Login: <ClientPaths>"/Auth/Login",
     },
     Games: {
-        Base: "Games",
-        Checkers: "Games/Checkers",
+        Base: <ClientPaths>"Games",
+        Checkers: <ClientPaths>"Games/Checkers",
     },
 };
 /* const Paths = {

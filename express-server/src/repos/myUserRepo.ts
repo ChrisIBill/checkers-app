@@ -23,7 +23,6 @@ async function getOne(name: string): Promise<IUser | null> {
 async function persists(id: number): Promise<IUser | null> {
     const db = await orm.openDb();
     for (const user of db.users) {
-        console.log(user.id);
         if (user.id === id) {
             return user;
         }
