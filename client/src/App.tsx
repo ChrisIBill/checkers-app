@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import logo from "./logo.svg";
 import "./App.css";
 import {io, Socket} from "socket.io-client";
@@ -20,9 +20,11 @@ import {Paths} from "./paths/SocketPaths";
 import {
 	ServerToClientEvents,
 	ClientToServerEvents,
+	IPayload,
 } from "./interfaces/socketInterfaces";
+import {UserContext} from "./context/userContext";
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-	Paths.Base,
+	Paths.App,
 	{
 		auth: (cb) => {
 			cb({token: localStorage.token});
@@ -33,29 +35,16 @@ const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
 function App() {
 	const test = 12;
 	let args: any[];
+	const user = useContext(UserContext);
 	const [userData, setUserData] = useState<UserData>();
 	const [userToken, setUserToken] = useState<string>();
 	const [checkersServerData, setCheckersServerData] =
 		useState<CheckersBoardJSON>();
 	const [player, setPlayer] = useState<PlayerTokens>();
 	const [gameState, setGameState] = useState<CheckersGameState>();
-	/* socket.on("connect", () => {
-        console.log(socket.id);
-    });
-    socket.on("error", () => {
-        console.log("Error");
-    }); */
 
-	/* useEffect(() => {
-        request("/GameData/Checkers").then((serverData) =>
-            console.log("Connected with server: " + serverData)
-        );
-    }); */
-	/* const initHandshake = (token: string) => {
-		localStorage.setItem("token", token);
-	}; */
 	socket.on("connect", () => {
-		console.log("Connected with Server: ", socket.id);
+		console.log("Connected with App Server: ", socket.id);
 		//socket.emit("authTokenValidation", localStorage.token);
 		//If auth, should move forward
 		//else should login
@@ -71,19 +60,11 @@ function App() {
 			});
 		});
 	});
-	socket.on("redirect", (red) => {
-		console.log("Redirecting: ", red);
-	});
-	socket.on("authTokenValidation", (...args) => {
-		console.log("Valid Token Received In App: ", args);
-		if (args[0] > 0) {
-			setUserData(args[1]);
-		}
-	});
-
+	console.log("User Context: ", user);
 	return (
 		<div className="App">
-			{userData ? <CheckersPage game={gameState!} /> : <LoginPage />}
+			{user}
+			{/* {userData ? <CheckersPage game={gameState!} /> : <LoginPage />} */}
 		</div>
 	);
 }

@@ -27,10 +27,11 @@ import jwt from "jsonwebtoken";
 //import authSocket from "@src/sockets/authHandler"
 import { findUserFromToken } from "./services/myAuthService";
 import {
+    authTokenResEmit,
     handleLoginRequest,
     handleSignUpRequest,
     userLoginAuth,
-} from "./sockets/authHandler";
+} from "./sockets/auth-socket";
 import User, { IUser } from "./models/myUser";
 import myUserService from "./services/myUserService";
 import { redirectEmit } from "./sockets/emits";
@@ -77,9 +78,11 @@ io.use(async (socket, next) => {
     if (user) {
         console.log("User from token: ", user);
         //Do i need to redirect here?
+        authTokenResEmit(socket, user);
         redirectEmit(socket, Paths.App, HttpStatusCodes.PERMANENT_REDIRECT);
     } else {
         console.log("No user found, redirecting");
+        authTokenResEmit(socket);
         redirectEmit(socket, Paths.Auth.Login);
     }
     //If token doesnt exist reroute user to auth login
@@ -124,10 +127,8 @@ app.get("/GameData/Checkers", (res, req) => {
 });
 
 const onConnection = (socket: Socket) => {
-    //Default Connection, nav to auth
+    //Default Connection, nav to current user pos?
     console.log("Base Connection Detected");
-    //handleAuthorization(io.of(Paths.Auth.Login), socket);
-    //socket.on("order:create", create)
 };
 
 const authConnection = (socket: Socket) => {
@@ -138,19 +139,6 @@ const authConnection = (socket: Socket) => {
     });
     socket.on("authSignUpReq", handleSignUpRequest);
     socket.on("authLoginReq", handleLoginRequest);
-    /* socket.on("authLoginReq", async (payload) => {
-        console.log("Received Login Request");
-        console.log("Login Details: ", payload);
-        if (!("name" in payload)) {
-            console.log("Error: Bad Response");
-        }
-        const user = await userLoginAuth(payload.name);
-
-        socket.emit("authLoginRes", {
-            status: "Accepted",
-            user: user,
-        });
-    }); */
 };
 const appConnection = async (socket: Socket) => {
     //Should already be valid user, if not should get immediately rerouted
@@ -160,7 +148,7 @@ const appConnection = async (socket: Socket) => {
     if (!user) {
         console.log("ERROR: UNAUTHORIZED");
     } else {
-        console.log(user);
+        console.log("Server Side App User Context: ", user);
     }
 };
 const checkersConnection = (socket: Socket) => {
@@ -170,38 +158,6 @@ io.of(Paths.Base).on("connection", onConnection);
 io.of(Paths.Auth.Base).on("connection", authConnection);
 io.of(Paths.App).on("connection", appConnection);
 io.of(Paths.Games.Checkers).on("connection", checkersConnection);
-// runCheckersRooms(io);
-/* io.of(Paths.Games.Checkers).adapter.on("create-room", (room, id) => {
-    console.log(`room ${room} was created`);
-});
-io.of(Paths.Games.Checkers).adapter.on("join-room", (room, id) => {
-    //Emit player joined, gamestate to both players
-    console.log(`socket ${id} has joined room ${room}`);
-}); */
-
-//io.emit("initServerHandshake", "start", "a12n8b12");
-// Set views directory (html)
-/* const viewsDir = path.join(__dirname, "views");
-app.set("views", viewsDir);
-
-// Set static directory (js and css).
-const staticDir = path.join(__dirname, "public");
-app.use(express.static(staticDir));
-
-// Nav to login pg by default
-app.get("/", (_: Request, res: Response) => {
-    res.sendFile("login.html", { root: viewsDir });
-});
-
-// Redirect to login if not logged in.
-app.get("/users", (req: Request, res: Response) => {
-    const jwt = req.signedCookies[EnvVars.CookieProps.Key];
-    if (!jwt) {
-        res.redirect("/");
-    } else {
-        res.sendFile("users.html", { root: viewsDir });
-    }
-}); */
 
 // **** Export default **** //
 

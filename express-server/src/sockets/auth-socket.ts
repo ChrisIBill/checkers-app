@@ -5,7 +5,7 @@ import Paths from "../routes/constants/Paths";
 import User, { IUser } from "@src/models/myUser";
 import httpServer from "@src/server";
 import { userSignupAuth } from "@src/services/myAuthService";
-import { IPayload } from "@src/interfaces/socketIO";
+import { ClientPaths, IPayload } from "@src/interfaces/socketIO";
 import { RouteError } from "@src/other/classes";
 import HttpStatusCodes from "@src/constants/HttpStatusCodes";
 import { USER_NOT_FOUND_ERR } from "@src/services/myUserService";
@@ -81,6 +81,19 @@ export async function handleAuthorization(io: Server, socket: Socket) {
     }); */
 }
 
+export async function authTokenResEmit(socket: Socket, user?: IUser) {
+    const stat = user ? HttpStatusCodes.OK : HttpStatusCodes.TEMPORARY_REDIRECT;
+    const path: ClientPaths = user ? Paths.App : Paths.Auth.Login;
+    const payload: IPayload = {
+        data: {
+            path,
+            user,
+        },
+        status: stat,
+    };
+    console.log("Auth Token Res Emit: ", payload);
+    socket.emit("authTokenValRes", payload);
+}
 /* module.exports = (io: Server) => {
     const handleLoginRequest = function (payload) {
         const socket = this;

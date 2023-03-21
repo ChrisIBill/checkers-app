@@ -1,7 +1,8 @@
-/* import { IPayload } from "../interfaces/socketInterfaces";
+import {NavigateFunction} from "react-router-dom";
+import {IPayload} from "../interfaces/socketInterfaces";
+import {PathsSet} from "../paths/SocketPaths";
 
-export function onRedirect(args: IPayload) {
-	console.log("Redirect Requested", args);
-	if (PathsSet.includes(args.data)) navigate(args.data);
-} */
-export {};
+export function onRedirect(nav: NavigateFunction, args: IPayload) {
+	console.log("Redirect Requested here", args);
+	if (PathsSet.includes(args.data.path)) nav(args.data.path);
+}

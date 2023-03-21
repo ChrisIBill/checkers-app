@@ -11,7 +11,7 @@ export interface ServerToClientEvents {
 	withAck: (d: string, callback: (e: number) => void) => void;
 	initServerHandshake: (move_desc: string, gameState: string) => void;
 	checkersRoomInit: (gameState: string) => void;
-	authTokenValidation: (...args: any) => void;
+	authTokenValRes: (...args: any) => void;
 	authSignUpRes: (...args: any[]) => void;
 	authLoginRes: (...args: any[]) => void;
 	redirect: (args: IPayload) => void;

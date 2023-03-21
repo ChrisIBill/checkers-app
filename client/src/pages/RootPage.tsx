@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import {createContext, useContext, useEffect, useState} from "react";
 import {
 	Navigate,
 	NavigateFunction,
@@ -6,12 +6,16 @@ import {
 	useNavigate,
 } from "react-router-dom";
 import {Socket, io} from "socket.io-client";
+import HttpStatusCode from "../constants/HttpStatusCodes";
+//import { UserContext } from "../context/userContext";
 import {
 	ServerToClientEvents,
 	ClientToServerEvents,
 	IPayload,
 } from "../interfaces/socketInterfaces";
+import {UserData} from "../interfaces/user";
 import {Paths, PathsSet} from "../paths/SocketPaths";
+import {onRedirect} from "../services/socketServices";
 
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
 	Paths.Base,
@@ -21,20 +25,35 @@ const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
 		},
 	}
 );
-function onRedirect(this: any, args: IPayload) {
-	const navigate = useNavigate();
-	console.log("Redirect Requested here", args);
-	if (PathsSet.includes(args.data.path)) navigate(args.data.path);
-}
+const UserContext = createContext<UserData>({});
 export const RootPage = () => {
-	const [navLink, setNavLink] = useState<string>("");
+	const [userData, setUserData] = useState<UserData>();
+	const user = useContext(UserContext);
 	const navigate = useNavigate();
 	console.log("Loading Root");
 	function onConnect() {
 		console.log("Connected With Base Server: ", socket.id);
 	}
-
+	function onAuthTokenRes(args: IPayload) {
+		if (args.status != HttpStatusCode.OK) {
+			console.log("ERROR: BAD HTTP RESPONSE ", args.status);
+		} else if (args.data.user && localStorage.getItem("token")) {
+			setUserData({
+				name: args.data.user.name,
+				token: localStorage.token,
+			});
+			console.log("Setting user data: ", args.data.user);
+		} else {
+			console.log("No user data in payload: ", args);
+			navigate(Paths.Auth.Login);
+		}
+	}
 	socket.on("connect", onConnect);
-	socket.on("redirect", onRedirect);
-	return <Outlet />;
+	socket.on("authTokenValRes", onAuthTokenRes);
+	socket.on("redirect", (args: IPayload) => onRedirect(navigate, args));
+	return (
+		<UserContext.Provider value={userData ?? {}}>
+			<Outlet />
+		</UserContext.Provider>
+	);
 };
