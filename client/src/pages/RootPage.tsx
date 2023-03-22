@@ -6,6 +6,7 @@ import {
 	useNavigate,
 } from "react-router-dom";
 import {Socket, io} from "socket.io-client";
+import App from "../App";
 import HttpStatusCode from "../constants/HttpStatusCodes";
 //import { UserContext } from "../context/userContext";
 import {
@@ -13,9 +14,10 @@ import {
 	ClientToServerEvents,
 	IPayload,
 } from "../interfaces/socketInterfaces";
-import {UserData} from "../interfaces/user";
+import {IUser, UserData} from "../interfaces/user";
 import {Paths, PathsSet} from "../paths/SocketPaths";
 import {onRedirect} from "../services/socketServices";
+import {LoginPage} from "./LoginPage";
 
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
 	Paths.Base,
@@ -25,9 +27,9 @@ const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
 		},
 	}
 );
-const UserContext = createContext<UserData>({});
+const UserContext = createContext<UserData>(undefined);
 export const RootPage = () => {
-	const [userData, setUserData] = useState<UserData>();
+	const [userData, setUserData] = useState<IUser>();
 	const user = useContext(UserContext);
 	const navigate = useNavigate();
 	console.log("Loading Root");
@@ -52,8 +54,8 @@ export const RootPage = () => {
 	socket.on("authTokenValRes", onAuthTokenRes);
 	socket.on("redirect", (args: IPayload) => onRedirect(navigate, args));
 	return (
-		<UserContext.Provider value={userData ?? {}}>
-			<Outlet />
+		<UserContext.Provider value={userData}>
+			<App />
 		</UserContext.Provider>
 	);
 };

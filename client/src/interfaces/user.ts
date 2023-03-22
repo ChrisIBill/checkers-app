@@ -1,4 +1,6 @@
-export interface UserData {
-	name?: string;
-	token?: string;
+export interface IUser {
+	name: string;
+	token: string;
 }
+
+export type UserData = IUser | undefined;

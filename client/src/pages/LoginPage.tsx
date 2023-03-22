@@ -11,6 +11,7 @@ import {
 } from "../interfaces/socketInterfaces";
 import {UserData} from "../interfaces/user";
 import {Paths, PathsSet} from "../paths/SocketPaths";
+import {onRedirect} from "../services/socketServices";
 
 const socket: Socket<ServerToClientAuthEvents, ClientToServerAuthEvents> = io(
 	Paths.Auth.Base
@@ -29,11 +30,12 @@ const getAuthLoginRes = (args: any[]) => {
 	} else console.log("Error: Bad Res");
 };
 export const LoginPage = () => {
+	const [userCreds, setUserCreds] = useState<string>();
 	const [userData, setUserData] = useState<UserData>();
 	const navigate = useNavigate();
 	const handleLoginPress = () => {
 		console.log("Login Click.");
-		userData
+		userCreds
 			? socket.emit("authLoginReq", {
 					data: userData,
 					status: HttpStatusCode.OK,
@@ -42,7 +44,7 @@ export const LoginPage = () => {
 	};
 	const handleSignUpPress = () => {
 		console.log("Sign-Up Click.");
-		userData
+		userCreds
 			? socket.emit("authSignUpReq", {
 					data: userData,
 					status: HttpStatusCode.OK,
@@ -61,24 +63,14 @@ export const LoginPage = () => {
 			localStorage.setItem("token", args[0].id);
 		}
 	});
-	function onRedirect(args: IPayload) {
-		console.log("Redirect Requested", args);
-		if (PathsSet.includes(args.data)) {
-			navigate(args.data);
-		} else {
-			console.log("Error: Bad Response");
-		}
-	}
-	socket.on("redirect", onRedirect);
 	socket.on("authLoginRes", (args: IPayload) => {
 		console.log("Server Login Res: ", args);
 		if ("data" in args && "id" in args.data) {
 			localStorage.setItem("token", args.data.id);
 		}
 	});
-	/* useEffect(() => {
-		localStorage.setItem("token", token);
-	}, [userData]); */
+	socket.on("redirect", (args: IPayload) => onRedirect(navigate, args));
+
 	return (
 		<Box sx={{width: 300, height: 300, backgroundColor: "gray"}}>
 			<Paper elevation={5}>
@@ -88,7 +80,7 @@ export const LoginPage = () => {
 					variant="outlined"
 					autoFocus={true}
 					onChange={(event) => {
-						setUserData({name: event.target.value});
+						setUserCreds(event.target.value);
 					}}
 				/>
 				<Button variant="contained" onClick={handleLoginPress}>

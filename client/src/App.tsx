@@ -36,13 +36,16 @@ function App() {
 	const test = 12;
 	let args: any[];
 	const user = useContext(UserContext);
-	const [userData, setUserData] = useState<UserData>();
+	//const [userData, setUserData] = useState<UserData>(user);
 	const [userToken, setUserToken] = useState<string>();
 	const [checkersServerData, setCheckersServerData] =
 		useState<CheckersBoardJSON>();
 	const [player, setPlayer] = useState<PlayerTokens>();
 	const [gameState, setGameState] = useState<CheckersGameState>();
 
+	if (user == undefined) {
+		console.log("ERROR: User data is undefined");
+	}
 	socket.on("connect", () => {
 		console.log("Connected with App Server: ", socket.id);
 		//socket.emit("authTokenValidation", localStorage.token);
@@ -63,8 +66,7 @@ function App() {
 	console.log("User Context: ", user);
 	return (
 		<div className="App">
-			{user}
-			{/* {userData ? <CheckersPage game={gameState!} /> : <LoginPage />} */}
+			{user ? <CheckersPage game={gameState!} /> : <LoginPage />}
 		</div>
 	);
 }
