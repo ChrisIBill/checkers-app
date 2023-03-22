@@ -1,6 +1,6 @@
 import {PIECE_TOKENS, VALID_TOKENS} from "../lib/checkersData";
 import {CompressedCheckersGameState} from "./checkersInterfaces";
-import {UserData} from "./user";
+import {UserData} from "./userInterfaces";
 
 /* 
 move_desc: start | piece[startpos]>pos[endpos] & takenpiece[pos] 

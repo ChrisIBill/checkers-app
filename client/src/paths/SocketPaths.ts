@@ -1,6 +1,8 @@
 export const Paths = {
 	Base: "/",
-	App: "/App",
+	App: {
+		Base: "/App",
+	},
 	Auth: {
 		Base: "/Auth",
 		Login: "/Auth/Login",

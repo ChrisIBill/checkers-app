@@ -15,6 +15,7 @@ import {Paths} from "./paths/SocketPaths";
 import {RootPage} from "./pages/RootPage";
 import {AuthPage, LoginPage} from "./pages/LoginPage";
 import {ErrorPage} from "./pages/ErrorPage";
+import {CheckersPage} from "./pages/CheckersPage";
 const routes = [
 	{
 		path: Paths.Base,
@@ -30,7 +31,7 @@ const routes = [
 				element: <LoginPage />,
 			},
 			{
-				path: Paths.App,
+				path: Paths.App.Base,
 				element: <App />,
 			},
 		],
@@ -41,11 +42,10 @@ const routes = [
 	<Route path={Paths.Auth.Base} element={<RootPage />} />
 ); */
 const router = createBrowserRouter(routes);
-console.log(router);
-console.log("Routes: ", routes);
 const root = ReactDOM.createRoot(
 	document.getElementById("root") as HTMLElement
 );
+console.log("Index");
 root.render(<RouterProvider router={router} />);
 
 // If you want to start measuring performance in your app, pass a function

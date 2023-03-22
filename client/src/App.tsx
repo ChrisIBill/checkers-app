@@ -9,7 +9,7 @@ import {
 	ValidTokens,
 } from "./interfaces/interfaces";
 import {zipGameState, unzipGameState} from "./lib/serverHandlers";
-import {UserData} from "./interfaces/user";
+import {IUser, UserContextType, UserData} from "./interfaces/userInterfaces";
 import {LoginPage} from "./pages/LoginPage";
 import {
 	CheckersGameState,
@@ -23,8 +23,11 @@ import {
 	IPayload,
 } from "./interfaces/socketInterfaces";
 import {UserContext} from "./context/userContext";
+import {ErrorBoundary} from "react-error-boundary";
+import {UserPanel} from "./components/UserComponents";
+import {useOutletContext} from "react-router-dom";
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-	Paths.App,
+	Paths.App.Base,
 	{
 		auth: (cb) => {
 			cb({token: localStorage.token});
@@ -35,15 +38,16 @@ const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
 function App() {
 	const test = 12;
 	let args: any[];
-	const user = useContext(UserContext);
-	//const [userData, setUserData] = useState<UserData>(user);
+	//User Info
+	const userContext = useOutletContext<UserContextType>();
+	const userData: UserData = userContext.userData;
 	const [userToken, setUserToken] = useState<string>();
 	const [checkersServerData, setCheckersServerData] =
 		useState<CheckersBoardJSON>();
 	const [player, setPlayer] = useState<PlayerTokens>();
 	const [gameState, setGameState] = useState<CheckersGameState>();
-
-	if (user == undefined) {
+	console.log("In App");
+	if (userData == undefined) {
 		console.log("ERROR: User data is undefined");
 	}
 	socket.on("connect", () => {
@@ -63,11 +67,17 @@ function App() {
 			});
 		});
 	});
-	console.log("User Context: ", user);
+	console.log("User Context: ", userContext);
+	console.log("User data: ", userData);
 	return (
-		<div className="App">
-			{user ? <CheckersPage game={gameState!} /> : <LoginPage />}
-		</div>
+		<ErrorBoundary fallback={<div>Something went wrong in App Page</div>}>
+			<div className="App">
+				<ErrorBoundary fallback={<div>User Panel Error</div>}>
+					<UserPanel userData={userData} />
+				</ErrorBoundary>
+				{/* {user ? <CheckersPage game={gameState!} /> : <LoginPage />} */}
+			</div>
+		</ErrorBoundary>
 	);
 }
 

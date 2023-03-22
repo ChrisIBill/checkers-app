@@ -79,7 +79,11 @@ io.use(async (socket, next) => {
         console.log("User from token: ", user);
         //Do i need to redirect here?
         authTokenResEmit(socket, user);
-        redirectEmit(socket, Paths.App, HttpStatusCodes.PERMANENT_REDIRECT);
+        redirectEmit(
+            socket,
+            Paths.App.Base,
+            HttpStatusCodes.PERMANENT_REDIRECT
+        );
     } else {
         console.log("No user found, redirecting");
         authTokenResEmit(socket);
@@ -114,17 +118,13 @@ app.use(
 );
 
 // ** Front-End Content ** //
-app.get("/", (res, req) => {
+/* app.get("/", (res, req) => {
     req.json({ message: "Connected with Root Server" });
     console.log("Root access detected");
 });
 app.get("/GameData/Checkers", (res, req) => {
     req.json({ message: "Connected with Checkers Server" });
-    /* req.json({
-        moveDesc: "start",
-        boardState: "0::12w8n12b",
-    }); */
-});
+}); */
 
 const onConnection = (socket: Socket) => {
     //Default Connection, nav to current user pos?
@@ -156,7 +156,7 @@ const checkersConnection = (socket: Socket) => {
 };
 io.of(Paths.Base).on("connection", onConnection);
 io.of(Paths.Auth.Base).on("connection", authConnection);
-io.of(Paths.App).on("connection", appConnection);
+io.of(Paths.App.Base).on("connection", appConnection);
 io.of(Paths.Games.Checkers).on("connection", checkersConnection);
 
 // **** Export default **** //

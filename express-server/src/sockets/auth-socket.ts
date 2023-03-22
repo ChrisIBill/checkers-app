@@ -28,13 +28,13 @@ export async function handleLoginRequest(this: Socket, payload: IPayload) {
     const socket = this;
     console.log("Handling Login Request");
     console.log("Payload: ", payload);
-    if (!payload.data.name) {
+    if (!payload.data) {
         throw new RouteError(
             HttpStatusCodes.NOT_ACCEPTABLE,
             USER_NOT_FOUND_ERR
         );
     }
-    const user = await userLoginAuth(payload.data.name);
+    const user = await userLoginAuth(payload.data);
     if (!user) {
         throw new RouteError(HttpStatusCodes.NOT_FOUND, USER_NOT_FOUND_ERR);
     } else {
@@ -83,7 +83,7 @@ export async function handleAuthorization(io: Server, socket: Socket) {
 
 export async function authTokenResEmit(socket: Socket, user?: IUser) {
     const stat = user ? HttpStatusCodes.OK : HttpStatusCodes.TEMPORARY_REDIRECT;
-    const path: ClientPaths = user ? Paths.App : Paths.Auth.Login;
+    const path: ClientPaths = user ? Paths.App.Base : Paths.Auth.Login;
     const payload: IPayload = {
         data: {
             path,

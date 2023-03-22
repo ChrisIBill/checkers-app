@@ -14,7 +14,7 @@ import {
 	ClientToServerEvents,
 	IPayload,
 } from "../interfaces/socketInterfaces";
-import {IUser, UserData} from "../interfaces/user";
+import {IUser, UserData} from "../interfaces/userInterfaces";
 import {Paths, PathsSet} from "../paths/SocketPaths";
 import {onRedirect} from "../services/socketServices";
 import {LoginPage} from "./LoginPage";
@@ -27,10 +27,8 @@ const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
 		},
 	}
 );
-const UserContext = createContext<UserData>(undefined);
 export const RootPage = () => {
-	const [userData, setUserData] = useState<IUser>();
-	const user = useContext(UserContext);
+	const [userData, setUserData] = useState<IUser | null>();
 	const navigate = useNavigate();
 	console.log("Loading Root");
 	function onConnect() {
@@ -54,8 +52,8 @@ export const RootPage = () => {
 	socket.on("authTokenValRes", onAuthTokenRes);
 	socket.on("redirect", (args: IPayload) => onRedirect(navigate, args));
 	return (
-		<UserContext.Provider value={userData}>
-			<App />
-		</UserContext.Provider>
+		<div className="RootWrapper">
+			<Outlet context={{userData}} />
+		</div>
 	);
 };

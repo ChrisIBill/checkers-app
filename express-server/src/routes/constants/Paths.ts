@@ -7,7 +7,9 @@ import { Immutable } from "@src/other/types";
 
 const Paths = {
     Base: <ClientPaths>"/",
-    App: <ClientPaths>"/App",
+    App: {
+        Base: <ClientPaths>"/App",
+    },
     Auth: {
         Base: <ClientPaths>"/Auth",
         Login: <ClientPaths>"/Auth/Login",

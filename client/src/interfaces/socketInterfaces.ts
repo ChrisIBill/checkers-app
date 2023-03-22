@@ -1,5 +1,5 @@
 import HttpStatusCode from "../constants/HttpStatusCodes";
-import {UserData} from "./user";
+import {UserData} from "./userInterfaces";
 
 export interface ExpressServerConnectionEvent {
 	message: string;

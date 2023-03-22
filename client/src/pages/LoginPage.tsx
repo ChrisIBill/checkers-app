@@ -9,35 +9,25 @@ import {
 	IPayload,
 	ServerToClientAuthEvents,
 } from "../interfaces/socketInterfaces";
-import {UserData} from "../interfaces/user";
+import {IUser, UserData} from "../interfaces/userInterfaces";
 import {Paths, PathsSet} from "../paths/SocketPaths";
+import {onAuthSignUpRes, onAuthLoginRes} from "../services/authServices";
 import {onRedirect} from "../services/socketServices";
 
 const socket: Socket<ServerToClientAuthEvents, ClientToServerAuthEvents> = io(
 	Paths.Auth.Base
 );
 
-const getAuthSignUpRes = (args: any[]) => {
-	console.log("Server Sign Up Res: ", args);
-	if (args[0] > 0) {
-		localStorage.setItem("token", args[1]);
-	}
-};
-const getAuthLoginRes = (args: any[]) => {
-	console.log("Server Login Res: ", args);
-	if (args[0] > 0) {
-		localStorage.setItem("token", args[1]);
-	} else console.log("Error: Bad Res");
-};
 export const LoginPage = () => {
 	const [userCreds, setUserCreds] = useState<string>();
-	const [userData, setUserData] = useState<UserData>();
+	const [userData, setUserData] = useState<IUser>();
 	const navigate = useNavigate();
 	const handleLoginPress = () => {
 		console.log("Login Click.");
+		console.log("AuthLoginReq: ", userCreds);
 		userCreds
 			? socket.emit("authLoginReq", {
-					data: userData,
+					data: userCreds,
 					status: HttpStatusCode.OK,
 			  })
 			: console.log("Error: No User Data");
@@ -57,19 +47,8 @@ export const LoginPage = () => {
 	socket.on("disconnect", () => {
 		console.log("Disconnected from auth server");
 	});
-	socket.on("authSignUpRes", (args: any[]) => {
-		console.log("Server Sign Up Res: ", args);
-		if ("id" in args[0]) {
-			localStorage.setItem("token", args[0].id);
-		}
-	});
-	socket.on("authLoginRes", (args: IPayload) => {
-		console.log("Server Login Res: ", args);
-		if ("data" in args && "id" in args.data) {
-			localStorage.setItem("token", args.data.id);
-		}
-	});
-	socket.on("redirect", (args: IPayload) => onRedirect(navigate, args));
+	socket.on("authSignUpRes", onAuthSignUpRes);
+	socket.on("authLoginRes", onAuthLoginRes);
 
 	return (
 		<Box sx={{width: 300, height: 300, backgroundColor: "gray"}}>
