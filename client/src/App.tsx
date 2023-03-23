@@ -15,7 +15,7 @@ import {
 	CheckersGameState,
 	CheckersRoomState,
 } from "./interfaces/checkersInterfaces";
-import {PIECE_TOKENS} from "./lib/checkersData";
+import {PIECE_TOKENS} from "./constants/checkersData";
 import {Paths} from "./paths/SocketPaths";
 import {
 	ServerToClientEvents,
@@ -26,7 +26,7 @@ import {UserContext} from "./context/userContext";
 import {ErrorBoundary} from "react-error-boundary";
 import {UserPanel} from "./components/UserComponents";
 import {useNavigate, useOutletContext} from "react-router-dom";
-import { PlayCheckersButton } from "./components/GameComponents";
+import { PlayGamesButton } from "./components/GameComponents";
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
 	Paths.App.Base,
 	{
@@ -70,7 +70,7 @@ function App() {
 		});
 	});
 	function onPlayCheckersClick() {
-		
+		navigate(Paths.Games.Base)
 	}
 	console.log("User Context: ", userContext);
 	console.log("User data: ", userData);
@@ -81,9 +81,9 @@ function App() {
 					<UserPanel userData={userData} />
 				</ErrorBoundary>
 				<ErrorBoundary fallback={<div>User Panel Error</div>}>
-					<PlayCheckersButton onClick={onPlayCheckersClick} />
+					<PlayGamesButton onClick={onPlayCheckersClick} />
 				</ErrorBoundary>
-				{userData ? <CheckersPage game={gameState!} /> : <LoginPage />}
+				{/* {userData ? <CheckersPage game={gameState!} /> : <LoginPage />} */}
 			</div>
 		</ErrorBoundary>
 	);

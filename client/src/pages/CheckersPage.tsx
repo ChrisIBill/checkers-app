@@ -5,7 +5,7 @@ import {
 	DEFAULT_CHECKERS_BOARD,
 	NUM_PLAYER_TOKEN_TYPES,
 	PIECE_TOKENS,
-} from "../lib/checkersData";
+} from "../constants/checkersData";
 import {zipGameState, unzipGameState} from "../lib/serverHandlers";
 import "./CheckersPage.scss";
 import {
@@ -24,9 +24,16 @@ import {
 	ClientToServerEvents,
 	ServerToClientEvents,
 } from "../interfaces/socketInterfaces";
+import {Paths} from "../paths/SocketPaths";
 
-const socket: Socket<ServerToClientEvents, ClientToServerEvents> =
-	io("/Games/Checkers");
+const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
+	Paths.Games.Checkers,
+	{
+		auth: (cb) => {
+			cb({token: localStorage.token});
+		},
+	}
+);
 const CheckersSquare = ({
 	elem,
 	index,

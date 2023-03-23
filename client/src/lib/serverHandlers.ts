@@ -1,5 +1,5 @@
 import {PlayerTokens, ValidTokens} from "../interfaces/interfaces";
-import {VALID_TOKENS, VALID_TOKENS_STRING} from "./checkersData";
+import {VALID_TOKENS, VALID_TOKENS_STRING} from "../constants/checkersData";
 
 export function unzipGameState(str: string): ValidTokens[] {
 	const board: ValidTokens[] = [];

@@ -11,7 +11,7 @@ import {
 	NUM_PLAYER_TOKEN_TYPES,
 	BOARD_ROW_LENGTH,
 	VALID_TOKENS,
-} from "./checkersData";
+} from "../constants/checkersData";
 
 export function findValidMoves(boardState: ValidTokens[], selectIndex: number) {
 	const selToken = boardState[selectIndex];

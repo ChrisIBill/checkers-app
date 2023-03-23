@@ -1,4 +1,4 @@
-import {PIECE_TOKENS, VALID_TOKENS} from "../lib/checkersData";
+import {PIECE_TOKENS, VALID_TOKENS} from "../constants/checkersData";
 import {CompressedCheckersGameState} from "./checkersInterfaces";
 import {UserData} from "./userInterfaces";
 

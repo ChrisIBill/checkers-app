@@ -1,6 +1,11 @@
 import HttpStatusCode from "../constants/HttpStatusCodes";
+import {GameTypes, MatchmakingTypes} from "./GameInterfaces";
+import {PlayerTokens} from "./interfaces";
 import {UserData} from "./userInterfaces";
 
+export interface ISocketResponse {
+	status: HttpStatusCode;
+}
 export interface ExpressServerConnectionEvent {
 	message: string;
 }
@@ -51,6 +56,58 @@ export interface ClientToServerAuthEvents {
 	authLoginReq: (args: IPayload) => void;
 }
 
-export interface InterServerEvents {
-	ping: () => void;
+/* Game Socket */
+/* Server */
+export interface CheckersRoomConnectPayload extends ISocketResponse {
+	data: {
+		boardState: string;
+		playerTokens: PlayerTokens;
+		isClientTurn: boolean;
+		turnNum?: number;
+	};
+}
+export interface CheckersUpdateClientType extends ISocketResponse {
+	/* status: if  */
+	data: {
+		boardState: string;
+		movesList: MovesListType;
+		isClientTurn: boolean;
+		turnNum?: number;
+	};
+}
+export interface ServerToClientGameEvents {
+	/* just a standard status response informing client of success/failure w/ roomID as data*/
+	gamesJoinRoomRes: (args: IPayload) => void;
+	/* Need to decide if rooms should be closed when empty or not */
+	gamesLeaveRoomRes: (args: IPayload) => void;
+	/* Handles room connection, gives client room id (or name), the current board state (default if new game),
+	 their token type*/
+	gamesCheckersRoomConnect: (args: IPayload) => void;
+	/* Provides updated game state */
+	gamesUpdateClientGameState: (args: IPayload) => void;
+	/* just an http status res on the validity of the client update */
+	gamesUpdateServerRes: (args: ISocketResponse) => void;
+}
+/* Client */
+export interface ClientJoinRoomReqType {
+	gameType: GameTypes;
+	matchmakingType?: MatchmakingTypes;
+	roomID?: string;
+}
+/* Array of moves, contains orig index of piece and index of move loc */
+export type MovesListType = [[number, number]];
+export interface CheckersUpdateServerType extends ISocketResponse {
+	/* status: if error in loading status res here? */
+	data: {
+		boardState: string /* p12E8P12 or the like */;
+		movesList: MovesListType /*  */;
+	};
+}
+export interface ClientToServerGameEvents {
+	gamesJoinRoomReq: (args: ClientJoinRoomReqType) => void;
+	gamesLeaveRoomReq: (args: IPayload) => void;
+	/* Gives server players moves, server needs to check for validity and legality */
+	gamesUpdateServerGameState: (args: IPayload) => void;
+	/* just an http status res on the validity of the client update */
+	gamesUpdateClientRes: (args: ISocketResponse) => void;
 }
