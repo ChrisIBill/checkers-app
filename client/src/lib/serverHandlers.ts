@@ -33,7 +33,7 @@ export function unzipGameState(str: string): ValidTokens[] {
 	return board;
 }
 
-export function zipGameState(gameState: string[]): string {
+export function zipGameState(gameState: ValidTokens[]): string {
 	//[p,p,p,p,p,p,p,p,p,p,p,p,E,E,E,E...] -> p12/E8/P12/
 	let i = 0;
 	let num = 1;
@@ -50,7 +50,7 @@ export function zipGameState(gameState: string[]): string {
 		} else {
 			return acc;
 		}
-	});
+	}, "" as string);
 	console.log("Comp gameState: ", ret);
 	return ret;
 }
