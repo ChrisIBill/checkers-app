@@ -82,9 +82,9 @@ export interface ServerToClientGameEvents {
 	gamesLeaveRoomRes: (args: IPayload) => void;
 	/* Handles room connection, gives client room id (or name), the current board state (default if new game),
 	 their token type*/
-	gamesCheckersRoomConnect: (args: IPayload) => void;
+	gamesCheckersRoomConnect: (args: CheckersRoomConnectPayload) => void;
 	/* Provides updated game state */
-	gamesUpdateClientGameState: (args: IPayload) => void;
+	gamesUpdateClientGameState: (args: CheckersUpdateClientType) => void;
 	/* just an http status res on the validity of the client update */
 	gamesUpdateServerRes: (args: ISocketResponse) => void;
 }
@@ -107,7 +107,7 @@ export interface ClientToServerGameEvents {
 	gamesJoinRoomReq: (args: ClientJoinRoomReqType) => void;
 	gamesLeaveRoomReq: (args: IPayload) => void;
 	/* Gives server players moves, server needs to check for validity and legality */
-	gamesUpdateServerGameState: (args: IPayload) => void;
+	gamesUpdateServerGameState: (args: CheckersUpdateServerType) => void;
 	/* just an http status res on the validity of the client update */
 	gamesUpdateClientRes: (args: ISocketResponse) => void;
 }

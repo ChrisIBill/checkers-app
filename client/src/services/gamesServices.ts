@@ -1,14 +1,17 @@
 import {Socket} from "socket.io-client";
+import HttpStatusCode from "../constants/HttpStatusCodes";
 import {GameTypes, MatchmakingTypes} from "../interfaces/GameInterfaces";
 import {ValidTokens} from "../interfaces/interfaces";
 import {
 	CheckersRoomConnectPayload,
 	CheckersUpdateClientType,
+	CheckersUpdateServerType,
 	ClientJoinRoomReqType,
 	IPayload,
 	ISocketResponse,
 	MovesListType,
 } from "../interfaces/socketInterfaces";
+import {zipGameState} from "../lib/serverHandlers";
 
 export function onJoinGameRoomRes(args: IPayload) {
 	console.log("Found game room for client");
@@ -38,6 +41,14 @@ export function emitJoinGameRoomReq(req: ClientJoinRoomReqType) {
 export function emitClientGameState(
 	board: ValidTokens[],
 	movesList: MovesListType
-) {
+): CheckersUpdateServerType {
+	const compBoard = zipGameState(board);
+	return {
+		status: HttpStatusCode.OK,
+		data: {
+			boardState: compBoard,
+			movesList: movesList,
+		},
+	};
 	/* compress client game state and emit to server */
 }

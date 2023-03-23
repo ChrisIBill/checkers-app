@@ -11,13 +11,18 @@ import {
 	MatchmakingTypes,
 } from "../interfaces/GameInterfaces";
 import {
-	ServerToClientEvents,
-	ClientToServerEvents,
+	ClientToServerGameEvents,
+	ServerToClientGameEvents,
 } from "../interfaces/socketInterfaces";
 import {Paths} from "../paths/SocketPaths";
+import {
+	onCheckersRoomConnect,
+	onJoinGameRoomRes,
+	onLeaveGameRoomRes,
+} from "../services/gamesServices";
 import {CheckersPage} from "./CheckersPage";
 
-const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
+const socket: Socket<ServerToClientGameEvents, ClientToServerGameEvents> = io(
 	Paths.Games.Base,
 	{
 		auth: (cb) => {
@@ -39,12 +44,20 @@ export const GamesPage = () => {
 	const [status, setStatus] = useState<GameStatusType>("selecting");
 	const [gameType, setGameType] = useState<GameTypes>();
 	const [playType, setPlayType] = useState<MatchmakingTypes>();
-	function onPlayTypeClick(gameSel: GameTypes, vsSel: MatchmakingTypes) {
+	function onPlayTypeClick(vsSel: MatchmakingTypes) {
 		/* if (vsSel == "local") {
             setStatus("")
         } */
 		setStatus("connecting");
+		setPlayType(vsSel);
+		socket.emit("gamesJoinRoomReq", {
+			gameType: gameType,
+			matchmakingType: vsSel,
+		});
 	}
+	socket.on("gamesJoinRoomRes", onJoinGameRoomRes);
+	socket.on("gamesLeaveRoomRes", onLeaveGameRoomRes);
+	socket.on("gamesCheckersRoomConnect", onCheckersRoomConnect);
 	console.log("Game Page States: ", status, gameType, playType);
 	return (
 		<Container sx={{display: () => displayGameSelection(status)}}>
