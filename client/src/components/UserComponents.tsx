@@ -1,4 +1,5 @@
 import {Box} from "@mui/material";
+import { red } from "@mui/material/colors";
 import {ErrorBoundary} from "react-error-boundary";
 import {IUser, UserPanelProps} from "../interfaces/userInterfaces";
 
@@ -10,5 +11,5 @@ export const UserPanel: React.FC<UserPanelProps> = (props) => {
 	} else {
 		userName = props.userData.name;
 	}
-	return <Box>{userName}</Box>;
+	return <Box sx={{backgroundColor: "red", width: "200px", height: "200px"}}>{userName}</Box>;
 };
