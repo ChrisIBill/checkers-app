@@ -69,17 +69,17 @@ export const GamesPage = () => {
 			</Box>
 			<Box>
 				<PlayGamesButton
-					onClick={() => setPlayType("local")}
+					onClick={() => onPlayTypeClick("local")}
 					text="Local"
 					isDisabled={gameType ? false : true}
 				/>
 				<PlayGamesButton
-					onClick={() => setPlayType("computer")}
+					onClick={() => onPlayTypeClick("pvp")}
 					text="vs Computer"
 					isDisabled={gameType ? false : true}
 				/>
 				<PlayGamesButton
-					onClick={() => setPlayType("pvp")}
+					onClick={() => onPlayTypeClick("computer")}
 					text="vs Player"
 					isDisabled={gameType ? false : true}
 				/>
