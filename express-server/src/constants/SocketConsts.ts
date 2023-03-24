@@ -12,4 +12,4 @@ export const SOCKET_ROOM_STATUS_TYPES = [
     "full",
     "private",
     "init",
-] as const;
+];

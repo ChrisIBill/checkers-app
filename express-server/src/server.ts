@@ -32,7 +32,7 @@ import {
     handleSignUpRequest,
     userLoginAuth,
 } from "./sockets/auth-socket";
-import User, { IUser } from "./models/myUser";
+import User, { IUser } from "./models/User";
 import myUserService from "./services/myUserService";
 import { redirectEmit } from "./sockets/emits";
 // **** Variables **** //
