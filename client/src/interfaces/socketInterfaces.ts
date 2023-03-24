@@ -58,6 +58,14 @@ export interface ClientToServerAuthEvents {
 
 /* Game Socket */
 /* Server */
+/**
+ * @property status: HTTPStatusCode
+ * @property data: {
+ *    @property boardState: string
+ * 	  @property playerTokens: PlayerTokens
+ *    @property isClientTurn: boolean
+ *    @property turnNum?: number
+ */
 export interface CheckersRoomConnectPayload extends ISocketResponse {
 	data: {
 		boardState: string;
@@ -111,3 +119,9 @@ export interface ClientToServerGameEvents {
 	/* just an http status res on the validity of the client update */
 	gamesUpdateClientRes: (args: ISocketResponse) => void;
 }
+export interface ServerToClientCheckersEvents {
+	checkersGameStateUpdate: (args: IPayload) => void;
+	checkersGameStateUpdateRes: (args: IPayload) => void;
+}
+
+export interface ClientToServerCheckersEvents {}

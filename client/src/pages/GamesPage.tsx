@@ -4,6 +4,7 @@ import {useState} from "react";
 import {Socket, io} from "socket.io-client";
 import {PlayGamesButton} from "../components/GameComponents";
 import {DEFAULT_CHECKERS_BOARD} from "../constants/checkersData";
+import HttpStatusCode from "../constants/HttpStatusCodes";
 import {GAME_STATUS_TYPES} from "../constants/SocketConsts";
 import {
 	GameStatusType,
@@ -11,6 +12,7 @@ import {
 	MatchmakingTypes,
 } from "../interfaces/GameInterfaces";
 import {
+	CheckersRoomConnectPayload,
 	ClientToServerGameEvents,
 	ServerToClientGameEvents,
 } from "../interfaces/socketInterfaces";
@@ -54,6 +56,16 @@ export const GamesPage = () => {
 			gameType: gameType,
 			matchmakingType: vsSel,
 		});
+	}
+	function onLocalCheckersRoomConnect(args: CheckersRoomConnectPayload) {
+		setStatus("loading");
+		if (args.status != HttpStatusCode.OK) {
+			console.log(
+				"ERROR<BADRES>: on room connect, server res status = ",
+				args.status
+			);
+			return;
+		}
 	}
 	socket.on("gamesJoinRoomRes", onJoinGameRoomRes);
 	socket.on("gamesLeaveRoomRes", onLeaveGameRoomRes);
