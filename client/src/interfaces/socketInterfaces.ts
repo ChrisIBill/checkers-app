@@ -33,8 +33,8 @@ export interface InterServerEvents {
 	ping: () => void;
 }
 export interface IPayload {
-	data: any;
 	status: HttpStatusCode;
+	data?: any;
 }
 export interface SocketData {
 	name: string;

@@ -1,5 +1,5 @@
+import { CHECKERS_ROOM_STATUS_TYPES } from "../constants/checkersData";
 import {
-    CHECKERS_GAME_STATUS,
     PIECE_TOKENS,
     PLAYER_TYPE,
     VALID_TOKENS,
@@ -17,15 +17,18 @@ export interface CompressedCheckersGameState {
     curPlayer: number;
     turnNum?: number;
 }
-
-export type Checkers_Game_Status = typeof CHECKERS_GAME_STATUS[number];
+/**
+ * "empty" | "open" | "full" | "private" |
+ * "init" | "p1_turn" | "p2_turn" | "error"
+ */
+export type Checkers_Game_Status = typeof CHECKERS_ROOM_STATUS_TYPES[number];
 export type PlayerType = typeof PLAYER_TYPE[number];
 export interface CheckersPlayer {
     id: string;
     playerType: PlayerType;
     status: "connected" | "error";
 }
-export interface CheckersRoom {
+/* export interface CheckersRoom {
     id: string;
     players: CheckersPlayer[];
     status:
@@ -35,4 +38,4 @@ export interface CheckersRoom {
         | "p2_turn"
         | "error";
     boardState: string;
-}
+} */

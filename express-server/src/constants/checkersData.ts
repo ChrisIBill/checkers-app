@@ -1,6 +1,6 @@
+import { SOCKET_ROOM_STATUS_TYPES } from "./SocketConsts";
 import {
     CheckersGameState,
-    CheckersRoom,
     CompressedCheckersGameState,
     ValidTokens,
 } from "@src/interfaces/checkersInterfaces";
@@ -66,18 +66,20 @@ export const COMPRESSED_DEFAULT_GAME_STATE: CompressedCheckersGameState = {
     boardState: "p12/E8/P12",
     curPlayer: 0,
 };
-export const CHECKERS_GAME_STATUS = [
-    "waitingForPlayers",
+/**
+ * @property "empty", "open", "full", "private", "init"
+ * @property "missingPlayer", "p1_turn", "p2_turn", "gameOver"
+ */
+export const CHECKERS_ROOM_STATUS_TYPES = SOCKET_ROOM_STATUS_TYPES.concat([
     "missingPlayer",
-    "initializing",
     "p1_turn",
     "p2_turn",
-    "error",
-];
+    "gameOver",
+]);
 export const PLAYER_TYPE = ["player1", "player2", "spectator"] as const;
-export const DEFAULT_CHECKERS_ROOM: CheckersRoom = {
+/* export const DEFAULT_CHECKERS_ROOM: CheckersRoom = {
     id: "0",
     players: [],
     status: "waitingForPlayers",
     boardState: "p12/E8/P12",
-};
+}; */

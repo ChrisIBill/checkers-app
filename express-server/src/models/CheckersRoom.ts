@@ -4,63 +4,85 @@ import {
     Checkers_Game_Status,
 } from "@src/interfaces/checkersInterfaces";
 import { stat } from "fs";
-
+import { ISocketRoom } from "./SocketRoom";
+import { IUser } from "./User";
+export const DEFAULT_CHECKERS_ROOM_STATE: ICheckersRoomState = {
+    players: [null, null],
+    gameState: DEFAULT_GAME_STATE,
+};
 export type PlayerType = typeof PLAYER_TYPE[number];
-export type CheckersPlayers = [
-    CheckersPlayer | undefined,
-    CheckersPlayer | undefined
-];
-export interface CheckersPlayer {
-    id: string; //
-    status: "connected" | "error";
-}
-export interface ICheckersRoom {
-    id: number;
-    players: [CheckersPlayer | undefined, CheckersPlayer | undefined];
-    status: Checkers_Game_Status;
+export type CheckersPlayers = [string | null, string | null];
+export interface ICheckersRoomState {
+    players: CheckersPlayers;
     gameState: CheckersGameState;
 }
-
+export interface ICheckersRoom extends ISocketRoom {
+    status: Checkers_Game_Status;
+    data: ICheckersRoomState;
+}
 /**
  * @param
  */
 export class CheckersRoom implements ICheckersRoom {
     public id: number;
-    public players: [CheckersPlayer | undefined, CheckersPlayer | undefined];
     public status: Checkers_Game_Status;
-    public gameState: CheckersGameState;
+    public members: Set<string>;
+    public data: ICheckersRoomState;
+
     public constructor(
         id: number,
         status: Checkers_Game_Status,
-        players?: [CheckersPlayer | undefined, CheckersPlayer | undefined],
-        gameState?: CheckersGameState
+        members: Set<string>,
+        data: ICheckersRoomState
     ) {
         this.id = id;
-        this.players = players ?? [undefined, undefined];
+        this.members = members ?? new Set();
         this.status = status;
-        this.gameState = gameState ?? DEFAULT_GAME_STATE;
+        this.data = data ?? DEFAULT_CHECKERS_ROOM_STATE;
     }
-    addPlayer(userName: string): number {
-        console.log("Adding Player");
-        for (let i in this.players) {
-            if (this.players[i] == undefined) {
-                this.players[i] = {
-                    id: userName,
-                    status: "connected",
-                };
-                if (!this.players.includes(undefined)) {
-                    this.status = "initializing";
-                    return 2;
-                }
-                return 1;
+    addMember(username: string): boolean {
+        if (this.members.has(username) || this.status == "private")
+            return false;
+        this.members.add(username);
+        return true;
+    }
+    removeMember(username: string): boolean {
+        if (!this.members.has(username)) return false;
+        this.members.delete(username);
+        return true;
+    }
+    addPlayer(user: string): boolean {
+        if (
+            this.data.players.includes(user) &&
+            this.status != "missingPlayer"
+        ) {
+            console.log("Error: User already in room");
+            return false;
+        }
+        if (["empty", "open"].includes(this.status)) {
+            const open = this.data.players.indexOf(null);
+            if (open == -1) {
+                console.log("Error: Room is full, bad status ", this.status);
+                return false;
+            } else {
+                this.data.players[open] = user;
+                this.addMember(user);
+                console.log("Added player to room", this.data.players);
             }
-        }
-        console.log("Error");
-        return 0;
+            if (this.data.players.includes(null)) this.status = "open";
+            else this.status = "waitingForPlayers";
+        } else console.log("Error: Room is full", this.status);
+        return false;
     }
-    updateStatus() {
-        if (!this.players.includes(undefined)) {
-            this.status = "";
+    removePlayer(user: string): boolean {
+        if (this.data.players.includes(user)) {
+            const index = this.data.players.indexOf(user);
+            this.data.players[index] = null;
+            this.removeMember(user);
+            if (this.data.players.includes(null)) this.status = "open";
+            else this.status = "waitingForPlayers";
+            return true;
         }
+        return false;
     }
 }

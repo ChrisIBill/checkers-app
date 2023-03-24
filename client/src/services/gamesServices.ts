@@ -34,6 +34,10 @@ export function onGameStateUpdateResponse(args: ISocketResponse) {
 	console.log("Received response for the game state update");
 	console.log(args);
 }
+/* Requests server to find game room for user */
+/* export function emitFindGameRoomReq() {
+
+} */
 export function emitJoinGameRoomReq(req: ClientJoinRoomReqType) {
 	/* Request to join room of gametype and match type or gameType and roomID*/
 }
