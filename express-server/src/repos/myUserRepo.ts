@@ -1,4 +1,4 @@
-import { IUser } from "@src/models/myUser";
+import { IUser } from "@src/models/User";
 import { getRandomInt } from "@src/util/misc";
 import orm from "./UserDatabaseHandler";
 

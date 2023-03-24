@@ -1,4 +1,4 @@
-import { IUser } from "@src/models/myUser";
+import { IUser } from "@src/models/User";
 import myUserRepo from "@src/repos/myUserRepo";
 
 async function login(user: IUser) {

@@ -151,12 +151,18 @@ const appConnection = async (socket: Socket) => {
         console.log("Server Side App User Context: ", user);
     }
 };
+const gamesConnection = async (socket: Socket) => {
+    console.log("Games Connection");
+    const token = socket.handshake.auth.token;
+    console.log(token);
+};
 const checkersConnection = (socket: Socket) => {
-    console.log("checkersConnection");
+    console.log("Checkers Connection");
 };
 io.of(Paths.Base).on("connection", onConnection);
 io.of(Paths.Auth.Base).on("connection", authConnection);
 io.of(Paths.App.Base).on("connection", appConnection);
+io.of(Paths.Games.Base).on("connection", gamesConnection);
 io.of(Paths.Games.Checkers).on("connection", checkersConnection);
 
 // **** Export default **** //

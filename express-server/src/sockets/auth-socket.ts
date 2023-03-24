@@ -2,7 +2,7 @@ import { Server, Socket } from "socket.io";
 
 import myUserRepo from "@src/repos/myUserRepo";
 import Paths from "../routes/constants/Paths";
-import User, { IUser } from "@src/models/myUser";
+import User, { IUser } from "@src/models/User";
 import httpServer from "@src/server";
 import { userSignupAuth } from "@src/services/myAuthService";
 import { ClientPaths, IPayload } from "@src/interfaces/socketIO";
