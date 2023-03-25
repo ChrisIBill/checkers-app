@@ -67,6 +67,10 @@ export const GamesPage = () => {
 			return;
 		}
 	}
+	socket.on("connect", () => {
+		console.log("Connected to Games Page");
+		console.log("Socket ID: ", socket.id);
+	});
 	socket.on("gamesJoinRoomRes", onJoinGameRoomRes);
 	socket.on("gamesLeaveRoomRes", onLeaveGameRoomRes);
 	socket.on("gamesCheckersRoomConnect", onCheckersRoomConnect);
@@ -86,12 +90,12 @@ export const GamesPage = () => {
 					isDisabled={gameType ? false : true}
 				/>
 				<PlayGamesButton
-					onClick={() => onPlayTypeClick("pvp")}
+					onClick={() => onPlayTypeClick("computer")}
 					text="vs Computer"
 					isDisabled={gameType ? false : true}
 				/>
 				<PlayGamesButton
-					onClick={() => onPlayTypeClick("computer")}
+					onClick={() => onPlayTypeClick("pvp")}
 					text="vs Player"
 					isDisabled={gameType ? false : true}
 				/>

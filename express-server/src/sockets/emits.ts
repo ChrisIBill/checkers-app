@@ -1,5 +1,5 @@
 import HttpStatusCodes from "@src/constants/HttpStatusCodes";
-import { ClientPaths, IPayload } from "@src/interfaces/socketIO";
+import { ClientPaths, IPayload } from "@src/interfaces/SocketIO-Interfaces";
 import Paths from "@src/routes/constants/Paths";
 import { Socket } from "socket.io";
 

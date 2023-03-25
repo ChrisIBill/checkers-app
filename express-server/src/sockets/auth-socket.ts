@@ -5,7 +5,7 @@ import Paths from "../routes/constants/Paths";
 import User, { IUser } from "@src/models/User";
 import httpServer from "@src/server";
 import { userSignupAuth } from "@src/services/myAuthService";
-import { ClientPaths, IPayload } from "@src/interfaces/socketIO";
+import { ClientPaths, IPayload } from "@src/interfaces/SocketIO-Interfaces";
 import { RouteError } from "@src/other/classes";
 import HttpStatusCodes from "@src/constants/HttpStatusCodes";
 import { USER_NOT_FOUND_ERR } from "@src/services/myUserService";
@@ -64,21 +64,8 @@ export async function handleSignUpRequest(this: Socket, payload: IPayload) {
         status: HttpStatusCodes.CREATED,
     });
 }
-export async function handleAuthorization(io: Server, socket: Socket) {
-    const authNamespace = io.of(Paths.Auth.Base);
-    const loginNamespace = io.of(Paths.Auth.Login);
-    console.log("User connected with Auth Server", socket.id);
-    socket.on("authTokenValidation", (tok) => {});
-    socket.on("UserLogin", (...args: any[]) => {
-        console.log(args);
-    });
-    /* io.of(Paths.Auth.Login).on("connection", (socket) => {
-        console.log("User connected with Auth Server", socket.id);
-        socket.on("auth:user-login", (...args: any[]) => {
-            console.log(args);
-        });
-        socket.on("auth:user-signup", () => {});
-    }); */
+export async function authUser(socket: Socket, user: any) {
+    const token = socket.handshake.auth.token;
 }
 
 export async function authTokenResEmit(socket: Socket, user?: IUser) {

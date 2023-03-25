@@ -24,20 +24,20 @@ export interface ICheckersRoom extends ISocketRoom {
  * @param
  */
 export class CheckersRoom implements ICheckersRoom {
-    public id: number;
+    public id: string;
     public status: Checkers_Game_Status;
     public members: Set<string>;
     public data: ICheckersRoomState;
 
     public constructor(
-        id: number,
+        id: string | number,
         status: Checkers_Game_Status,
-        members: Set<string>,
-        data: ICheckersRoomState
+        members?: Set<string>,
+        data?: ICheckersRoomState
     ) {
-        this.id = id;
-        this.members = members ?? new Set();
+        this.id = typeof id === "number" ? "CheckersRoom" + id.toString() : id;
         this.status = status;
+        this.members = members ?? new Set();
         this.data = data ?? DEFAULT_CHECKERS_ROOM_STATE;
     }
     addMember(username: string): boolean {

@@ -1,14 +1,23 @@
-import { ClientJoinRoomReqType } from "@src/interfaces/socketIO";
+import { ClientJoinRoomReqType } from "@src/interfaces/SocketIO-Interfaces";
 import HttpStatusCode from "../../../client/src/constants/HttpStatusCodes";
+import { joinCheckersRoom } from "./checkers-socket";
 
 /**
  * Server searches for open games of specific type
  */
 
-export function onJoinGameRoomReq(this: any, args: ClientJoinRoomReqType) {
+export async function onJoinGameRoomReq(
+    this: any,
+    args: ClientJoinRoomReqType
+) {
     /* Route to appropriate function based on room type (Ex: checkers, chess, chat?) */
     const socket = this;
+    const token = socket.handshake.auth.token;
+    const userID = socket.handshake.auth.userID;
+    console.log("JOIN TOKEN: " + token);
+    console.log("JOIN USER ID: " + userID);
     console.log("Received request to join room from client");
+    console.log("Socket ID: " + socket.id);
     console.log(args);
     if (!args.matchmakingType && !args.roomID) {
         console.log(
@@ -20,8 +29,8 @@ export function onJoinGameRoomReq(this: any, args: ClientJoinRoomReqType) {
     if (args.matchmakingType) {
         switch (args.gameType) {
             case "checkers":
-
-            /* Run  */
+                joinCheckersRoom;
+            /* Run checkers socket join room */
         }
     }
 }

@@ -21,7 +21,6 @@ import { NodeEnvs } from "@src/constants/misc";
 import { RouteError } from "@src/other/classes";
 import { createServer } from "http";
 import { Server, Socket } from "socket.io";
-import { runCheckersRooms } from "./sockets/checkers-socket";
 import jwt from "jsonwebtoken";
 
 //import authSocket from "@src/sockets/authHandler"
@@ -35,6 +34,8 @@ import {
 import User, { IUser } from "./models/User";
 import myUserService from "./services/myUserService";
 import { redirectEmit } from "./sockets/emits";
+import { onJoinGameRoomRes } from "../../client/src/services/gamesServices";
+import { onJoinGameRoomReq } from "./sockets/games-socket";
 // **** Variables **** //
 
 const app = express();
@@ -128,11 +129,11 @@ app.get("/GameData/Checkers", (res, req) => {
 
 const onConnection = (socket: Socket) => {
     //Default Connection, nav to current user pos?
-    console.log("Base Connection Detected");
+    console.log("Base Connection: ", socket.id);
 };
 
 const authConnection = (socket: Socket) => {
-    console.log("AuthConnection");
+    console.log("Auth Connection: ", socket.id);
     socket.on("authTokenValReq", (tok: string) => {
         //Dont think i actually need to validate here, but maybe could use it to properly redirect?
         socket.emit("authTokenValRes", "ServerRes");
@@ -142,7 +143,7 @@ const authConnection = (socket: Socket) => {
 };
 const appConnection = async (socket: Socket) => {
     //Should already be valid user, if not should get immediately rerouted
-    console.log("User connected with App");
+    console.log("App Connection: ", socket.id);
     const token = socket.handshake.auth.token;
     const user = await findUserFromToken(token);
     if (!user) {
@@ -155,9 +156,10 @@ const gamesConnection = async (socket: Socket) => {
     console.log("Games Connection");
     const token = socket.handshake.auth.token;
     console.log(token);
+    socket.on("gamesJoinRoomReq", onJoinGameRoomReq);
 };
 const checkersConnection = (socket: Socket) => {
-    console.log("Checkers Connection");
+    console.log("Checkers Connection: ", socket.id);
 };
 io.of(Paths.Base).on("connection", onConnection);
 io.of(Paths.Auth.Base).on("connection", authConnection);

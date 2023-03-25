@@ -13,7 +13,7 @@ export type SocketRoomStatus = typeof SOCKET_ROOM_STATUS_TYPES[number];
  * @param data - The data associated with the room
  */
 export interface ISocketRoom {
-    id: number;
+    id: string;
     status: SocketRoomStatus;
     members: Set<string>;
     data: any;

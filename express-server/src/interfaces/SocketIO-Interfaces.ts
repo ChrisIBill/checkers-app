@@ -100,8 +100,8 @@ interface SocketData {
  * @interface IPayload
  */
 export interface IPayload {
-    data: any;
     status: {};
+    data?: any;
 }
 
 export type ClientPaths = typeof CLIENT_PATHS[number];

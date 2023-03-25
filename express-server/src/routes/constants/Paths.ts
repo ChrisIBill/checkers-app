@@ -2,7 +2,7 @@
  * Express router paths go here.
  */
 import { CLIENT_PATHS } from "@src/constants/ClientPaths";
-import { ClientPaths } from "@src/interfaces/socketIO";
+import { ClientPaths } from "@src/interfaces/SocketIO-Interfaces";
 import { Immutable } from "@src/other/types";
 
 const Paths = {
