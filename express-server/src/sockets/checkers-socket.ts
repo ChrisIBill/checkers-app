@@ -56,6 +56,7 @@ export async function findCheckersRoom(socket: Socket, user: string) {
             ? HttpStatusCode.OK
             : HttpStatusCode.INTERNAL_SERVER_ERROR,
     };
+    console.log("Sending gamesJoinRoomRes to client: ", payload);
     socket.emit("gamesJoinRoomRes", payload);
 }
 export async function findOpenRoom(

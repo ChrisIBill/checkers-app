@@ -35,7 +35,7 @@ export class CheckersRoom implements ICheckersRoom {
         members?: Set<string>,
         data?: ICheckersRoomState
     ) {
-        this.id = typeof id === "number" ? "CheckersRoom" + id.toString() : id;
+        this.id = typeof id === "number" ? id.toString() : id;
         this.status = status;
         this.members = members ?? new Set();
         this.data = data ?? DEFAULT_CHECKERS_ROOM_STATE;

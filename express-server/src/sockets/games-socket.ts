@@ -1,6 +1,6 @@
 import { ClientJoinRoomReqType } from "@src/interfaces/SocketIO-Interfaces";
 import HttpStatusCode from "../../../client/src/constants/HttpStatusCodes";
-import { joinCheckersRoom } from "./checkers-socket";
+import { findCheckersRoom, joinCheckersRoom } from "./checkers-socket";
 
 /**
  * Server searches for open games of specific type
@@ -29,7 +29,7 @@ export async function onJoinGameRoomReq(
     if (args.matchmakingType) {
         switch (args.gameType) {
             case "checkers":
-                joinCheckersRoom;
+                findCheckersRoom(socket, args.matchmakingType);
             /* Run checkers socket join room */
         }
     }
