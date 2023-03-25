@@ -52,17 +52,23 @@ export async function handleLoginRequest(this: Socket, payload: IPayload) {
 export async function handleSignUpRequest(this: Socket, payload: IPayload) {
     const socket = this;
     console.log(payload);
-    if (!payload.data.name) {
+    if (!payload.data) {
         console.log("Error: Bad Response");
+        socket.emit("authSignUpRes", {
+            status: HttpStatusCodes.BAD_REQUEST,
+            data: null,
+        });
+        return;
     }
-    const user = await userSignupAuth(payload.data.name);
+    const user = await userSignupAuth(payload.data);
     if (!user) {
         console.log("Valid signup");
+    } else {
+        socket.emit("authSignUpRes", {
+            data: user,
+            status: HttpStatusCodes.CREATED,
+        });
     }
-    socket.emit("authSignUpRes", {
-        data: user,
-        status: HttpStatusCodes.CREATED,
-    });
 }
 export async function authUser(socket: Socket, user: any) {
     const token = socket.handshake.auth.token;

@@ -47,8 +47,8 @@ export interface ServerToClientAuthEvents {
 	initServerHandshake: (move_desc: string, gameState: string) => void;
 	checkersRoomInit: (gameState: string) => void;
 	redirect: (args: IPayload) => void;
-	authSignUpRes: (...args: any[]) => void;
-	authLoginRes: (...args: any[]) => void;
+	authSignUpRes: (args: IPayload) => void;
+	authLoginRes: (args: IPayload) => void;
 }
 
 export interface ClientToServerAuthEvents {
@@ -90,7 +90,8 @@ export interface ServerToClientGameEvents {
 	gamesLeaveRoomRes: (args: IPayload) => void;
 	/* Handles room connection, gives client room id (or name), the current board state (default if new game),
 	 their token type*/
-	gamesCheckersRoomConnect: (args: CheckersRoomConnectPayload) => void;
+	/* gamesCheckersRoomConnect: (args: CheckersRoomConnectPayload) => void; */
+	gamesCheckersRoomConnect: (args: IPayload) => void;
 	/* Provides updated game state */
 	gamesUpdateClientGameState: (args: CheckersUpdateClientType) => void;
 	/* just an http status res on the validity of the client update */

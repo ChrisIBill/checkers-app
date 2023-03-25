@@ -22,7 +22,7 @@ export function onLeaveGameRoomRes(args: IPayload) {
 	console.log("Successfully disconnected from game room");
 	console.log(args);
 }
-export function onCheckersRoomConnect(args: CheckersRoomConnectPayload) {
+export function onCheckersRoomConnect(args: IPayload) {
 	console.log("Connected client with checkers room");
 	console.log(args);
 }

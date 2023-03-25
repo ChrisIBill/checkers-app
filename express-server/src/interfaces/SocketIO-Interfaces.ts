@@ -25,6 +25,23 @@ interface InterServerEvents {
     ping: () => void;
 }
 
+/* Auth Socket */
+export interface ServerToClientAuthEvents {
+    noArg: () => void;
+    basicEmit: (a: number, b: string, c: Buffer) => void;
+    withAck: (d: string, callback: (e: number) => void) => void;
+    initServerHandshake: (move_desc: string, gameState: string) => void;
+    checkersRoomInit: (gameState: string) => void;
+    redirect: (args: IPayload) => void;
+    authSignUpRes: (args: IPayload) => void;
+    authLoginRes: (...args: any[]) => void;
+}
+
+export interface ClientToServerAuthEvents {
+    authSignUpReq: (args: IPayload) => void;
+    authLoginReq: (args: IPayload) => void;
+}
+
 /* Game Socket */
 /* Server */
 /**
@@ -36,19 +53,19 @@ interface InterServerEvents {
  *    @property turnNum?: number
  */
 export interface CheckersRoomConnectPayload extends ISocketResponse {
-    data: {
+    data?: {
         boardState: string;
         playerTokens: PlayerTokens;
-        isClientTurn: boolean;
+        isClientTurn: string;
         turnNum?: number;
     };
 }
 export interface CheckersUpdateClientType extends ISocketResponse {
     /* status: if  */
-    data: {
+    data?: {
         boardState: string;
         movesList: MovesListType;
-        isClientTurn: boolean;
+        isClientTurn: string;
         turnNum?: number;
     };
 }
@@ -59,7 +76,8 @@ export interface ServerToClientGameEvents {
     gamesLeaveRoomRes: (args: IPayload) => void;
     /* Handles room connection, gives client room id (or name), the current board state (default if new game),
 	 their token type*/
-    gamesCheckersRoomConnect: (args: CheckersRoomConnectPayload) => void;
+    /* gamesCheckersRoomConnect: (args: CheckersRoomConnectPayload) => void; */
+    gamesCheckersRoomConnect: (args: IPayload) => void;
     /* Provides updated game state */
     gamesUpdateClientGameState: (args: CheckersUpdateClientType) => void;
     /* just an http status res on the validity of the client update */

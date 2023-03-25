@@ -14,9 +14,9 @@ async function login(user: IUser) {
     }
 }
 export async function userSignupAuth(user: string): Promise<IUser | null> {
-    console.log("User Signup Authentication");
+    console.log("User Signup Authentication, user: ", user);
     const persists = await myUserRepo.uNamePersists(user);
-    if (!persists) {
+    if (persists) {
         console.log("ERROR: User already exists");
         console.log("User: ", user);
         return null;

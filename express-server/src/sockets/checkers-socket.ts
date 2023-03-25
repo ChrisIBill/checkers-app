@@ -7,6 +7,9 @@ import { Server, Socket } from "socket.io";
 import Paths from "../routes/constants/Paths";
 import { IPayload } from "../interfaces/SocketIO-Interfaces";
 import HttpStatusCode from "../../../client/src/constants/HttpStatusCodes";
+import { MatchmakingTypes } from "../../../client/src/interfaces/GameInterfaces";
+import { CheckersRoomConnectPayload } from "../../../client/src/interfaces/socketInterfaces";
+import { connect } from "http2";
 /**
  *
  * @param io CheckersRoomPath
@@ -15,8 +18,27 @@ import HttpStatusCode from "../../../client/src/constants/HttpStatusCodes";
 const playersInRooms = new Map<string, string>();
 const checkersRooms = new Map<string, CheckersRoom>();
 const openRoomsSet = new Set<string>();
-
-export async function findCheckersRoom(socket: Socket, user: string) {
+export async function findCheckersRoom(
+    socket: Socket,
+    matchType: MatchmakingTypes,
+    user: string
+) {
+    if (matchType == "pvp") {
+        findPVPCheckersRoom(socket, user);
+    } else {
+        socket.emit("gamesJoinRoomRes", {
+            status: HttpStatusCode.BAD_REQUEST,
+            data: "Invalid Matchmaking Type",
+        });
+        console.log("ERROR: Invalid Matchmaking Type, type: ", matchType);
+    }
+    /* else if (args.type === "local") {
+        findLocalCheckersRoom(socket, user);
+    } else if (args.type === "computer") {
+        findComputerCheckersRoom(socket, user);
+    } */
+}
+export async function findPVPCheckersRoom(socket: Socket, user: string) {
     /* Checks if open room exists, if so routes them to room.
     else if matchmaking type is pvp, search for open room and add,
         if no open rooms found, make new room and add player
@@ -38,7 +60,7 @@ export async function findCheckersRoom(socket: Socket, user: string) {
             console.log("Room Data: ", checkersRooms.get(openRoomID));
         }
     } else {
-        console.log("Player not found in any room, creating new room");
+        console.log("No Checkers Rooms available, creating new room");
         let newID = "default";
         while (checkersRooms.has(newID)) {
             newID = randomstring.generate(10);
@@ -90,35 +112,43 @@ export async function joinCheckersRoom(
     if (room) {
         console.log("Room found, joining room");
         if (["empty", "open", "missingPlayer"].includes(room.status)) {
-            if (room.addPlayer(socket.id) == false) return false;
+            if (room.addPlayer(user) == false) return false;
+            socket.join(`CheckersRoom_${roomID}`);
+            socket.emit("checkers room data", room);
             if (room.data.players.includes(null)) room.status = "open";
             else {
                 /* Room is full, run init function */
+                const init = await connectCheckersRoom(socket, roomID);
+                if (!init) return false;
+                else room.status = "full";
             }
+            return true;
+        } else {
+            return false;
         }
-        socket.join(`CheckersRoom_${roomID}`);
-        socket.emit("checkers room data", room);
-        return true;
     } else {
         console.log("ERROR: Room does not exist");
         return false;
     }
 }
 
-/* function addPlayer(userName: string, players: ): boolean {
-        console.log("Adding Player");
-        for (let p of players) {
-            if (p == undefined) {
-                p = {
-                    id: userName,
-                    status: "connected",
-                };
-                if (!players.includes(undefined)) {
-                    this.status = "initializing";
-                }
-                return true;
-            }
-        }
-        console.log("Error");
+export async function connectCheckersRoom(
+    socket: Socket,
+    roomID: string
+): Promise<boolean> {
+    console.log("dsaafgadfhsdfhnfsdhadfhnadfnadfhn");
+    const roomData = checkersRooms.get(roomID);
+    if (!roomData) {
+        socket.emit("gamesCheckersRoomConnect", {
+            status: HttpStatusCode.INTERNAL_SERVER_ERROR,
+        });
+        console.log("ERROR: Room does not exist");
         return false;
-} */
+    }
+    const payload: IPayload = {
+        status: HttpStatusCode.OK,
+        data: roomData,
+    };
+    socket.emit("gamesCheckersRoomConnect", payload);
+    return true;
+}

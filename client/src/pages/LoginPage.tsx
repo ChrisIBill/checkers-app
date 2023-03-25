@@ -36,7 +36,7 @@ export const LoginPage = () => {
 		console.log("Sign-Up Click.");
 		userCreds
 			? socket.emit("authSignUpReq", {
-					data: userData,
+					data: userCreds,
 					status: HttpStatusCode.OK,
 			  })
 			: console.log("No user data");
@@ -47,8 +47,12 @@ export const LoginPage = () => {
 	socket.on("disconnect", () => {
 		console.log("Disconnected from auth server");
 	});
-	socket.on("authSignUpRes", onAuthSignUpRes);
-	socket.on("authLoginRes", onAuthLoginRes);
+	socket.on("authSignUpRes", (args: IPayload) =>
+		onAuthSignUpRes(args, navigate)
+	);
+	socket.on("authLoginRes", (args: IPayload) =>
+		onAuthLoginRes(args, navigate)
+	);
 
 	return (
 		<Box sx={{width: 300, height: 300, backgroundColor: "gray"}}>
