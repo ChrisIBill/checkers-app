@@ -23,8 +23,13 @@ export function onLeaveGameRoomRes(args: IPayload) {
 	console.log(args);
 }
 export function onCheckersRoomConnect(args: IPayload) {
-	console.log("Connected client with checkers room");
-	console.log(args);
+	console.log("Connected client with checkers room, status: ", args.status);
+	if (args.status !== HttpStatusCode.OK) {
+		console.log("ERROR: Could not connect to checkers room");
+		return null;
+	}
+	const payload = args.data as CheckersRoomConnectPayload;
+	console.log("Payload: ", payload);
 }
 export function onServerGameStateUpdate(args: CheckersUpdateClientType) {
 	console.log("Received Game State from server");

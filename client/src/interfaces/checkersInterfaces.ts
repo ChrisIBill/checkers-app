@@ -11,6 +11,11 @@ export interface CheckersRoomState {
 	status: string;
 	boardState: string;
 }
+/**
+ * @member boardState: string
+ * @member curPlayer: number
+ * @member history?: string[]
+ */
 export interface CheckersGameState {
 	roomID: string;
 	player: PlayerTokens;

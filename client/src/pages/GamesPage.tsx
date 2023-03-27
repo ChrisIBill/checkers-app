@@ -73,7 +73,9 @@ export const GamesPage = () => {
 	});
 	socket.on("gamesJoinRoomRes", onJoinGameRoomRes);
 	socket.on("gamesLeaveRoomRes", onLeaveGameRoomRes);
-	socket.on("gamesCheckersRoomConnect", onCheckersRoomConnect);
+	socket.on("gamesCheckersRoomConnect", (args: CheckersRoomConnectPayload) => {
+		const checkersState = onCheckersRoomConnect(args);
+	});
 	console.log("Game Page States: ", status, gameType, playType);
 	return (
 		<Container sx={{display: () => displayGameSelection(status)}}>

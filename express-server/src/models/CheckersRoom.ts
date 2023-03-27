@@ -71,8 +71,11 @@ export class CheckersRoom implements ICheckersRoom {
             }
             if (this.data.players.includes(null)) this.status = "open";
             else this.status = "waitingForPlayers";
-        } else console.log("Error: Room is full", this.status);
-        return false;
+        } else {
+            console.log("Error: Room is full", this.status);
+            return false;
+        }
+        return true;
     }
     removePlayer(user: string): boolean {
         if (this.data.players.includes(user)) {

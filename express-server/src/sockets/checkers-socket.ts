@@ -10,6 +10,8 @@ import HttpStatusCode from "../../../client/src/constants/HttpStatusCodes";
 import { MatchmakingTypes } from "../../../client/src/interfaces/GameInterfaces";
 import { CheckersRoomConnectPayload } from "../../../client/src/interfaces/socketInterfaces";
 import { connect } from "http2";
+import { zipGameState } from "../util/CheckersUtil";
+import { PIECE_TOKENS } from "../../../client/src/constants/checkersData";
 /**
  *
  * @param io CheckersRoomPath
@@ -51,7 +53,8 @@ export async function findPVPCheckersRoom(socket: Socket, user: string) {
     } else if (openRoomsSet.size > 0) {
         console.log("Found open room, joining room");
         const openRoomID = openRoomsSet.values().next().value;
-        if (await joinCheckersRoom(socket, openRoomID, user)) success = true;
+        const suc = await joinCheckersRoom(socket, openRoomID, user);
+        if (suc == true) success = true;
         else {
             console.log(
                 "ERROR: Could not join open room, room-id: ",
@@ -102,12 +105,8 @@ export async function joinCheckersRoom(
     roomID: string,
     user: string
 ): Promise<boolean> {
-    /* Checks if user is already in room, if so routes them to room.
-    else if matchmaking type is pvp, search for open room and add,
-        if no open rooms found, make new room and add player
-    elif matchmaking type is local, make new room with same player twice?
-    elif matchmaking type is computer, make new room with bot as player? */
-    console.log("Player already in game, redirecting to room");
+    /* Attempts to add player to given roomID, if full or otherwise fails,
+        returns false */
     const room = checkersRooms.get(roomID);
     if (room) {
         console.log("Room found, joining room");
@@ -118,12 +117,14 @@ export async function joinCheckersRoom(
             if (room.data.players.includes(null)) room.status = "open";
             else {
                 /* Room is full, run init function */
+                console.log("Room is full, running init function");
                 const init = await connectCheckersRoom(socket, roomID);
                 if (!init) return false;
                 else room.status = "full";
             }
             return true;
         } else {
+            console.log("Bad room status, status: ", room.status);
             return false;
         }
     } else {
@@ -136,7 +137,6 @@ export async function connectCheckersRoom(
     socket: Socket,
     roomID: string
 ): Promise<boolean> {
-    console.log("dsaafgadfhsdfhnfsdhadfhnadfnadfhn");
     const roomData = checkersRooms.get(roomID);
     if (!roomData) {
         socket.emit("gamesCheckersRoomConnect", {
@@ -145,10 +145,17 @@ export async function connectCheckersRoom(
         console.log("ERROR: Room does not exist");
         return false;
     }
-    const payload: IPayload = {
-        status: HttpStatusCode.OK,
-        data: roomData,
+    const data = {
+        boardState: zipGameState(roomData.data.gameState.boardState),
+        playerTokens: PIECE_TOKENS[0],
+        curPlayer: roomData.data.players[0]!,
+        turnNum: 0,
     };
+    const payload: CheckersRoomConnectPayload = {
+        status: HttpStatusCode.OK,
+        data: data,
+    };
+    console.log("Sending gamesCheckersRoomConnect to client: ", payload);
     socket.emit("gamesCheckersRoomConnect", payload);
     return true;
 }

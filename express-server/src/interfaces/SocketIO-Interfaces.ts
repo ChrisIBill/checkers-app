@@ -56,7 +56,7 @@ export interface CheckersRoomConnectPayload extends ISocketResponse {
     data?: {
         boardState: string;
         playerTokens: PlayerTokens;
-        isClientTurn: string;
+        curPlayer: string;
         turnNum?: number;
     };
 }
@@ -76,8 +76,7 @@ export interface ServerToClientGameEvents {
     gamesLeaveRoomRes: (args: IPayload) => void;
     /* Handles room connection, gives client room id (or name), the current board state (default if new game),
 	 their token type*/
-    /* gamesCheckersRoomConnect: (args: CheckersRoomConnectPayload) => void; */
-    gamesCheckersRoomConnect: (args: IPayload) => void;
+    gamesCheckersRoomConnect: (args: CheckersRoomConnectPayload) => void;
     /* Provides updated game state */
     gamesUpdateClientGameState: (args: CheckersUpdateClientType) => void;
     /* just an http status res on the validity of the client update */
