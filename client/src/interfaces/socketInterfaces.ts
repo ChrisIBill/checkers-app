@@ -120,6 +120,7 @@ export interface ClientToServerGameEvents {
 	gamesUpdateClientRes: (args: ISocketResponse) => void;
 }
 export interface ServerToClientCheckersEvents {
+	gamesCheckersRoomConnect: (args: CheckersRoomConnectPayload) => void;
 	checkersGameStateUpdate: (args: IPayload) => void;
 	checkersGameStateUpdateRes: (args: IPayload) => void;
 }

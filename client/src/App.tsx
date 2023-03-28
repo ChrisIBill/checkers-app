@@ -26,7 +26,7 @@ import {UserContext} from "./context/userContext";
 import {ErrorBoundary} from "react-error-boundary";
 import {UserPanel} from "./components/UserComponents";
 import {useNavigate, useOutletContext} from "react-router-dom";
-import { PlayGamesButton } from "./components/GameComponents";
+import {PlayGamesButton} from "./components/GameComponents";
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
 	Paths.App.Base,
 	{
@@ -62,7 +62,6 @@ function App() {
 			const init: CheckersRoomState = JSON.parse(gameState);
 			setPlayer(PIECE_TOKENS[init.player]);
 			setGameState({
-				roomID: init.roomID,
 				player: PIECE_TOKENS[init.player],
 				status: init.status,
 				boardState: unzipGameState(init.boardState),
@@ -70,7 +69,7 @@ function App() {
 		});
 	});
 	function onPlayCheckersClick() {
-		navigate(Paths.Games.Base)
+		navigate(Paths.Games.Base);
 	}
 	console.log("User Context: ", userContext);
 	console.log("User data: ", userData);

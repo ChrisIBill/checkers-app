@@ -1,4 +1,7 @@
-import {CheckersGameState, CompressedCheckersGameState} from "../interfaces/checkersInterfaces";
+import {
+	CheckersGameState,
+	CompressedCheckersGameState,
+} from "../interfaces/checkersInterfaces";
 import {ValidTokens} from "../interfaces/interfaces";
 export const BOARD_ROW_LENGTH = 4;
 export const BOARD_COLUMN_LENGTH = 8;
@@ -59,7 +62,6 @@ export const COMPRESSED_DEFAULT_GAME_STATE: CompressedCheckersGameState = {
 };
 
 export const TEMPINTERNALDEFAULTCHECKERSSTATE: CheckersGameState = {
-	roomID: "Room 0",
 	player: "PK",
 	status: "",
 	boardState: DEFAULT_CHECKERS_BOARD,

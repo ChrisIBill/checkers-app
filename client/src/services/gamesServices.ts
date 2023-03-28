@@ -11,7 +11,8 @@ import {
 	ISocketResponse,
 	MovesListType,
 } from "../interfaces/socketInterfaces";
-import {zipGameState} from "../lib/serverHandlers";
+import {unzipGameState, zipGameState} from "../lib/serverHandlers";
+import {CheckersGameState} from "../interfaces/checkersInterfaces";
 
 export function onJoinGameRoomRes(args: IPayload) {
 	console.log("Found game room for client");
@@ -22,14 +23,19 @@ export function onLeaveGameRoomRes(args: IPayload) {
 	console.log("Successfully disconnected from game room");
 	console.log(args);
 }
-export function onCheckersRoomConnect(args: IPayload) {
+export function onCheckersRoomConnect(args: CheckersRoomConnectPayload) {
 	console.log("Connected client with checkers room, status: ", args.status);
 	if (args.status !== HttpStatusCode.OK) {
 		console.log("ERROR: Could not connect to checkers room");
 		return null;
 	}
-	const payload = args.data as CheckersRoomConnectPayload;
+	const payload = args.data;
 	console.log("Payload: ", payload);
+	return {
+		player: payload.playerTokens,
+		status: "initializing",
+		boardState: unzipGameState(payload.boardState),
+	} as CheckersGameState;
 }
 export function onServerGameStateUpdate(args: CheckersUpdateClientType) {
 	console.log("Received Game State from server");

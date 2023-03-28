@@ -16,8 +16,8 @@ import {RootPage} from "./pages/RootPage";
 import {AuthPage, LoginPage} from "./pages/LoginPage";
 import {ErrorPage} from "./pages/ErrorPage";
 import {CheckersPage} from "./pages/CheckersPage";
-import { GamesPage } from "./pages/GamesPage";
-import { TEMPINTERNALDEFAULTCHECKERSSTATE } from "./constants/checkersData";
+import {GamesPage} from "./pages/GamesPage";
+import {TEMPINTERNALDEFAULTCHECKERSSTATE} from "./constants/checkersData";
 const routes = [
 	{
 		path: Paths.Base,
@@ -42,12 +42,12 @@ const routes = [
 				errorElement: <ErrorPage />,
 				children: [
 					{
-						path: Paths.Games.Checkers + "/:id",
-						element: <CheckersPage game={TEMPINTERNALDEFAULTCHECKERSSTATE} />,
+						path: Paths.Games.Checkers /*  + "/:id" */,
+						element: <CheckersPage />,
 						errorElement: <ErrorPage />,
-					}
-				]
-			}
+					},
+				],
+			},
 		],
 	},
 ];

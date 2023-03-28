@@ -244,7 +244,7 @@ const GameHistory: React.FC<CheckersHistoryProps> = (props) => {
 	});
 	return <div id="MoveListWrapper">{histList}</div>;
 };
-const CheckersPage = ({game}: {game: CheckersGameState}) => {
+const CheckersApp = ({game}: {game: CheckersGameState}) => {
 	const [gameHistory, setGameHistory] = useState<
 		CompressedCheckersGameState[]
 	>([COMPRESSED_DEFAULT_GAME_STATE]); //Stored in compressed format?
@@ -290,5 +290,13 @@ const CheckersPage = ({game}: {game: CheckersGameState}) => {
 		</div>
 	);
 };
-
+const CheckersPage = () => {
+	const [game, setGame] = useState<CheckersGameState>();
+	socket.on("");
+	return (
+		<div id="CheckersPage">
+			{game ? <CheckersApp game={game} /> : <div>Loading...</div>}
+		</div>
+	);
+};
 export {CheckersPage};

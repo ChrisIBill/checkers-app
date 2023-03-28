@@ -1,6 +1,7 @@
 import {Box} from "@mui/material";
 import {Container} from "@mui/system";
 import {useState} from "react";
+import {Outlet} from "react-router-dom";
 import {Socket, io} from "socket.io-client";
 import {PlayGamesButton} from "../components/GameComponents";
 import {DEFAULT_CHECKERS_BOARD} from "../constants/checkersData";
@@ -73,9 +74,6 @@ export const GamesPage = () => {
 	});
 	socket.on("gamesJoinRoomRes", onJoinGameRoomRes);
 	socket.on("gamesLeaveRoomRes", onLeaveGameRoomRes);
-	socket.on("gamesCheckersRoomConnect", (args: CheckersRoomConnectPayload) => {
-		const checkersState = onCheckersRoomConnect(args);
-	});
 	console.log("Game Page States: ", status, gameType, playType);
 	return (
 		<Container sx={{display: () => displayGameSelection(status)}}>
@@ -102,6 +100,7 @@ export const GamesPage = () => {
 					isDisabled={gameType ? false : true}
 				/>
 			</Box>
+			<Outlet />
 		</Container>
 	);
 };
