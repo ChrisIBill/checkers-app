@@ -21,19 +21,28 @@ import {
 	CompressedCheckersGameState,
 } from "../interfaces/checkersInterfaces";
 import {
-	ClientToServerEvents,
-	ServerToClientEvents,
+	ClientToServerCheckersEvents,
+	ServerToClientCheckersEvents,
 } from "../interfaces/socketInterfaces";
 import {Paths} from "../paths/SocketPaths";
+import {
+	IPayload,
+	CheckersRoomConnectPayload,
+} from "../interfaces/socketInterfaces";
+import {
+	onCheckersClientUpdateRes,
+	onCheckersRoomConnect,
+	onCheckersServerUpdate,
+} from "../services/gamesServices";
 
-const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-	Paths.Games.Checkers,
-	{
-		auth: (cb) => {
-			cb({token: localStorage.token});
-		},
-	}
-);
+const socket: Socket<
+	ServerToClientCheckersEvents,
+	ClientToServerCheckersEvents
+> = io(Paths.Games.Checkers, {
+	auth: (cb) => {
+		cb({token: localStorage.token});
+	},
+});
 const CheckersSquare = ({
 	elem,
 	index,
@@ -244,32 +253,38 @@ const GameHistory: React.FC<CheckersHistoryProps> = (props) => {
 	});
 	return <div id="MoveListWrapper">{histList}</div>;
 };
-const CheckersApp = ({game}: {game: CheckersGameState}) => {
+const CheckersPage = () => {
 	const [gameHistory, setGameHistory] = useState<
 		CompressedCheckersGameState[]
 	>([COMPRESSED_DEFAULT_GAME_STATE]); //Stored in compressed format?
-	const [gameBoard, setGameBoard] = useState<ValidTokens[]>(game.boardState);
-	const [status, setStatus] = useState("selecting"); //populate?, playing?, waitingForOtherPlayer?
-	const [gameType, setGameType] = useState("PVP"); //local, pvp, AI
-	const [curPlayer, setCurPlayer] = useState<number>(
-		PIECE_TOKENS.indexOf(game.player)
-	);
+	const [gameBoard, setGameBoard] = useState<ValidTokens[]>();
+	const [status, setStatus] = useState("selecting"); //loading, waiting, playing, over, error
+	const [playerTokens, setPlayerTokens] = useState<PlayerTokens>();
+	const [isCurPlayer, setIsCurPlayer] = useState<boolean>(false);
+	socket.on("checkersRoomConnect", (args: CheckersRoomConnectPayload) => {
+		const gameState = onCheckersRoomConnect(args);
+		if (gameState) {
+			setGameBoard(gameState.boardState);
+			setPlayerTokens(gameState.player);
+			setStatus(gameState.status);
+		} else {
+			console.log("Error connecting to room.");
+		}
+	});
+	socket.on("checkersUpdateClient", (args: IPayload) => {
+		setPlayerTokens(onCheckersUpdateClient(args));
+	});
+	socket.on("checkersClientUpdateRes", onCheckersClientUpdateRes);
 	const [turnNum, setTurnNum] = useState<number>(0);
-	function handleHistoryClick(compGameState: CompressedCheckersGameState) {
+	/* 	function handleHistoryClick(compGameState: CompressedCheckersGameState) {
 		const boardState = unzipGameState(compGameState.boardState);
 		setGameBoard(boardState);
 		setCurPlayer(compGameState.curPlayer);
 		//setTurnNum(turn);
-	}
+	} */
 	function handleMove(board: ValidTokens[]) {
+		socket.emit("checkersUpdateServer", zipGameState(board));
 		setGameBoard(board);
-		const turn: CompressedCheckersGameState = {
-			boardState: zipGameState(board),
-			curPlayer: curPlayer,
-		};
-		console.log("Compressed Game State: ", turn);
-		setGameHistory([...gameHistory, turn]);
-		setCurPlayer(curPlayer == PIECE_TOKENS.length - 1 ? 0 : curPlayer + 1);
 	}
 	return (
 		<div id="CheckersPageWrapper">
@@ -282,7 +297,8 @@ const CheckersApp = ({game}: {game: CheckersGameState}) => {
 			<div id="CheckersBoardWrapper">
 				<CheckersBoard
 					board={gameBoard}
-					curPlayer={PIECE_TOKENS[curPlayer]}
+					isCurPlayer={true}
+					playerToken={PIECE_TOKENS[curPlayer]}
 					onMove={handleMove}
 					reqSels={getReqSelections(PIECE_TOKENS[curPlayer], gameBoard)}
 				/>
@@ -290,9 +306,16 @@ const CheckersApp = ({game}: {game: CheckersGameState}) => {
 		</div>
 	);
 };
-const CheckersPage = () => {
+const CheckersPage2 = () => {
 	const [game, setGame] = useState<CheckersGameState>();
-	socket.on("");
+	const [boardState, setBoardState] = useState<ValidTokens[]>([]);
+	const [player, setPlayer] = useState<PlayerTokens>();
+	const [isCurPlayer, setIsCurPlayer] = useState<boolean>(false);
+	socket.on("checkersRoomConnect", onCheckersRoomConnect);
+	socket.on("checkersServerUpdate", (args: IPayload) => {
+		setPlayer(onCheckersServerUpdate(args));
+	});
+	socket.on("checkersClientUpdateRes", onCheckersClientUpdateRes);
 	return (
 		<div id="CheckersPage">
 			{game ? <CheckersApp game={game} /> : <div>Loading...</div>}

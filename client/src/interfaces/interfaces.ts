@@ -26,6 +26,7 @@ export type RequiredMoves = [number, number][];
 export interface CheckersBoardProps {
 	/** Board */
 	board: ValidTokens[];
+	isCurPlayer: boolean;
 	curPlayer: PlayerTokens; //PK or pk
 	onMove(arg: ValidTokens[]): void;
 	reqSels?: number[];

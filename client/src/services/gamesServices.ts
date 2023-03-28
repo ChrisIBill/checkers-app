@@ -13,6 +13,7 @@ import {
 } from "../interfaces/socketInterfaces";
 import {unzipGameState, zipGameState} from "../lib/serverHandlers";
 import {CheckersGameState} from "../interfaces/checkersInterfaces";
+import {PlayerTokens} from "../../../express-server/src/interfaces/checkersInterfaces";
 
 export function onJoinGameRoomRes(args: IPayload) {
 	console.log("Found game room for client");
@@ -33,10 +34,14 @@ export function onCheckersRoomConnect(args: CheckersRoomConnectPayload) {
 	console.log("Payload: ", payload);
 	return {
 		player: payload.playerTokens,
-		status: "initializing",
+		status: "loading",
 		boardState: unzipGameState(payload.boardState),
 	} as CheckersGameState;
 }
+export function onCheckersServerUpdate(args: IPayload) {
+	return "PK" as PlayerTokens;
+}
+export function onCheckersClientUpdateRes(args: IPayload) {}
 export function onServerGameStateUpdate(args: CheckersUpdateClientType) {
 	console.log("Received Game State from server");
 	console.log(args);
