@@ -1,7 +1,7 @@
 import {Box} from "@mui/material";
 import {Container} from "@mui/system";
 import {useState} from "react";
-import {Outlet, redirect} from "react-router-dom";
+import {Outlet, redirect, useNavigate} from "react-router-dom";
 import {Socket, io} from "socket.io-client";
 import {PlayGamesButton} from "../components/GameComponents";
 import {DEFAULT_CHECKERS_BOARD} from "../constants/checkersData";
@@ -47,6 +47,7 @@ export const GamesPage = () => {
 	const [status, setStatus] = useState<GameStatusType>("selecting");
 	const [gameType, setGameType] = useState<GameTypes>();
 	const [playType, setPlayType] = useState<MatchmakingTypes>();
+	const navigate = useNavigate();
 	function onPlayTypeClick(vsSel: MatchmakingTypes) {
 		/* if (vsSel == "local") {
             setStatus("")
@@ -77,7 +78,8 @@ export const GamesPage = () => {
 	});
 	socket.on("gamesJoinRoomRes", (args: any) => {
 		console.log("Found room data: ", args);
-		redirect(args.data.path);
+		console.log("Path: ", args.data.path);
+		navigate(args.data.path);
 	});
 	socket.on("gamesLeaveRoomRes", onLeaveGameRoomRes);
 	console.log("Game Page States: ", status, gameType, playType);

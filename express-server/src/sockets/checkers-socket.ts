@@ -171,3 +171,9 @@ export async function connectCheckersRoom(
     socket.emit("gamesCheckersRoomConnect", payload);
     return true;
 }
+
+export function onCheckersClientReady(this: Socket, args: IPayload) {
+    const socket = this;
+    console.log("onCheckersClientReady", args);
+    socket.emit("checkersRoomConnect");
+}

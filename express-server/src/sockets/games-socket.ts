@@ -56,7 +56,7 @@ export async function onJoinGameRoomReq(
                         socket.emit("gamesJoinRoomRes", {
                             status: HttpStatusCode.OK,
                             data: {
-                                path: "/Games/Checkers",
+                                path: Paths.Games.Checkers,
                             },
                         });
                     } else {

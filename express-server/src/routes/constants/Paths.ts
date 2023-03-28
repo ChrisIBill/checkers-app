@@ -15,8 +15,8 @@ const Paths = {
         Login: <ClientPaths>"/Auth/Login",
     },
     Games: {
-        Base: <ClientPaths>"Games",
-        Checkers: <ClientPaths>"Games/Checkers",
+        Base: <ClientPaths>"/Games",
+        Checkers: <ClientPaths>"/Games/Checkers",
     },
 };
 /* const Paths = {
