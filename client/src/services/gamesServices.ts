@@ -13,11 +13,25 @@ import {
 } from "../interfaces/socketInterfaces";
 import {unzipGameState, zipGameState} from "../lib/serverHandlers";
 import {CheckersGameState} from "../interfaces/checkersInterfaces";
-import {PlayerTokens} from "../../../express-server/src/interfaces/checkersInterfaces";
+import {PlayerTokens} from "../interfaces/interfaces";
+import {redirect} from "react-router-dom";
+import {routerRedirect} from "../lib/RouterLib";
+import {PathsSet} from "../paths/SocketPaths";
 
 export function onJoinGameRoomRes(args: IPayload) {
-	console.log("Found game room for client");
-	console.log(args);
+	console.log(
+		"Received response for joining game room, status: ",
+		args.status ? args.status : "No status"
+	);
+	if (args.data) {
+		console.log("Received data: ", args.data);
+		if (PathsSet.includes(args.data.path)) {
+			console.log("Here");
+			redirect(args.data.path);
+		} else {
+			console.log("ERROR: Invalid path");
+		}
+	}
 }
 export function onLeaveGameRoomRes(args: IPayload) {
 	/* Do we need this response??? */
@@ -38,7 +52,7 @@ export function onCheckersRoomConnect(args: CheckersRoomConnectPayload) {
 		boardState: unzipGameState(payload.boardState),
 	} as CheckersGameState;
 }
-export function onCheckersServerUpdate(args: IPayload) {
+export function onCheckersUpdateClient(args: IPayload) {
 	return "PK" as PlayerTokens;
 }
 export function onCheckersClientUpdateRes(args: IPayload) {}

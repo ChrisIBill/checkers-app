@@ -42,6 +42,8 @@ function App() {
 	//User Info
 	const userContext = useOutletContext<UserContextType>();
 	const userData: UserData = userContext.userData;
+	/* A connected context to manage offline/online behavior */
+	const [isOnline, setIsOnline] = useState<boolean>(false);
 	const navigate = useNavigate();
 	const [userToken, setUserToken] = useState<string>();
 	const [checkersServerData, setCheckersServerData] =
@@ -57,18 +59,8 @@ function App() {
 		//socket.emit("authTokenValidation", localStorage.token);
 		//If auth, should move forward
 		//else should login
-		socket.on("checkersRoomInit", (gameState) => {
-			console.log("init: ", gameState);
-			const init: CheckersRoomState = JSON.parse(gameState);
-			setPlayer(PIECE_TOKENS[init.player]);
-			setGameState({
-				player: PIECE_TOKENS[init.player],
-				status: init.status,
-				boardState: unzipGameState(init.boardState),
-			});
-		});
 	});
-	function onPlayCheckersClick() {
+	function onPlayGamesClick() {
 		navigate(Paths.Games.Base);
 	}
 	console.log("User Context: ", userContext);
@@ -80,7 +72,7 @@ function App() {
 					<UserPanel userData={userData} />
 				</ErrorBoundary>
 				<ErrorBoundary fallback={<div>User Panel Error</div>}>
-					<PlayGamesButton onClick={onPlayCheckersClick} />
+					<PlayGamesButton onClick={onPlayGamesClick} />
 				</ErrorBoundary>
 				{/* {userData ? <CheckersPage game={gameState!} /> : <LoginPage />} */}
 			</div>

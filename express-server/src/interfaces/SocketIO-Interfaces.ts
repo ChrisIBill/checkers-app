@@ -105,6 +105,24 @@ export interface ClientToServerGameEvents {
     /* just an http status res on the validity of the client update */
     gamesUpdateClientRes: (args: ISocketResponse) => void;
 }
+
+/* Checkers Events */
+export interface ServerToClientCheckersEvents {
+    /* playerTokens: PlayerTokens, boardState: ValidTokens */
+    checkersRoomConnect: (args: CheckersRoomConnectPayload) => void;
+    checkersRoomStart: (args: IPayload) => void;
+    /* CurPlayer: PlayerTokens, boardState: ValidTokens[], requiredMoves: [int[]] */
+    checkersUpdateClient: (args: IPayload) => void;
+    /* Ok or not ok, if not ok, also contains prev turn data */
+    checkersClientUpdateRes: (args: IPayload) => void;
+}
+
+export interface ClientToServerCheckersEvents {
+    checkersClientReady: (args: IPayload) => void;
+    /* boardState: validTokens[] */
+    checkersUpdateServer: (boardState: string) => void;
+    checkersServerUpdateRes: (args: IPayload) => void;
+}
 interface SocketData {
     name: string;
     age: number;

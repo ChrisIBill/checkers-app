@@ -1,7 +1,7 @@
 import {Box} from "@mui/material";
 import {Container} from "@mui/system";
 import {useState} from "react";
-import {Outlet} from "react-router-dom";
+import {Outlet, redirect} from "react-router-dom";
 import {Socket, io} from "socket.io-client";
 import {PlayGamesButton} from "../components/GameComponents";
 import {DEFAULT_CHECKERS_BOARD} from "../constants/checkersData";
@@ -53,26 +53,32 @@ export const GamesPage = () => {
         } */
 		setStatus("connecting");
 		setPlayType(vsSel);
-		socket.emit("gamesJoinRoomReq", {
-			gameType: gameType,
-			matchmakingType: vsSel,
-		});
-	}
-	function onLocalCheckersRoomConnect(args: CheckersRoomConnectPayload) {
-		setStatus("loading");
-		if (args.status != HttpStatusCode.OK) {
-			console.log(
-				"ERROR<BADRES>: on room connect, server res status = ",
-				args.status
-			);
-			return;
-		}
+		socket.emit(
+			"gamesJoinRoomReq",
+			{
+				gameType: gameType,
+				matchmakingType: vsSel,
+			},
+			(res: any) => {
+				console.log("Games Join Room Res: ", res);
+				if (res.status == HttpStatusCode.OK) {
+					console.log("Found Room");
+					setStatus("connecting");
+				} else {
+					console.log("ERROR finding room");
+					setStatus("selecting");
+				}
+			}
+		);
 	}
 	socket.on("connect", () => {
 		console.log("Connected to Games Page");
 		console.log("Socket ID: ", socket.id);
 	});
-	socket.on("gamesJoinRoomRes", onJoinGameRoomRes);
+	socket.on("gamesJoinRoomRes", (args: any) => {
+		console.log("Found room data: ", args);
+		redirect(args.data.path);
+	});
 	socket.on("gamesLeaveRoomRes", onLeaveGameRoomRes);
 	console.log("Game Page States: ", status, gameType, playType);
 	return (

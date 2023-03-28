@@ -112,7 +112,10 @@ export interface CheckersUpdateServerType extends ISocketResponse {
 	};
 }
 export interface ClientToServerGameEvents {
-	gamesJoinRoomReq: (args: ClientJoinRoomReqType) => void;
+	gamesJoinRoomReq: (
+		args: ClientJoinRoomReqType,
+		callback: (e: number) => void
+	) => void;
 	gamesLeaveRoomReq: (args: IPayload) => void;
 	/* Gives server players moves, server needs to check for validity and legality */
 	gamesUpdateClient: (args: CheckersUpdateServerType) => void;
@@ -120,9 +123,17 @@ export interface ClientToServerGameEvents {
 	gamesUpdateClientRes: (args: ISocketResponse) => void;
 }
 export interface ServerToClientCheckersEvents {
-	checkersRoomConnect: (args: CheckersRoomConnectPayload) => void;
-	/* CurPlayer: bool, boardState: ValidTokens[], requiredMoves: [int[]] */
-	checkersUpdateClient: (args: IPayload) => void;
+	/* playerTokens: PlayerTokens, boardState: ValidTokens */
+	checkersRoomConnect: (
+		args: CheckersRoomConnectPayload,
+		callback: (e: number) => void
+	) => void;
+	checkersRoomStart: (args: IPayload) => void;
+	/* CurPlayer: PlayerTokens, boardState: ValidTokens[], requiredMoves: [int[]] */
+	checkersUpdateClient: (
+		args: IPayload,
+		callback: (e: number) => void
+	) => void;
 	/* Ok or not ok, if not ok, also contains prev turn data */
 	checkersClientUpdateRes: (args: IPayload) => void;
 }
@@ -130,6 +141,9 @@ export interface ServerToClientCheckersEvents {
 export interface ClientToServerCheckersEvents {
 	checkersClientReady: (args: IPayload) => void;
 	/* boardState: validTokens[] */
-	checkersUpdateServer: (boardState: string) => void;
+	checkersUpdateServer: (
+		boardState: string,
+		callback: (e: number) => void
+	) => void;
 	checkersServerUpdateRes: (args: IPayload) => void;
 }

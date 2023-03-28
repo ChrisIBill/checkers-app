@@ -24,15 +24,18 @@ export async function findCheckersRoom(
     socket: Socket,
     matchType: MatchmakingTypes,
     user: string
-) {
+): Promise<CheckersRoom | null> {
     if (matchType == "pvp") {
-        findPVPCheckersRoom(socket, user);
+        const roomID = await findPVPCheckersRoom(socket, user);
+        if (roomID) {
+            const room = checkersRooms.get(roomID);
+            return room ? room : null;
+        } else {
+            return null;
+        }
     } else {
-        socket.emit("gamesJoinRoomRes", {
-            status: HttpStatusCode.BAD_REQUEST,
-            data: "Invalid Matchmaking Type",
-        });
         console.log("ERROR: Invalid Matchmaking Type, type: ", matchType);
+        return null;
     }
     /* else if (args.type === "local") {
         findLocalCheckersRoom(socket, user);
@@ -40,27 +43,34 @@ export async function findCheckersRoom(
         findComputerCheckersRoom(socket, user);
     } */
 }
-export async function findPVPCheckersRoom(socket: Socket, user: string) {
+export async function findPVPCheckersRoom(
+    socket: Socket,
+    user: string
+): Promise<string | null> {
     /* Checks if open room exists, if so routes them to room.
     else if matchmaking type is pvp, search for open room and add,
         if no open rooms found, make new room and add player
     elif matchmaking type is local, make new room with same player twice?
     elif matchmaking type is computer, make new room with bot as player? */
-    let success = false;
     const roomID = playersInRooms.get(user);
     if (roomID) {
-        if (await joinCheckersRoom(socket, roomID, user)) success = true;
+        const success = await joinCheckersRoom(socket, roomID, user);
+        if (success) return roomID;
+        else {
+            console.log("ERROR: Could not join checkers room: ", roomID);
+        }
     } else if (openRoomsSet.size > 0) {
         console.log("Found open room, joining room");
-        const openRoomID = openRoomsSet.values().next().value;
+        const openRoomID: string = openRoomsSet.values().next().value;
         const suc = await joinCheckersRoom(socket, openRoomID, user);
-        if (suc == true) success = true;
+        if (suc && suc == true) return openRoomID;
         else {
             console.log(
                 "ERROR: Could not join open room, room-id: ",
                 openRoomID
             );
             console.log("Room Data: ", checkersRooms.get(openRoomID));
+            return null;
         }
     } else {
         console.log("No Checkers Rooms available, creating new room");
@@ -74,15 +84,17 @@ export async function findPVPCheckersRoom(socket: Socket, user: string) {
         checkersRooms.set(newID, newRoom);
         openRoomsSet.add(newID);
         /* Need better checking for any potential issues */
-        success = true;
+        return newID;
     }
-    const payload: IPayload = {
+    return null;
+    /* const payload: IPayload = {
         status: success
             ? HttpStatusCode.OK
             : HttpStatusCode.INTERNAL_SERVER_ERROR,
+        data: roomID
     };
     console.log("Sending gamesJoinRoomRes to client: ", payload);
-    socket.emit("gamesJoinRoomRes", payload);
+    socket.emit("gamesJoinRoomRes", payload); */
 }
 export async function findOpenRoom(
     socket: Socket,

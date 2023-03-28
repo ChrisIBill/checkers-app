@@ -1,7 +1,9 @@
 import {PIECE_TOKENS, VALID_TOKENS} from "../constants/checkersData";
+import {PathsSet} from "../paths/SocketPaths";
 import {CompressedCheckersGameState} from "./checkersInterfaces";
 import {UserData} from "./userInterfaces";
 
+export type PathsTypes = typeof PathsSet[number];
 /* 
 move_desc: start | piece[startpos]>pos[endpos] & takenpiece[pos] 
 game_state: compressed board state*/
@@ -20,6 +22,7 @@ export type RequiredMoves = [number, number][];
 /* Function and Component Props */
 /**
  * @param board: ValidTokens[]
+ * @param isCurPlayer: boolean
  * @param curPlayer: PlayerTokens
  * @param onMove: arg: ValidTokens[], move handler function to adjust board state
  * @param reqSels?: Number[], optional array of board indexes that are required*/
@@ -27,7 +30,7 @@ export interface CheckersBoardProps {
 	/** Board */
 	board: ValidTokens[];
 	isCurPlayer: boolean;
-	curPlayer: PlayerTokens; //PK or pk
+	playerTokens: PlayerTokens; //PK or pk
 	onMove(arg: ValidTokens[]): void;
 	reqSels?: number[];
 }
