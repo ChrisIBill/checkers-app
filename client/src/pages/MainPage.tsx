@@ -1,32 +1,34 @@
 import React, {useContext, useEffect, useState} from "react";
 import logo from "./logo.svg";
-import "./App.css";
+import "../App.css";
 import {io, Socket} from "socket.io-client";
-import {CheckersPage} from "./pages/CheckersPage";
+import {CheckersPage} from "./CheckersPage";
 import {
 	CheckersBoardJSON,
 	PlayerTokens,
 	ValidTokens,
-} from "./interfaces/interfaces";
-import {zipGameState, unzipGameState} from "./lib/serverHandlers";
-import {IUser, UserContextType, UserData} from "./interfaces/userInterfaces";
-import {LoginPage} from "./pages/LoginPage";
+} from "../interfaces/interfaces";
+import {zipGameState, unzipGameState} from "../lib/serverHandlers";
+import {IUser, UserContextType, UserData} from "../interfaces/userInterfaces";
+import {LoginPage} from "./LoginPage";
 import {
 	CheckersGameState,
 	CheckersRoomState,
-} from "./interfaces/checkersInterfaces";
-import {PIECE_TOKENS} from "./constants/checkersData";
-import {Paths} from "./paths/SocketPaths";
+} from "../interfaces/checkersInterfaces";
+import {PIECE_TOKENS} from "../constants/checkersData";
+import {Paths} from "../paths/SocketPaths";
 import {
 	ServerToClientEvents,
 	ClientToServerEvents,
 	IPayload,
-} from "./interfaces/socketInterfaces";
-import {UserContext} from "./context/userContext";
+} from "../interfaces/socketInterfaces";
+import {UserContext} from "../context/userContext";
 import {ErrorBoundary} from "react-error-boundary";
-import {UserPanel} from "./components/UserComponents";
+import {UserPanel} from "../components/UserComponents";
 import {useNavigate, useOutletContext} from "react-router-dom";
-import {PlayGamesButton} from "./components/GameComponents";
+import {PlayGamesButton} from "../components/GameComponents";
+import {SessionContext} from "../context/SessionContext";
+import {ISessionData} from "../interfaces/SessionInterfaces";
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
 	Paths.App.Base,
 	{
@@ -36,20 +38,12 @@ const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
 	}
 );
 
-function App() {
-	const test = 12;
-	let args: any[];
-	//User Info
-	const userContext = useOutletContext<UserContextType>();
-	const userData: UserData = userContext.userData;
-	/* A connected context to manage offline/online behavior */
-	const [isOnline, setIsOnline] = useState<boolean>(false);
+export const MainPage = () => {
+	const sessionContext = useContext(SessionContext);
+	const userData = sessionContext.userData;
+	const isOnline = sessionContext.isOnline;
+	const authType = sessionContext.authType;
 	const navigate = useNavigate();
-	const [userToken, setUserToken] = useState<string>();
-	const [checkersServerData, setCheckersServerData] =
-		useState<CheckersBoardJSON>();
-	const [player, setPlayer] = useState<PlayerTokens>();
-	const [gameState, setGameState] = useState<CheckersGameState>();
 	console.log("In App");
 	if (userData == undefined) {
 		console.log("ERROR: User data is undefined");
@@ -63,7 +57,7 @@ function App() {
 	function onPlayGamesClick() {
 		navigate(Paths.Games.Base);
 	}
-	console.log("User Context: ", userContext);
+	console.log("Session Context: ", sessionContext);
 	console.log("User data: ", userData);
 	return (
 		<ErrorBoundary fallback={<div>Something went wrong in App Page</div>}>
@@ -74,10 +68,7 @@ function App() {
 				<ErrorBoundary fallback={<div>User Panel Error</div>}>
 					<PlayGamesButton onClick={onPlayGamesClick} />
 				</ErrorBoundary>
-				{/* {userData ? <CheckersPage game={gameState!} /> : <LoginPage />} */}
 			</div>
 		</ErrorBoundary>
 	);
-}
-
-export default App;
+};

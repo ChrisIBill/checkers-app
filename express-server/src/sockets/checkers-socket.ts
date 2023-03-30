@@ -64,6 +64,7 @@ export = async (io: Namespace, socket: Socket) => {
                 data: {
                     boardState: zipGameState(room.data.gameState.boardState),
                     curPlayer: "PK",
+                    status: "playing",
                 },
             });
         }

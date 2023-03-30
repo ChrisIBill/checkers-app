@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 
 import {io, Socket} from "socket.io-client";
 import "./index.css";
-import App from "./App";
+import {MainPage} from "./pages/MainPage";
 import reportWebVitals from "./reportWebVitals";
 import {
 	createBrowserRouter,
@@ -34,7 +34,7 @@ const routes = [
 			},
 			{
 				path: Paths.App.Base,
-				element: <App />,
+				element: <MainPage />,
 			},
 			{
 				path: Paths.Games.Base,
