@@ -13,6 +13,7 @@ import { connect } from "http2";
 import { zipGameState } from "../util/CheckersUtil";
 import { PIECE_TOKENS } from "../../../client/src/constants/checkersData";
 import { getCheckersRoom } from "@src/services/CheckersService";
+import { PlayerTokens } from "../../../client/src/interfaces/interfaces";
 
 export = async (io: Namespace, socket: Socket) => {
     const token = socket.handshake.auth.token;
@@ -36,6 +37,8 @@ export = async (io: Namespace, socket: Socket) => {
                 status: HttpStatusCode.OK,
                 data: {
                     boardState: zipGameState(room.data.gameState.boardState),
+                    playerTokens:
+                        PIECE_TOKENS[room.data.players.indexOf(user.name)],
                 },
             });
         } else {
@@ -53,10 +56,11 @@ export = async (io: Namespace, socket: Socket) => {
         const room: CheckersRoom | null = await getCheckersRoom(user.name);
         if (room?.data.players.length === 2) {
             console.log("Room is full, starting game");
-            io.to(("checkersStartGame", {
+            io.to(room.id).emit("checkersStartGame", {
                 status: HttpStatusCode.OK,
                 data: {
                     boardState: zipGameState(room.data.gameState.boardState),
+                    curPlayer: "PK",
                 },
             });
         }
