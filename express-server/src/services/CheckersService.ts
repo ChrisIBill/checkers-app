@@ -58,6 +58,7 @@ export async function findPVPCheckersRoom(
     } else if (openRoomsSet.size > 0) {
         console.log("Found open room, joining room");
         const openRoomID: string = openRoomsSet.values().next().value;
+        console.log("Open Room ID: ", openRoomID);
         const suc = await joinCheckersRoom(openRoomID, user);
         if (suc && suc == true) return openRoomID;
         else {
@@ -75,12 +76,15 @@ export async function findPVPCheckersRoom(
             newID = randomstring.generate(10);
         }
         const newRoom = new CheckersRoom(newID, "open");
-        newRoom.addPlayer(user);
-        playersInRooms.set(user, newID);
         checkersRooms.set(newID, newRoom);
-        openRoomsSet.add(newID);
-        /* Need better checking for any potential issues */
-        return newID;
+        const success = await joinCheckersRoom(newID, user);
+        if (!success) {
+            console.log("ERROR: Could not join new room");
+            return null;
+        } else {
+            console.log("Joined new room");
+            return newID;
+        }
     }
     return null;
     /* const payload: IPayload = {
@@ -117,7 +121,16 @@ export async function joinCheckersRoom(
     if (room) {
         console.log("Room found, joining room");
         if (["empty", "open", "missingPlayer"].includes(room.status)) {
-            if (room.addPlayer(user) == false) return false;
+            if (room.addPlayer(user) == true) {
+                playersInRooms.set(user, roomID);
+                openRoomsSet.add(roomID);
+                console.log(`Player ${user} joined room ${roomID}`);
+            } else {
+                console.log(
+                    `ERROR: Could not add player ${user} to room ${roomID}`
+                );
+                return false;
+            }
             /* socket.emit("checkers room data", room); */
             if (room.data.players.includes(null)) room.status = "open";
             else {
@@ -133,7 +146,7 @@ export async function joinCheckersRoom(
             return false;
         }
     } else {
-        console.log("ERROR: Room does not exist");
+        console.log(`ERROR: Room ${roomID} does not exist`);
         return false;
     }
 }

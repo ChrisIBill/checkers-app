@@ -29,9 +29,9 @@ export = async (io: Namespace, socket: Socket) => {
             return;
         }
         const room: CheckersRoom | null = await getCheckersRoom(user.name);
+        console.log("Found Room: ", room);
         if (room && room.id) {
-            console.log("Found Checkers Room, joining room", room.id);
-            console.log("Room Data: ", room);
+            console.log("Found Checkers Room, joining room", room);
             socket.join(room.id);
             socket.emit("checkersClientInit", {
                 status: HttpStatusCode.OK,
