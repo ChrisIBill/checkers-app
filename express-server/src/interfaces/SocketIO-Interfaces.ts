@@ -108,19 +108,22 @@ export interface ClientToServerGameEvents {
 
 /* Checkers Events */
 export interface ServerToClientCheckersEvents {
+    checkersClientInit: (args: IPayload, callback: () => void) => void;
     /* playerTokens: PlayerTokens, boardState: ValidTokens */
     checkersRoomConnect: (args: CheckersRoomConnectPayload) => void;
     checkersRoomStart: (args: IPayload) => void;
     /* CurPlayer: PlayerTokens, boardState: ValidTokens[], requiredMoves: [int[]] */
-    checkersUpdateClient: (args: IPayload) => void;
+    checkersUpdateClient: (args: IPayload, callback: () => void) => void;
     /* Ok or not ok, if not ok, also contains prev turn data */
     checkersClientUpdateRes: (args: IPayload) => void;
 }
 
 export interface ClientToServerCheckersEvents {
     checkersClientReady: (args: IPayload) => void;
+    /* roomID: string (CheckersRoom_{roomID}) */
+    checkersClientLoaded: (args: IPayload) => void;
     /* boardState: validTokens[] */
-    checkersUpdateServer: (boardState: string) => void;
+    checkersUpdateServer: (boardState: string, callback: () => void) => void;
     checkersServerUpdateRes: (args: IPayload) => void;
 }
 interface SocketData {

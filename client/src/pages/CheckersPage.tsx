@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useState, useEffect} from "react";
 import {findValidMoves, getReqSelections} from "../lib/checkersClientLogic";
 import {
 	COMPRESSED_DEFAULT_GAME_STATE,
@@ -26,6 +26,7 @@ import {
 } from "../interfaces/socketInterfaces";
 import {Paths} from "../paths/SocketPaths";
 import HttpStatusCode from "../constants/HttpStatusCodes";
+import {onCheckersClientInit} from "../services/gamesServices";
 import {
 	IPayload,
 	CheckersRoomConnectPayload,
@@ -188,7 +189,7 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 			//do while valid moves for selection available?
 			props.onMove(board);
 		} else if (
-			!props.playerTokens.includes(board[sel]) ||
+			!props.playerTokens?.includes(board[sel]) ||
 			(props.reqSels && !props.reqSels.includes(sel))
 		) {
 			console.log("Invalid Selection.");
@@ -259,9 +260,20 @@ const CheckersPage = () => {
 		CompressedCheckersGameState[]
 	>([COMPRESSED_DEFAULT_GAME_STATE]); //Stored in compressed format?
 	const [gameBoard, setGameBoard] = useState<ValidTokens[]>();
-	const [status, setStatus] = useState("init"); //init, loading, waiting, playing, over, error
+	const [status, setStatus] = useState("loading"); //loading, init, waiting, playing, over, error
 	const [playerTokens, setPlayerTokens] = useState<PlayerTokens>();
 	const [isCurPlayer, setIsCurPlayer] = useState<boolean>(false);
+	socket.on("checkersClientInit", (args: IPayload) => {
+		console.log("Received checkersClientInit", args);
+		const boardState = onCheckersClientInit(args);
+		if (boardState) {
+			console.log("Board State: ", boardState);
+			setGameBoard(boardState);
+			setStatus("init");
+		} else {
+			console.log("Error initializing game.");
+		}
+	});
 	socket.on("checkersRoomConnect", (args: CheckersRoomConnectPayload) => {
 		const gameState = onCheckersRoomConnect(args);
 		if (gameState) {
@@ -297,6 +309,15 @@ const CheckersPage = () => {
 		);
 		setGameBoard(board);
 	}
+	useEffect(() => {
+		if (status == "loading") {
+			console.log("Emitting checkersClientLoaded");
+			socket.emit("checkersClientLoaded", {status: HttpStatusCode.OK});
+		} else if (status == "init") {
+			console.log("Emitting checkersClientReady");
+			socket.emit("checkersClientReady", {status: HttpStatusCode.OK});
+		}
+	});
 	return (
 		<div id="CheckersPageWrapper">
 			{/* <div id="CheckersHistoryWrapper">
@@ -306,13 +327,13 @@ const CheckersPage = () => {
 				/>
 			</div> */}
 			<div id="CheckersBoardWrapper">
-				{status == "init" ? (
+				{status == "loading" ? (
 					<div>Initializing...</div>
 				) : (
 					<CheckersBoard
 						board={gameBoard!}
 						isCurPlayer={true}
-						playerTokens={playerTokens!}
+						playerTokens={playerTokens}
 						onMove={handleMove}
 						/* reqSels={getReqSelections(PIECE_TOKENS[curPlayer], gameBoard)} */
 					/>

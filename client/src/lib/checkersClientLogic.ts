@@ -143,6 +143,7 @@ export function getReqSelections(
 	boardState: ValidTokens[]
 ): number[] | undefined {
 	const reqSels: number[] = [];
+	if (!tokens) return undefined;
 	for (let i = 0; i < boardState.length; i++) {
 		if (tokens.includes(boardState[i])) {
 			const [moves, isReq] = findValidMoves(boardState, i);

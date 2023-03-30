@@ -123,6 +123,7 @@ export interface ClientToServerGameEvents {
 	gamesUpdateClientRes: (args: ISocketResponse) => void;
 }
 export interface ServerToClientCheckersEvents {
+	checkersClientInit: (args: IPayload) => void;
 	/* playerTokens: PlayerTokens, boardState: ValidTokens */
 	checkersRoomConnect: (
 		args: CheckersRoomConnectPayload,
@@ -139,6 +140,7 @@ export interface ServerToClientCheckersEvents {
 }
 
 export interface ClientToServerCheckersEvents {
+	checkersClientLoaded: (args: IPayload) => void;
 	checkersClientReady: (args: IPayload) => void;
 	/* boardState: validTokens[] */
 	checkersUpdateServer: (

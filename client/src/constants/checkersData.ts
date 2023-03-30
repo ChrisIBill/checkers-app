@@ -8,7 +8,7 @@ export const BOARD_COLUMN_LENGTH = 8;
 export const NUM_PLAYER_TOKEN_TYPES = 2;
 export const VALID_TOKENS_STRING = "pkPKE" as const;
 export const VALID_TOKENS = ["p", "k", "P", "K", "E"] as const;
-export const PIECE_TOKENS = ["PK", "pk"] as const; //caps for red, lowers for white
+export const PIECE_TOKENS = ["PK", "pk", undefined] as const; //caps for red, lowers for white
 export const LEGAL_MOVES_MAP = new Map([
 	["0", [4, 5]],
 	["1", [5, 6]],

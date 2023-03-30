@@ -38,6 +38,18 @@ export function onLeaveGameRoomRes(args: IPayload) {
 	console.log("Successfully disconnected from game room");
 	console.log(args);
 }
+export function onCheckersClientInit(args: IPayload) {
+	console.log("Received checkers client init");
+	console.log(args);
+	if (args.data && args.data.boardState) {
+		console.log("Board state: ", args.data.boardState);
+		const boardState: ValidTokens[] = unzipGameState(args.data.boardState);
+		return boardState;
+	} else {
+		console.log("ERROR: No board state in checkers server init payload");
+		throw new Error("No board state in checkers server init payload");
+	}
+}
 export function onCheckersRoomConnect(args: CheckersRoomConnectPayload) {
 	console.log("Connected client with checkers room, status: ", args.status);
 	if (args.status !== HttpStatusCode.OK) {

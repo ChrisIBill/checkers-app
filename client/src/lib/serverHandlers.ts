@@ -5,12 +5,13 @@ export function unzipGameState(str: string): ValidTokens[] {
 	const board: ValidTokens[] = [];
 	const tokens: string[] = str.split("/");
 	console.log("Parsing Game State: " + str);
+	console.log("Tokens: " + tokens);
 	for (let i = 0; i < tokens.length; i++) {
 		const t = tokens[i];
 		if (t.length == 0) {
 			//Should fix this
 			console.log("ERROR: Invalid Token Length");
-			break;
+			continue;
 		}
 		let token: ValidTokens;
 		if (!VALID_TOKENS_STRING.includes(t.at(0)!)) {

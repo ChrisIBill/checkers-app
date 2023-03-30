@@ -36,6 +36,9 @@ import myUserService from "./services/myUserService";
 import { redirectEmit } from "./sockets/emits";
 import { onJoinGameRoomRes } from "../../client/src/services/gamesServices";
 import { onJoinGameRoomReq } from "./sockets/games-socket";
+import registerCheckersHandlers from "./sockets/checkers-socket";
+/* import { onCheckersClientReady, registerCheckersHandlers } from './sockets/checkers-socket'; */
+/* import * as checkersSocket from "./sockets/checkers-socket"; */
 // **** Variables **** //
 
 const app = express();
@@ -43,7 +46,6 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
     /* Options */
 });
-
 /* const numRooms = 1;
 const playersInRooms: number[] = [0];
 const checkersRoomHandler = []; */
@@ -160,6 +162,10 @@ const gamesConnection = async (socket: Socket) => {
 };
 const checkersConnection = (socket: Socket) => {
     console.log("Checkers Connection: ", socket.id);
+    /* console.log("CHECKERSSOCKET", checkersSocket); */
+    console.log("Registering Checkers Handlers", registerCheckersHandlers);
+    registerCheckersHandlers(io.of(Paths.Games.Checkers), socket);
+    //socket.on("checkersClientReady", () => console.log("ADSGFHGADFSH"));
 };
 io.of(Paths.Base).on("connection", onConnection);
 io.of(Paths.Auth.Base).on("connection", authConnection);

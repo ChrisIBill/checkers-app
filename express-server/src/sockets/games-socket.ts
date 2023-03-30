@@ -3,9 +3,9 @@ import {
     ClientPaths,
 } from "@src/interfaces/SocketIO-Interfaces";
 import Paths from "@src/routes/constants/Paths";
+import { findCheckersRoom } from "@src/services/CheckersService";
 import { findUserFromToken } from "@src/services/myAuthService";
 import HttpStatusCode from "../../../client/src/constants/HttpStatusCodes";
-import { findCheckersRoom, findPVPCheckersRoom } from "./checkers-socket";
 import { zipGameState } from "../util/CheckersUtil";
 
 /**
@@ -41,6 +41,7 @@ export async function onJoinGameRoomReq(
         callback({ status: HttpStatusCode.BAD_REQUEST });
         //socket.emit("gamesJoinRoomRes", { status: HttpStatusCode.BAD_REQUEST });
     } else if (args.matchmakingType) {
+        console.log("Matchmaking type: ", args.matchmakingType);
         /* if matchmakingType */
         switch (args.gameType) {
             case "checkers":
