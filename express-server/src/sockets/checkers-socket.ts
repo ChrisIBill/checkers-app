@@ -14,11 +14,12 @@ import { zipGameState } from "../util/CheckersUtil";
 import { PIECE_TOKENS } from "../../../client/src/constants/checkersData";
 import { getCheckersRoom } from "@src/services/CheckersService";
 
-export = (io: Namespace, socket: Socket) => {
+export = async (io: Namespace, socket: Socket) => {
     const token = socket.handshake.auth.token;
     console.log("User Token: ", token);
+    const user = await findUserFromToken(token);
     const onCheckersClientLoaded = async (args: any) => {
-        console.log("onCheckersClientReady", args);
+        console.log("onCheckersClientInit", args);
         const user = await findUserFromToken(token);
         if (!user) {
             /* Will fire if user doesnt exist, need to redirect to auth
@@ -42,8 +43,23 @@ export = (io: Namespace, socket: Socket) => {
             console.log("User not in room", user.name);
         }
     };
-    const onCheckersClientReady = (args: IPayload) => {
+    const onCheckersClientReady = async (args: IPayload) => {
         console.log("onCheckersClientReady", args);
+        const user = await findUserFromToken(token);
+        if (!user) {
+            console.log("Error: User not found");
+            return;
+        }
+        const room: CheckersRoom | null = await getCheckersRoom(user.name);
+        if (room?.data.players.length === 2) {
+            console.log("Room is full, starting game");
+            io.to(("checkersStartGame", {
+                status: HttpStatusCode.OK,
+                data: {
+                    boardState: zipGameState(room.data.gameState.boardState),
+                },
+            });
+        }
     };
     const onCheckersUpdateServer = (args: IPayload) => {
         console.log("onCheckersUpdateServer", args);
