@@ -1,7 +1,7 @@
 import {IUser} from "./userInterfaces";
 
-export type AuthTypes = "invalid" | "offline" | "user" | "admin";
-export interface ISessionData {
+export type AuthTypes = "invalid" | "guest" | "user" | "admin" | undefined;
+export interface ISessionContext {
 	userData: IUser | null;
 	isOnline: boolean;
 	authType: AuthTypes;

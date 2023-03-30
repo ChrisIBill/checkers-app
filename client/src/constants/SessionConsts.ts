@@ -1,7 +1,7 @@
-import {ISessionData} from "../interfaces/SessionInterfaces";
+import {ISessionContext} from "../interfaces/SessionInterfaces";
 
-export const DEFAULT_SESSION_DATA: ISessionData = {
+export const DEFAULT_SESSION_DATA: ISessionContext = {
 	userData: null,
 	isOnline: false,
-	authType: "offline",
+	authType: undefined,
 };

@@ -18,6 +18,7 @@ import {ErrorPage} from "./pages/ErrorPage";
 import {CheckersPage} from "./pages/CheckersPage";
 import {GamesPage} from "./pages/GamesPage";
 import {TEMPINTERNALDEFAULTCHECKERSSTATE} from "./constants/checkersData";
+import {AppHeader} from "./components/main-components/header";
 const routes = [
 	{
 		path: Paths.Base,
@@ -35,6 +36,7 @@ const routes = [
 			{
 				path: Paths.App.Base,
 				element: <MainPage />,
+				errorElement: <ErrorPage />,
 			},
 			{
 				path: Paths.Games.Base,

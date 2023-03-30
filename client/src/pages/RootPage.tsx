@@ -17,7 +17,7 @@ import {IUser, UserData} from "../interfaces/userInterfaces";
 import {Paths, PathsSet} from "../paths/SocketPaths";
 import {onRedirect} from "../services/socketServices";
 import {LoginPage} from "./LoginPage";
-import {ISessionData} from "../interfaces/SessionInterfaces";
+import {ISessionContext} from "../interfaces/SessionInterfaces";
 import {DEFAULT_SESSION_DATA} from "../constants/SessionConsts";
 
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
@@ -31,7 +31,7 @@ const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
 export const RootPage = () => {
 	//const [userData, setUserData] = useState<IUser | null>();
 	const [sessionData, setSessionData] =
-		useState<ISessionData>(DEFAULT_SESSION_DATA);
+		useState<ISessionContext>(DEFAULT_SESSION_DATA);
 	const navigate = useNavigate();
 	console.log("Loading Root");
 	function onConnect() {
@@ -51,7 +51,7 @@ export const RootPage = () => {
 				authType: "user",
 				userData: {
 					name: args.data.user.name,
-					token: args.data.user.token,
+					token: args.data.user.id,
 				},
 			});
 			console.log("Setting user data: ", args.data.user);
@@ -65,9 +65,22 @@ export const RootPage = () => {
 			/* navigate(Paths.Auth.Login); */
 		}
 	}
+	/* switch (sessionData.authType) {
+			case undefined:
+				console.log("Auth type is undefined");
+				break;
+			case "invalid":
+				console.log("Auth type is invalid");
+				break;
+			case "admin":
+			case "user":
+			case "guest":
+				console.log("Auth type is valid");
+		} */
 	socket.on("connect", onConnect);
 	socket.on("authTokenValRes", onAuthTokenRes);
 	socket.on("redirect", (args: IPayload) => onRedirect(navigate, args));
+	useEffect(() => {}, [sessionData]);
 	return (
 		<div className="RootWrapper">
 			<Outlet context={{sessionData}} />

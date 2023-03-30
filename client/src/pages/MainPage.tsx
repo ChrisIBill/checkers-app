@@ -28,7 +28,8 @@ import {UserPanel} from "../components/UserComponents";
 import {useNavigate, useOutletContext} from "react-router-dom";
 import {PlayGamesButton} from "../components/GameComponents";
 import {SessionContext} from "../context/SessionContext";
-import {ISessionData} from "../interfaces/SessionInterfaces";
+import {ISessionContext} from "../interfaces/SessionInterfaces";
+import {AppHeader} from "../components/main-components/header";
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
 	Paths.App.Base,
 	{
@@ -38,11 +39,19 @@ const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
 	}
 );
 
+/* Depending on session context, does different things
+If offline, give user guest privs
+if invalid, need to pass to header to handle login
+if user, give regular access
+if admin? */
 export const MainPage = () => {
-	const sessionContext = useContext(SessionContext);
+	const sessionContext: ISessionContext = useOutletContext();
 	const userData = sessionContext.userData;
 	const isOnline = sessionContext.isOnline;
 	const authType = sessionContext.authType;
+
+	if (!isOnline) {
+	}
 	const navigate = useNavigate();
 	console.log("In App");
 	if (userData == undefined) {
@@ -63,7 +72,7 @@ export const MainPage = () => {
 		<ErrorBoundary fallback={<div>Something went wrong in App Page</div>}>
 			<div className="App">
 				<ErrorBoundary fallback={<div>User Panel Error</div>}>
-					<UserPanel userData={userData} />
+					<AppHeader />
 				</ErrorBoundary>
 				<ErrorBoundary fallback={<div>User Panel Error</div>}>
 					<PlayGamesButton onClick={onPlayGamesClick} />

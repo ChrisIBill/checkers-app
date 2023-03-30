@@ -74,21 +74,30 @@ if (EnvVars.NodeEnv === NodeEnvs.Production) {
     app.use(helmet());
 }
 
+/* Validation middleware */
 io.use(async (socket, next) => {
     console.log("Validation Middleware firing for socket id: ", socket.id);
     const token = socket.handshake.auth.token;
+    if (!token) {
+        console.log("No token found ");
+        socket.emit("Auth:ClientTokenRes", {
+            status: HttpStatusCodes.NOT_FOUND,
+        });
+    }
     const user = await findUserFromToken(token);
     if (user) {
         console.log("User from token: ", user);
         //Do i need to redirect here?
         authTokenResEmit(socket, user);
-        redirectEmit(
-            socket,
-            Paths.App.Base,
-            HttpStatusCodes.PERMANENT_REDIRECT
-        );
+        socket.emit("Auth:ClientTokenRes", {
+            status: HttpStatusCodes.OK,
+            data: user,
+        });
     } else {
-        console.log("No user found, redirecting");
+        console.log("No user found for token: ", token);
+        socket.emit("Auth:ClientTokenRes", {
+            status: HttpStatusCodes.UNAUTHORIZED,
+        });
         authTokenResEmit(socket);
         redirectEmit(socket, Paths.Auth.Login);
     }
