@@ -8,13 +8,13 @@ import {
 export type ValidTokens = typeof VALID_TOKENS[number]; //"p" | "P" | "k" | "K" | "E";
 export type PlayerTokens = typeof PIECE_TOKENS[number];
 /**
- * @member boardState: string
+ * @member boardState: ValidTokens[]
  * @member curPlayer: number
  * @member history?: string[]
  */
 export interface CheckersGameState {
     boardState: ValidTokens[];
-    curPlayer: number;
+    curPlayer: PlayerTokens;
     history?: string[]; //Compressed
 }
 export interface CompressedCheckersGameState {

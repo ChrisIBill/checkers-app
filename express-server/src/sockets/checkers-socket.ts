@@ -12,7 +12,10 @@ import { CheckersRoomConnectPayload } from "../../../client/src/interfaces/socke
 import { connect } from "http2";
 import { zipGameState } from "../util/CheckersUtil";
 import { PIECE_TOKENS } from "../../../client/src/constants/checkersData";
-import { getCheckersRoom } from "@src/services/CheckersService";
+import {
+    getCheckersRoom,
+    getCheckersRoomID,
+} from "@src/services/CheckersService";
 import { PlayerTokens } from "../../../client/src/interfaces/interfaces";
 
 export = async (io: Namespace, socket: Socket) => {
@@ -65,8 +68,21 @@ export = async (io: Namespace, socket: Socket) => {
             });
         }
     };
-    const onCheckersUpdateServer = (args: IPayload) => {
+    /* Receives array of numbers, starting with index of piece being moved,
+        followed by the indexes of each pos piece moved to */
+    const onCheckersUpdateServer = async (args: IPayload) => {
         console.log("onCheckersUpdateServer", args);
+        const user = await findUserFromToken(token);
+        if (!user) {
+            console.log("Error: User not found");
+            return;
+        }
+        const roomID = await getCheckersRoomID(user.name);
+        if (!roomID) {
+            console.log("Error: Room not found");
+            return;
+        }
+        io.to(roomID).emit("checkersUpdateClient");
     };
     const onCheckersMove = (args: IPayload) => {
         console.log("onCheckersMove", args);

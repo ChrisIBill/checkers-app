@@ -2,7 +2,7 @@ import {PlayerTokens, ValidTokens} from "./interfaces";
 
 export interface CompressedCheckersGameState {
 	boardState: string;
-	curPlayer: number;
+	curPlayer: PlayerTokens;
 	turnNum?: number;
 }
 export interface CheckersRoomState {

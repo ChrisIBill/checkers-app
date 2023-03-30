@@ -88,4 +88,15 @@ export class CheckersRoom implements ICheckersRoom {
         }
         return false;
     }
+    getGameState(): CheckersGameState {
+        return this.data.gameState;
+    }
+    setGameState(gameState: CheckersGameState): boolean {
+        this.data.gameState = gameState;
+        return true;
+    }
+    /* updates board state and returns true if given boardstate is valid change, else returns false */
+    updateBoardState(moves: number[]): boolean {
+        return false;
+    }
 }

@@ -193,3 +193,30 @@ export async function getCheckersRoom(
         return null;
     }
 }
+export async function getCheckersRoomID(user: string) {
+    return playersInRooms.get(user);
+}
+
+export async function leaveCheckersRoom(user: string) {
+    const roomID = playersInRooms.get(user);
+    if (roomID) {
+        const room = checkersRooms.get(roomID);
+        if (room) {
+            room.removePlayer(user);
+            playersInRooms.delete(user);
+            if (room.data.players.some((p) => p !== null)) {
+                room.status = "open";
+                openRoomsSet.add(roomID);
+            } else {
+                console.log("Room is empty, deleting room");
+                openRoomsSet.delete(roomID);
+                checkersRooms.delete(roomID);
+            }
+            console.log(`Player ${user} left room ${roomID}`);
+        } else {
+            console.log("ERROR: Room does not exist");
+        }
+    } else {
+        console.log("ERROR: Player not in any rooms");
+    }
+}
