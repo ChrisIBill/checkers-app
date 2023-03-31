@@ -6,3 +6,11 @@ export const CLIENT_PATHS = [
     "/Games",
     "/Games/Checkers",
 ] as const;
+
+export const NEW_CLIENT_PATHS = [
+    "/",
+    "/Auth",
+    "/Guest",
+    "/User",
+    "/Admin",
+] as const;

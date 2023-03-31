@@ -1,6 +1,6 @@
 import { Server, Socket } from "socket.io";
 
-import myUserRepo from "@src/repos/myUserRepo";
+import myUserRepo from "@src/repos/UserRepo";
 import Paths from "../routes/constants/Paths";
 import User, { IUser } from "@src/models/User";
 import httpServer from "@src/server";

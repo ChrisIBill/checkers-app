@@ -143,3 +143,4 @@ export interface IPayload {
 }
 
 export type ClientPaths = typeof CLIENT_PATHS[number];
+export type NewClientPaths = typeof CLIENT_PATHS[number];

@@ -1,9 +1,9 @@
-import { IUser } from "@src/models/User";
-import myUserRepo from "@src/repos/myUserRepo";
+import { IUser, UserRoles } from "@src/models/User";
+import UserRepo from "@src/repos/UserRepo";
 
 async function login(user: IUser) {
     //TODO
-    const persists = await myUserRepo.uNamePersists(user.name);
+    const persists = await UserRepo.uNamePersists(user.name);
     if (!persists) {
         console.log("ERROR: COULD NOT FIND USER");
         console.log("User: ", user);
@@ -13,9 +13,9 @@ async function login(user: IUser) {
         return true;
     }
 }
-export async function userSignupAuth(user: string): Promise<IUser | null> {
+export async function userSignupAuth(user: IUser): Promise<IUser | null> {
     console.log("User Signup Authentication, user: ", user);
-    const persists = await myUserRepo.uNamePersists(user);
+    const persists = await UserRepo.uNamePersists(user.name);
     if (persists) {
         console.log("ERROR: User already exists");
         console.log("User: ", user);
@@ -24,14 +24,19 @@ export async function userSignupAuth(user: string): Promise<IUser | null> {
         console.log("Unique user received. Registering new User");
         console.log("User: ", user);
         const newUser: IUser = {
-            name: user,
+            name: user.name,
+            role: UserRoles.User,
         };
-        myUserRepo.add(newUser);
-        return myUserRepo.getOne(user);
+        UserRepo.add(newUser);
+        const dbUser = await UserRepo.getOne(user.name);
+        if (!dbUser) {
+            console.log("BAD ERROR: USER SHOULD HAVE JUST BEEN ADDED TO DB");
+            throw new Error("Could not find user in database");
+        } else return dbUser;
     }
 }
 export async function findUserFromToken(token: number): Promise<IUser | null> {
-    const persists = await myUserRepo.persists(Number(token));
+    const persists = await UserRepo.persists(Number(token));
     if (!persists) {
         console.log("ERROR: COULD NOT FIND USER FROM TOKEN");
         console.log("Token: ", token);

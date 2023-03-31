@@ -6,7 +6,7 @@ const INVALID_CONSTRUCTOR_PARAM =
 
 export enum UserRoles {
     Guest,
-    Standard,
+    User,
     Admin,
 }
 
@@ -45,7 +45,7 @@ class User implements IUser {
         this.name = name;
         this.id = id ?? -1;
         this.pwdHash = pwdHash ?? "";
-        this.role = role ?? UserRoles.Standard;
+        this.role = role ?? UserRoles.User;
     }
 
     /**

@@ -78,6 +78,9 @@ export const RootPage = () => {
 				console.log("Auth type is valid");
 		} */
 	socket.on("connect", onConnect);
+	socket.on("connect_error", (err) => {
+		console.log("Error connecting to server: ", err);
+	});
 	socket.on("authTokenValRes", onAuthTokenRes);
 	socket.on("redirect", (args: IPayload) => onRedirect(navigate, args));
 	useEffect(() => {}, [sessionData]);

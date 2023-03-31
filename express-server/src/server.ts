@@ -139,10 +139,21 @@ app.get("/GameData/Checkers", (res, req) => {
 }); */
 
 const onConnection = (socket: Socket) => {
-    //Default Connection, nav to current user pos?
+    //Default Connection, should only occur with "guests"
     console.log("Base Connection: ", socket.id);
 };
 
+const guestConnection = (socket: Socket) => {
+    console.log("Guest Connection: ", socket.id);
+};
+const userConnection = (socket: Socket) => {
+    console.log("User Connection: ", socket.id);
+};
+const adminConnection = (socket: Socket) => {
+    console.log("Admin Connection: ", socket.id);
+};
+
+io.of(Paths.Base);
 const authConnection = (socket: Socket) => {
     console.log("Auth Connection: ", socket.id);
     socket.on("authTokenValReq", (tok: string) => {
