@@ -13,7 +13,7 @@ import {
 } from "react-router-dom";
 import {Paths} from "./paths/SocketPaths";
 import {RootPage} from "./pages/RootPage";
-import {AuthPage, LoginPage} from "./pages/LoginPage";
+import {LoginPage} from "./pages/LoginPage";
 import {ErrorPage} from "./pages/ErrorPage";
 import {CheckersPage} from "./pages/CheckersPage";
 import {GamesPage} from "./pages/GamesPage";
@@ -26,17 +26,13 @@ const routes = [
 		errorElement: <ErrorPage />,
 		children: [
 			{
-				path: Paths.Auth.Base,
-				element: <AuthPage />,
+				path: Paths.App.Base,
+				element: <MainPage />,
+				errorElement: <ErrorPage />,
 			},
 			{
 				path: Paths.Auth.Login,
 				element: <LoginPage />,
-			},
-			{
-				path: Paths.App.Base,
-				element: <MainPage />,
-				errorElement: <ErrorPage />,
 			},
 			{
 				path: Paths.Games.Base,

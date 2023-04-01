@@ -76,7 +76,3 @@ export const LoginPage = () => {
 		</Box>
 	);
 };
-
-export const AuthPage = () => {
-	return <h1>Authorizing</h1>;
-};

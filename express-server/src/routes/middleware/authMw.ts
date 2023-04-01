@@ -1,14 +1,95 @@
+import HttpStatusCodes from "@src/constants/HttpStatusCodes";
+import { UserRoles } from "@src/models/User";
 import { findUserFromToken } from "@src/services/myAuthService";
 import { Socket } from "socket.io";
 
-async function authMw(socket: Socket, next: (err?: any) => void) {
+const AUTH_ERROR = {
+    NO_TOKEN: {
+        message: "UNAUTHORIZED: NO TOKEN",
+        cause: HttpStatusCodes.UNAUTHORIZED.toString(),
+    },
+    USER_NOT_FOUND: {
+        message: "UNAUTHORIZED: USER NOT FOUND",
+        status: HttpStatusCodes.UNAUTHORIZED,
+    },
+    BAD_ROLE: {
+        message: "UNAUTHORIZED: USER NOT AUTHORIZED FOR ROLE",
+        status: HttpStatusCodes.UNAUTHORIZED,
+    },
+};
+export async function authMw(
+    role: UserRoles,
+    socket: Socket
+): Promise<UserRoles> {
     const token = socket.handshake.auth.token;
-    const user = await findUserFromToken(token);
-    if (!user) {
-        console.log("ERROR: UNAUTHORIZED");
-        next(new Error("UNAUTHORIZED"));
+    if (!token) {
+        /* Guests need to be given temp token, so this is still invalid */
+        throw new Error("UNAUTHORIZED: NO TOKEN");
     } else {
-        console.log("Server Side App User Context: ", user);
-        next();
+        const user = await findUserFromToken(token);
+        if (!user) {
+            throw new Error("UNAUTHORIZED: USER NOT FOUND");
+        } else if (user.role !== role) {
+            throw new Error("UNAUTHORIZED: USER NOT AUTHORIZED FOR ROLE: ");
+        } else {
+            console.log(`User: ${user.name} is authorized for role: ${role}`);
+            return user.role;
+        }
     }
 }
+
+export const guestAuthMw = async (
+    socket: Socket,
+    next: (err?: any) => void
+) => {
+    try {
+        const auth = await authMw(UserRoles.Guest, socket);
+        if (UserRoles.Guest <= auth) {
+            next();
+        }
+    } catch (error) {
+        const err: any = new Error(error);
+        err.data = HttpStatusCodes.UNAUTHORIZED;
+        next(error);
+    }
+};
+
+export const userAuthMw = async (socket: Socket, next: (err?: any) => void) => {
+    try {
+        const auth = await authMw(UserRoles.User, socket);
+        if (UserRoles.User <= auth) {
+            next();
+        }
+    } catch (error) {
+        const err: any = new Error(error);
+        err.data = HttpStatusCodes.UNAUTHORIZED;
+        next(error);
+    }
+};
+
+export const adminAuthMw = async (
+    socket: Socket,
+    next: (err?: any) => void
+) => {
+    try {
+        const auth = await authMw(UserRoles.Admin, socket);
+        if (UserRoles.Admin === auth) {
+            next();
+        }
+    } catch (error) {
+        const err: any = new Error(error);
+        err.data = HttpStatusCodes.UNAUTHORIZED;
+        next(error);
+    }
+};
+
+/* export const rootAuthMw = async (socket: Socket, next: (err?: any) => void) => {
+    try {
+        const auth = await authMw(UserRoles.Root, socket);
+        if (UserRoles.Root === auth) {
+            next();
+        }
+    } catch (error) {
+        next(error);
+    }
+} */

@@ -12,7 +12,7 @@ import logger from "jet-logger";
 import "express-async-errors";
 
 import BaseRouter from "@src/routes/api";
-import Paths from "@src/routes/constants/Paths";
+import Paths, { NewPaths } from "@src/routes/constants/Paths";
 
 import EnvVars from "@src/constants/EnvVars";
 import HttpStatusCodes from "@src/constants/HttpStatusCodes";
@@ -31,14 +31,21 @@ import {
     handleSignUpRequest,
     userLoginAuth,
 } from "./sockets/auth-socket";
-import User, { IUser } from "./models/User";
+import User, { IUser, UserRoles } from "./models/User";
 import myUserService from "./services/myUserService";
 import { redirectEmit } from "./sockets/emits";
 import { onJoinGameRoomRes } from "../../client/src/services/gamesServices";
 import { onJoinGameRoomReq } from "./sockets/games-socket";
 import registerCheckersHandlers from "./sockets/checkers-socket";
+import {
+    adminAuthMw,
+    authMw,
+    guestAuthMw,
+    userAuthMw,
+} from "./routes/middleware/authMw";
 /* import { onCheckersClientReady, registerCheckersHandlers } from './sockets/checkers-socket'; */
 /* import * as checkersSocket from "./sockets/checkers-socket"; */
+import { NewClientPaths } from "./interfaces/SocketIO-Interfaces";
 // **** Variables **** //
 
 const app = express();
@@ -105,6 +112,11 @@ io.use(async (socket, next) => {
     //else send valid, maybe find where user should be?
     next();
 });
+/* Global Validation Middleware */
+/* io.of(NewPaths.Guest).use(guestAuthMw); */
+io.of(NewPaths.User).use(userAuthMw);
+io.of(NewPaths.Admin).use(adminAuthMw);
+io.of("/").use(guestAuthMw);
 
 // Add APIs, must be after middleware
 app.use(Paths.Base, BaseRouter);
@@ -187,7 +199,9 @@ const checkersConnection = (socket: Socket) => {
     registerCheckersHandlers(io.of(Paths.Games.Checkers), socket);
     //socket.on("checkersClientReady", () => console.log("ADSGFHGADFSH"));
 };
-io.of(Paths.Base).on("connection", onConnection);
+io.of(NewPaths.Base).on("connection", guestConnection);
+io.of(NewPaths.User).on("connection", userConnection);
+io.of(NewPaths.Admin).on("connection", adminConnection);
 io.of(Paths.Auth.Base).on("connection", authConnection);
 io.of(Paths.App.Base).on("connection", appConnection);
 io.of(Paths.Games.Base).on("connection", gamesConnection);

@@ -27,12 +27,16 @@ export async function userSignupAuth(user: IUser): Promise<IUser | null> {
             name: user.name,
             role: UserRoles.User,
         };
-        UserRepo.add(newUser);
-        const dbUser = await UserRepo.getOne(user.name);
-        if (!dbUser) {
-            console.log("BAD ERROR: USER SHOULD HAVE JUST BEEN ADDED TO DB");
-            throw new Error("Could not find user in database");
-        } else return dbUser;
+        UserRepo.add(newUser).then(async (res) => {
+            const dbUser = await UserRepo.getOne(user.name);
+            if (!dbUser) {
+                console.log(
+                    "BAD ERROR: USER SHOULD HAVE JUST BEEN ADDED TO DB"
+                );
+                throw new Error("Could not find user in database");
+            }
+        });
+        return newUser;
     }
 }
 export async function findUserFromToken(token: number): Promise<IUser | null> {

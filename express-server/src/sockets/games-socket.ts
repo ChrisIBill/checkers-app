@@ -5,6 +5,7 @@ import {
 import Paths from "@src/routes/constants/Paths";
 import { findCheckersRoom } from "@src/services/CheckersService";
 import { findUserFromToken } from "@src/services/myAuthService";
+import { Socket } from "socket.io";
 import HttpStatusCode from "../../../client/src/constants/HttpStatusCodes";
 import { zipGameState } from "../util/CheckersUtil";
 
@@ -13,7 +14,7 @@ import { zipGameState } from "../util/CheckersUtil";
  */
 
 export async function onJoinGameRoomReq(
-    this: any,
+    this: Socket,
     args: ClientJoinRoomReqType,
     callback: (arg: any) => void
 ) {
@@ -43,7 +44,7 @@ export async function onJoinGameRoomReq(
     } else if (args.matchmakingType) {
         console.log("Matchmaking type: ", args.matchmakingType);
         /* if matchmakingType */
-        switch (args.gameType) {
+        switch (args.roomType) {
             case "checkers":
                 try {
                     const roomData = await findCheckersRoom(

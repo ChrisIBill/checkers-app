@@ -9,7 +9,7 @@ export enum UserRoles {
     User,
     Admin,
 }
-
+export const USER_ROLES = Object.keys(UserRoles);
 // **** Types **** //
 /**
  * @param name: string

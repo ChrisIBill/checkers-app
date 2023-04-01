@@ -1,4 +1,4 @@
-import { CLIENT_PATHS } from "@src/constants/ClientPaths";
+import { CLIENT_PATHS, NEW_CLIENT_PATHS } from "@src/constants/ClientPaths";
 import HttpStatusCodes from "@src/constants/HttpStatusCodes";
 import { PlayerTokens } from "./checkersInterfaces";
 import { GameTypes, MatchmakingTypes } from "./GameInterfaces";
@@ -82,9 +82,9 @@ export interface ServerToClientGameEvents {
     /* just an http status res on the validity of the client update */
     gamesUpdateServerRes: (args: ISocketResponse) => void;
 }
-
+export type RoomTypes = "checkers";
 export interface ClientJoinRoomReqType {
-    gameType: GameTypes;
+    roomType: RoomTypes;
     matchmakingType?: MatchmakingTypes;
     roomID?: string;
 }
@@ -143,4 +143,4 @@ export interface IPayload {
 }
 
 export type ClientPaths = typeof CLIENT_PATHS[number];
-export type NewClientPaths = typeof CLIENT_PATHS[number];
+export type NewClientPaths = typeof NEW_CLIENT_PATHS[number];
