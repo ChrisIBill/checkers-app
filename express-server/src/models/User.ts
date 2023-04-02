@@ -20,9 +20,9 @@ export const USER_ROLES = Object.keys(UserRoles);
 export type UserIDType = number;
 export interface IUser {
     name: string;
+    role: UserRoles;
     id?: UserIDType;
     pwdHash?: string;
-    role?: UserRoles;
 }
 
 export interface ISessionUser {
@@ -35,9 +35,9 @@ export interface ISessionUser {
 
 class User implements IUser {
     public name: string;
+    public role: UserRoles;
     public id?: number;
     public pwdHash?: string;
-    public role?: UserRoles;
     /**
      * Constructor()
      */

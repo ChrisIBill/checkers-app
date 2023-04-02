@@ -18,8 +18,8 @@ const AUTH_ERROR = {
     },
 };
 export async function authMw(
-    role: UserRoles,
-    socket: Socket
+    socket: Socket,
+    role?: UserRoles
 ): Promise<UserRoles> {
     const token = socket.handshake.auth.token;
     if (!token) {
@@ -29,7 +29,7 @@ export async function authMw(
         const user = await findUserFromToken(token);
         if (!user) {
             throw new Error("UNAUTHORIZED: USER NOT FOUND");
-        } else if (user.role !== role) {
+        } else if (role && user.role !== role) {
             throw new Error("UNAUTHORIZED: USER NOT AUTHORIZED FOR ROLE: ");
         } else {
             console.log(`User: ${user.name} is authorized for role: ${role}`);
@@ -43,7 +43,7 @@ export const guestAuthMw = async (
     next: (err?: any) => void
 ) => {
     try {
-        const auth = await authMw(UserRoles.Guest, socket);
+        const auth = await authMw(socket, UserRoles.Guest);
         if (UserRoles.Guest <= auth) {
             next();
         }
@@ -56,7 +56,7 @@ export const guestAuthMw = async (
 
 export const userAuthMw = async (socket: Socket, next: (err?: any) => void) => {
     try {
-        const auth = await authMw(UserRoles.User, socket);
+        const auth = await authMw(socket, UserRoles.User);
         if (UserRoles.User <= auth) {
             next();
         }
@@ -72,7 +72,7 @@ export const adminAuthMw = async (
     next: (err?: any) => void
 ) => {
     try {
-        const auth = await authMw(UserRoles.Admin, socket);
+        const auth = await authMw(socket, UserRoles.Admin);
         if (UserRoles.Admin === auth) {
             next();
         }

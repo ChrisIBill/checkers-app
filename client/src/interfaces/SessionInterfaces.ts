@@ -4,5 +4,4 @@ export type AuthTypes = "invalid" | "guest" | "user" | "admin" | undefined;
 export interface ISessionContext {
 	userData: IUser | null;
 	isOnline: boolean;
-	authType: AuthTypes;
 }

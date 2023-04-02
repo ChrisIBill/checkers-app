@@ -113,10 +113,18 @@ io.use(async (socket, next) => {
     next();
 });
 /* Global Validation Middleware */
-/* io.of(NewPaths.Guest).use(guestAuthMw); */
+io.of(NewPaths.Guest).use(guestAuthMw);
 io.of(NewPaths.User).use(userAuthMw);
 io.of(NewPaths.Admin).use(adminAuthMw);
-io.of("/").use(guestAuthMw);
+io.of("/").use(async (socket, next) => {
+    try {
+        const role: UserRoles = await authMw(socket);
+        if (!role) next(new Error("DATABASE_ERROR: INVALID ACCOUNT DETAILS"));
+        else next();
+    } catch (error) {
+        next(error);
+    }
+});
 
 // Add APIs, must be after middleware
 app.use(Paths.Base, BaseRouter);

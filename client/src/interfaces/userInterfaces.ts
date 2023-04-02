@@ -1,8 +1,11 @@
+import {UserRoles} from "../context/userContext";
+
 export type UserTokenType = string;
 
 export interface IUser {
 	name: string;
 	token: UserTokenType;
+	role: UserRoles;
 }
 
 export type UserData = IUser | null;

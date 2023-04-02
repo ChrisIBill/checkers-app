@@ -6,6 +6,15 @@ import {UserData} from "./userInterfaces";
 export interface ISocketResponse {
 	status: HttpStatusCode;
 }
+export interface IPayload {
+	status: HttpStatusCode;
+	data?: any;
+}
+export interface IPayloadCall {
+	status: HttpStatusCode;
+	data: any;
+	callback: () => void;
+}
 export interface ExpressServerConnectionEvent {
 	message: string;
 }
@@ -22,6 +31,15 @@ export interface ServerToClientEvents {
 	redirect: (args: IPayload) => void;
 }
 
+export interface BaseServerToClientEvents {
+	"Auth:Token_Res": (args: IPayloadCall) => void;
+	"Auth:Sign_Up_Res": (args: IPayloadCall) => void;
+	"Auth:Login_Res": (args: IPayloadCall) => void;
+	redirect: (args: IPayload) => void;
+}
+
+export interface BaseClientToServerEvents {}
+
 export interface ClientToServerEvents {
 	authTokenValReq: (args: IPayload) => void;
 	authSignUpReq: (args: IPayload) => void;
@@ -31,10 +49,6 @@ export interface ClientToServerEvents {
 
 export interface InterServerEvents {
 	ping: () => void;
-}
-export interface IPayload {
-	status: HttpStatusCode;
-	data?: any;
 }
 export interface SocketData {
 	name: string;
