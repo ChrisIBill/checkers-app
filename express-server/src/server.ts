@@ -120,17 +120,8 @@ io.of(NewPaths.Base).use(async (socket, next) => {
     console.log("Handling base connection: ", socket.id);
     try {
         const role: UserRoles = await authMw(socket);
-        if (!role) next(new Error("DATABASE_ERROR: INVALID ACCOUNT DETAILS"));
-        else {
-            socket.emit("redirect", {
-                status: HttpStatusCodes.OK,
-                data: role,
-                callback: () => {
-                    console.log("C");
-                },
-            });
-            next();
-        }
+        if (!role) next(new Error("DATABASE_ERROR: INVALID TOKEN"));
+        else next();
     } catch (error) {
         next(error);
     }
@@ -169,12 +160,18 @@ app.get("/GameData/Checkers", (res, req) => {
 }); */
 
 const onConnection = async (socket: Socket) => {
-    //Default Connection, should only occur with "guests"
+    //Default Connection, need to find users  role and send to them
     console.log("Base Connection: ", socket.id);
     const token = socket.handshake.auth.token;
     const user = await findUserFromToken(token);
     if (user && user.role) {
-        socket.emit("redirect", user.role);
+        socket.emit("Auth:Token_Res", {
+            status: HttpStatusCodes.OK,
+            data: user.role,
+            callback: () => {
+                console.log("Received Client Callback for Auth:Token_Res");
+            },
+        });
     }
 };
 

@@ -17,7 +17,7 @@ import {
 } from "../interfaces/socketInterfaces";
 import {IUser, UserData} from "../interfaces/userInterfaces";
 import {Paths, PathsSet} from "../paths/SocketPaths";
-import {onRedirect} from "../services/socketServices";
+import {onConnectError, onRedirect} from "../services/socketServices";
 import {LoginPage} from "./LoginPage";
 import {ISessionContext} from "../interfaces/SessionInterfaces";
 import {DEFAULT_SESSION_DATA} from "../constants/SessionConsts";
@@ -42,10 +42,17 @@ export const RootPage = () => {
 			userData: null,
 			isOnline: true,
 		});
+		socket.on("Auth:Token_Res", (args: IPayloadCall) => {
+			console.log("Token Res: ", args);
+		});
 	}
-	//baseSocket.connect();
-	if (baseSocket.connected) {
-		console.log("Connected with Base Server: ", baseSocket.id);
+	function onDisconnect(this: Socket) {
+		const socket = this;
+		console.log("Disconnected From Base Server: ", socket.id);
+		setSessionData({
+			userData: sessionData.userData,
+			isOnline: false,
+		});
 	}
 
 	//baseSocket.on("redirect", (args: IPayload) => onRedirect(navigate, args));
@@ -56,22 +63,30 @@ export const RootPage = () => {
 			isOnline: true,
 		});
 	}); */
-	authSocket.on("redirect", (args: IPayload) => onRedirect(navigate, args));
+	/* Should only fire on launch and when user data is changed
+	user data is only changed when user signs up, or logs in or out */
 	useEffect(() => {
-		console.log("Connection Attempted");
-		baseSocket.connect();
-		baseSocket.on("connect", onConnect);
-		baseSocket.on("connect_error", (err) => {
-			console.log("Error connecting to server: ", err.message);
-			console.log(err);
+		console.log("Token: ", localStorage.token);
+		if (!localStorage.token) {
+			console.log("No Token Found");
 			navigate(Paths.App.Base);
-		});
+		} else {
+			console.log("Token Found, Attempting Connection with Base Server");
+			baseSocket.connect();
+			baseSocket.on("connect", onConnect);
+			baseSocket.on("connect_error", onConnectError);
+			baseSocket.on("disconnect", onDisconnect);
+		}
 
 		return () => {
-			baseSocket.off("connect", onConnect);
-			baseSocket.disconnect();
+			if (localStorage.token) {
+				baseSocket.off("connect", onConnect);
+				baseSocket.off("connect_error", onConnectError);
+				baseSocket.off("disconnect", onDisconnect);
+				baseSocket.disconnect();
+			}
 		};
-	}, [sessionData]);
+	}, [sessionData.userData]);
 	return (
 		<div className="RootWrapper">
 			<Outlet context={[sessionData, setSessionData]} />

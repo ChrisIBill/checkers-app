@@ -78,7 +78,7 @@ export const MainPage = () => {
 			<ErrorBoundary fallback={<div>User Panel Error</div>}>
 				<PlayGamesButton onClick={onPlayGamesClick} />
 			</ErrorBoundary>
-			<LoginModal />
+			{role == UserRoles.Invalid ? <LoginModal /> : null}
 		</div>
 	);
 };

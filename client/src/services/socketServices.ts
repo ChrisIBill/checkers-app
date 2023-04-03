@@ -7,3 +7,8 @@ export function onRedirect(nav: NavigateFunction, args: IPayload) {
 	if (PathsSet.includes(args.data.path)) nav(args.data.path);
 	else console.error("Invalid Path");
 }
+
+export function onConnectError(err: Error) {
+	console.log("Error connecting to server: ", err.message);
+	console.log("Full Error Data: ", err);
+}
