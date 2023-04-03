@@ -5,6 +5,7 @@ const INVALID_CONSTRUCTOR_PARAM =
     "with the appropriate user keys.";
 
 export enum UserRoles {
+    Invalid = -1,
     Guest,
     User,
     Admin,

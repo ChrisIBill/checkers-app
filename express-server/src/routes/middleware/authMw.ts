@@ -48,8 +48,8 @@ export const guestAuthMw = async (
             next();
         }
     } catch (error) {
+        console.log("Error in guestAuthMw: ", error);
         const err: any = new Error(error);
-        err.data = HttpStatusCodes.UNAUTHORIZED;
         next(error);
     }
 };
@@ -61,6 +61,7 @@ export const userAuthMw = async (socket: Socket, next: (err?: any) => void) => {
             next();
         }
     } catch (error) {
+        console.log("Error in userAuthMw: ", error);
         const err: any = new Error(error);
         err.data = HttpStatusCodes.UNAUTHORIZED;
         next(error);
@@ -77,6 +78,7 @@ export const adminAuthMw = async (
             next();
         }
     } catch (error) {
+        console.log("Error in adminAuthMw: ", error);
         const err: any = new Error(error);
         err.data = HttpStatusCodes.UNAUTHORIZED;
         next(error);

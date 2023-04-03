@@ -1,4 +1,12 @@
-import {io} from "socket.io-client";
+import {Socket, io} from "socket.io-client";
+import {
+	AuthClientToServerEvents,
+	AuthServerToClientEvents,
+	BaseClientToServerEvents,
+	BaseServerToClientEvents,
+} from "./interfaces/socketInterfaces";
+import {SERVER_PATHS} from "./paths/SocketPaths";
+import {SocketNamespaces} from "./interfaces/socketInterfaces";
 
 const URL =
 	process.env.NODE_ENV === "production" ? undefined : "http://localhost:3001";
@@ -8,8 +16,14 @@ const opts = {
 	},
 	autoConnect: false,
 };
-export const baseSocket = io("https://localhost:3001", opts);
-export const authSocket = io("https://localhost:3001/auth", opts);
-export const guestSocket = io("https://localhost:3001/guest", opts);
-export const userSocket = io("https://localhost:3001/user", opts);
-export const adminSocket = io("https://localhost:3001/admin", opts);
+export const baseSocket: Socket<
+	BaseServerToClientEvents,
+	BaseClientToServerEvents
+> = io("/", opts);
+export const authSocket: Socket<
+	AuthServerToClientEvents,
+	AuthClientToServerEvents
+> = io("/Auth", opts);
+export const guestSocket = io("/guest", opts);
+export const userSocket = io("/user", opts);
+export const adminSocket = io("/admin", opts);

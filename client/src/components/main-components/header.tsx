@@ -1,4 +1,4 @@
-import {AppBar, Box, Toolbar} from "@mui/material";
+import {AppBar, Box, Button, Toolbar} from "@mui/material";
 import {ErrorBoundary} from "react-error-boundary";
 import {useOutletContext} from "react-router-dom";
 import {UserContextType} from "../../interfaces/userInterfaces";
@@ -14,6 +14,18 @@ const UserHeaderComponent = ({user}: {user: string}) => {
 		</ErrorBoundary>
 	);
 };
+const UserLoginButton = ({onClick}: {onClick: () => void}) => {
+	return (
+		<ErrorBoundary fallback={<div>User Login Button Error</div>}>
+			<Button
+				variant="text"
+				sx={{backgroundColor: "gray", width: "50px", height: "50px"}}
+			>
+				Login
+			</Button>
+		</ErrorBoundary>
+	);
+};
 const SessionToolbar = () => {
 	return (
 		<ErrorBoundary
@@ -25,7 +37,6 @@ export const AppHeader = () => {
 	const sessionContext = useOutletContext<ISessionContext>();
 	const userData = sessionContext.userData;
 	const isOnline = sessionContext.isOnline;
-	const authType = sessionContext.authType;
 	const name = userData?.name;
 	return (
 		<Box sx={{flexGrow: 1}}>
@@ -34,7 +45,7 @@ export const AppHeader = () => {
 					{userData && userData.name ? (
 						<UserHeaderComponent user={`${userData.name}`} />
 					) : (
-						<>No User Data</>
+						<></>
 					)}
 				</Toolbar>
 			</AppBar>

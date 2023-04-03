@@ -21,3 +21,11 @@ export const PathsSet = [
 	"/Games",
 	"/Games/Checkers",
 ] as const;
+
+export const SERVER_PATHS = [
+	"/",
+	"/Auth",
+	"/Guest",
+	"/User",
+	"/Admin",
+] as const;

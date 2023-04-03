@@ -1,4 +1,5 @@
 import HttpStatusCode from "../constants/HttpStatusCodes";
+import {SERVER_PATHS} from "../paths/SocketPaths";
 import {GameTypes, MatchmakingTypes} from "./GameInterfaces";
 import {PlayerTokens} from "./interfaces";
 import {UserData} from "./userInterfaces";
@@ -18,7 +19,7 @@ export interface IPayloadCall {
 export interface ExpressServerConnectionEvent {
 	message: string;
 }
-
+export type SocketNamespaces = typeof SERVER_PATHS[number];
 export interface ServerToClientEvents {
 	noArg: () => void;
 	basicEmit: (a: number, b: string, c: Buffer) => void;
@@ -33,6 +34,10 @@ export interface ServerToClientEvents {
 
 export interface ClientToServerEvents {
 	hello: (args: string) => void;
+}
+
+export interface InterServerEvents {
+	ping: () => void;
 }
 
 /* The base server namespace only handles redirecting the client to
@@ -103,10 +108,6 @@ export interface AdminClientToServerEvents extends UserClientToServerEvents {
 	"Users:Delete_Req": (args: IPayload) => void;
 	"Room:Delete_Req": (args: IPayload) => void;
 	"Room:List_All_Req": (args: IPayload) => void;
-}
-
-export interface InterServerEvents {
-	ping: () => void;
 }
 
 /* !!!DEPRECATED!!! */

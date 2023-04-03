@@ -45,7 +45,7 @@ import {
 } from "./routes/middleware/authMw";
 /* import { onCheckersClientReady, registerCheckersHandlers } from './sockets/checkers-socket'; */
 /* import * as checkersSocket from "./sockets/checkers-socket"; */
-import { NewClientPaths } from "./interfaces/SocketIO-Interfaces";
+import { IPayloadCall, NewClientPaths } from "./interfaces/SocketIO-Interfaces";
 // **** Variables **** //
 
 const app = express();
@@ -82,7 +82,7 @@ if (EnvVars.NodeEnv === NodeEnvs.Production) {
 }
 
 /* Validation middleware */
-io.use(async (socket, next) => {
+/* io.use(async (socket, next) => {
     console.log("Validation Middleware firing for socket id: ", socket.id);
     const token = socket.handshake.auth.token;
     if (!token) {
@@ -111,16 +111,26 @@ io.use(async (socket, next) => {
     //If token doesnt exist reroute user to auth login
     //else send valid, maybe find where user should be?
     next();
-});
+}); */
 /* Global Validation Middleware */
 io.of(NewPaths.Guest).use(guestAuthMw);
 io.of(NewPaths.User).use(userAuthMw);
 io.of(NewPaths.Admin).use(adminAuthMw);
-io.of("/").use(async (socket, next) => {
+io.of(NewPaths.Base).use(async (socket, next) => {
+    console.log("Handling base connection: ", socket.id);
     try {
         const role: UserRoles = await authMw(socket);
         if (!role) next(new Error("DATABASE_ERROR: INVALID ACCOUNT DETAILS"));
-        else next();
+        else {
+            socket.emit("redirect", {
+                status: HttpStatusCodes.OK,
+                data: role,
+                callback: () => {
+                    console.log("C");
+                },
+            });
+            next();
+        }
     } catch (error) {
         next(error);
     }
@@ -158,9 +168,20 @@ app.get("/GameData/Checkers", (res, req) => {
     req.json({ message: "Connected with Checkers Server" });
 }); */
 
-const onConnection = (socket: Socket) => {
+const onConnection = async (socket: Socket) => {
     //Default Connection, should only occur with "guests"
     console.log("Base Connection: ", socket.id);
+    const token = socket.handshake.auth.token;
+    const user = await findUserFromToken(token);
+    if (user && user.role) {
+        socket.emit("redirect", user.role);
+    }
+};
+
+const authConnection = async (socket: Socket) => {
+    console.log("Auth Connection: ", socket.id);
+    socket.on("Auth:Sign_Up_Req", handleSignUpRequest);
+    socket.on("Auth:Login_Req", handleLoginRequest);
 };
 
 const guestConnection = (socket: Socket) => {
@@ -172,9 +193,7 @@ const userConnection = (socket: Socket) => {
 const adminConnection = (socket: Socket) => {
     console.log("Admin Connection: ", socket.id);
 };
-
-io.of(Paths.Base);
-const authConnection = (socket: Socket) => {
+/* const authConnection = (socket: Socket) => {
     console.log("Auth Connection: ", socket.id);
     socket.on("authTokenValReq", (tok: string) => {
         //Dont think i actually need to validate here, but maybe could use it to properly redirect?
@@ -202,18 +221,19 @@ const gamesConnection = async (socket: Socket) => {
 };
 const checkersConnection = (socket: Socket) => {
     console.log("Checkers Connection: ", socket.id);
-    /* console.log("CHECKERSSOCKET", checkersSocket); */
     console.log("Registering Checkers Handlers", registerCheckersHandlers);
     registerCheckersHandlers(io.of(Paths.Games.Checkers), socket);
     //socket.on("checkersClientReady", () => console.log("ADSGFHGADFSH"));
-};
-io.of(NewPaths.Base).on("connection", guestConnection);
+}; */
+io.of(NewPaths.Base).on("connection", onConnection);
+io.of(NewPaths.Auth).on("connection", authConnection);
+io.of(NewPaths.Guest).on("connection", guestConnection);
 io.of(NewPaths.User).on("connection", userConnection);
 io.of(NewPaths.Admin).on("connection", adminConnection);
-io.of(Paths.Auth.Base).on("connection", authConnection);
+/* io.of(Paths.Auth.Base).on("connection", authConnection);
 io.of(Paths.App.Base).on("connection", appConnection);
 io.of(Paths.Games.Base).on("connection", gamesConnection);
-io.of(Paths.Games.Checkers).on("connection", checkersConnection);
+io.of(Paths.Games.Checkers).on("connection", checkersConnection); */
 
 // **** Export default **** //
 

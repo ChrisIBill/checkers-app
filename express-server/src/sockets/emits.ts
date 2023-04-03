@@ -8,7 +8,7 @@ export function redirectEmit(
     path: ClientPaths,
     status?: HttpStatusCodes
 ) {
-    const stat = status ?? HttpStatusCodes.TEMPORARY_REDIRECT;
+    /* const stat = status ?? HttpStatusCodes.TEMPORARY_REDIRECT;
     const payload: IPayload = {
         data: {
             path,
@@ -16,5 +16,5 @@ export function redirectEmit(
         status: { stat },
     };
     console.log("Redirecting Client To: ", payload);
-    socket.emit("redirect", payload);
+    socket.emit("redirect", payload); */
 }
