@@ -82,7 +82,7 @@ export const adminAuthMw = async (
         next(error);
     }
 };
-
+console.log("git stuff");
 /* export const rootAuthMw = async (socket: Socket, next: (err?: any) => void) => {
     try {
         const auth = await authMw(UserRoles.Root, socket);

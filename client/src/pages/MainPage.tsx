@@ -22,13 +22,13 @@ import {
 	ClientToServerEvents,
 	IPayload,
 } from "../interfaces/socketInterfaces";
-import {UserContext} from "../context/userContext";
+import {UserContext, UserRoles} from "../context/userContext";
 import {ErrorBoundary} from "react-error-boundary";
 import {UserPanel} from "../components/UserComponents";
 import {useNavigate, useOutletContext} from "react-router-dom";
 import {PlayGamesButton} from "../components/GameComponents";
 import {SessionContext} from "../context/SessionContext";
-import {ISessionContext} from "../interfaces/SessionInterfaces";
+import {AuthTypes, ISessionContext} from "../interfaces/SessionInterfaces";
 import {AppHeader} from "../components/main-components/header";
 const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
 	Paths.App.Base,
@@ -48,7 +48,8 @@ export const MainPage = () => {
 	const sessionContext: ISessionContext = useOutletContext();
 	const userData = sessionContext.userData;
 	const isOnline = sessionContext.isOnline;
-	const authType = sessionContext.authType;
+	const role: UserRoles =
+		userData !== null ? userData.role : UserRoles.Invalid;
 
 	if (!isOnline) {
 	}

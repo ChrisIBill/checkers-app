@@ -6,6 +6,21 @@ import { GameTypes, MatchmakingTypes } from "./GameInterfaces";
 export interface ISocketResponse {
     status: HttpStatusCodes;
 }
+/**
+ *
+ *
+ * @export
+ * @interface IPayload
+ */
+export interface IPayload {
+    status: HttpStatusCodes;
+    data?: any;
+}
+export interface IPayloadCall {
+    status: HttpStatusCodes;
+    data: any;
+    callback: () => void;
+}
 
 interface ExpressServerConnectionEvent {
     message: string;
@@ -23,6 +38,76 @@ interface ClientToServerEvents {
 
 interface InterServerEvents {
     ping: () => void;
+}
+
+/* The base server namespace only handles redirecting the client to
+the correct namespace, auth, guest, user, admin. It then closes */
+export interface BaseServerToClientEvents {
+    "Auth:Token_Res": (args: IPayloadCall) => void;
+    redirect: (args: IPayloadCall) => void;
+}
+
+/* No Client to server base events, if client has a key, that is given in
+connect handshake, the client is then rerouted */
+export interface BaseClientToServerEvents {}
+
+/* The auth server namespace handles tokenless sign-up and login requests,
+it responds with http status code and if valid, the user token.
+Connection then closes. Client will need to attempt connection with correct
+role server */
+export interface AuthServerToClientEvents extends BaseServerToClientEvents {
+    "Auth:Sign_Up_Res": (args: IPayloadCall) => void;
+    "Auth:Login_Res": (args: IPayloadCall) => void;
+    redirect: (args: IPayloadCall) => void;
+}
+
+export interface AuthClientToServerEvents extends BaseClientToServerEvents {
+    "Auth:Sign_Up_Req": (args: IPayload) => void;
+    "Auth:Login_Req": (args: IPayload) => void;
+}
+
+export interface GuestServerToClientEvents {
+    "Room:Find_Res": (args: IPayloadCall) => void;
+    "Room:Leave_Res": (args: IPayload) => void;
+    "Room:List_Public_Res": (args: IPayloadCall) => void;
+    "Room:Connect_Res": (args: IPayloadCall) => void;
+    "Room:Init": (args: IPayloadCall) => void;
+    "Room:Update_Room": (args: IPayloadCall) => void;
+}
+
+export interface GuestClientToServerEvents {
+    "Room:Find_Req": (args: IPayload) => void;
+    "Room:Leave_Req": (args: IPayload) => void;
+    "Room:List_Public_Req": (args: IPayload) => void;
+    "Room:Update_Server": (args: IPayloadCall) => void;
+}
+
+export interface UserServerToClientEvents extends GuestServerToClientEvents {
+    "Users:Get_Me_Res": (args: IPayloadCall) => void;
+    "Users:Delete_Me_Res": (args: IPayloadCall) => void;
+    "Room:Join_Res": (args: IPayloadCall) => void;
+    "Room:Create_Res": (args: IPayloadCall) => void;
+}
+
+export interface UserClientToServerEvents extends GuestClientToServerEvents {
+    "Users:Get_Me_Req": (args: IPayload) => void;
+    "Users:Delete_Me_Req": (args: IPayloadCall) => void;
+    "Room:Join_Req": (args: IPayload) => void;
+    "Room:Create_Req": (args: IPayload) => void;
+}
+
+export interface AdminServerToClientEvents extends UserServerToClientEvents {
+    "Users:List_All_Res": (args: IPayloadCall) => void;
+    "Users:Delete_User_Res": (args: IPayloadCall) => void;
+    "Room:Delete_Res": (args: IPayloadCall) => void;
+    "Room:List_All_Res": (args: IPayloadCall) => void;
+}
+
+export interface AdminClientToServerEvents extends UserClientToServerEvents {
+    "Users:List_All_Req": (args: IPayload) => void;
+    "Users:Delete_Req": (args: IPayload) => void;
+    "Room:Delete_Req": (args: IPayload) => void;
+    "Room:List_All_Req": (args: IPayload) => void;
 }
 
 /* Auth Socket */
@@ -125,21 +210,6 @@ export interface ClientToServerCheckersEvents {
     /* boardState: validTokens[] */
     checkersUpdateServer: (boardState: string, callback: () => void) => void;
     checkersServerUpdateRes: (args: IPayload) => void;
-}
-interface SocketData {
-    name: string;
-    age: number;
-}
-
-/**
- *
- *
- * @export
- * @interface IPayload
- */
-export interface IPayload {
-    status: {};
-    data?: any;
 }
 
 export type ClientPaths = typeof CLIENT_PATHS[number];

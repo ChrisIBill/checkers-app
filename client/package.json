@@ -30,7 +30,6 @@
     "eject": "react-scripts eject",
     "stop": "taskkill -F -IM node.exe"
   },
-  "proxy": "http://localhost:3001",
   "eslintConfig": {
     "extends": [
       "react-app",
