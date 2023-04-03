@@ -167,7 +167,7 @@ const onConnection = async (socket: Socket) => {
     if (user && user.role) {
         socket.emit("Auth:Token_Res", {
             status: HttpStatusCodes.OK,
-            data: user.role,
+            data: user,
             callback: () => {
                 console.log("Received Client Callback for Auth:Token_Res");
             },
