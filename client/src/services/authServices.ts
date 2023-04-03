@@ -6,7 +6,7 @@ import {UserData} from "../interfaces/userInterfaces";
 
 export function onAuthTokenRes(args: IPayloadCall): UserData {
 	console.log("Auth Token Response: ", args);
-	if (args.status != HttpStatusCode.OK) {
+	if (args.status !== HttpStatusCode.OK) {
 		console.log("ERROR: BAD HTTP RESPONSE ", args.status);
 		return null;
 	} else if (args.data.user && localStorage.getItem("token")) {
