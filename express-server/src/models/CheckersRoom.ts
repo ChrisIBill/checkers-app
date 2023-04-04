@@ -65,13 +65,6 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
         this.members = members ?? new Set();
         this.data = data ?? DEFAULT_CHECKERS_ROOM_STATE; */
     }
-    getStatus(): CheckersRoomStatusType {
-        return this.status;
-    }
-    setStatus(status: CheckersRoomStatusType): boolean {
-        this.status = status;
-        return true;
-    }
     getGameState(): CheckersGameState {
         return this.data.gameState;
     }
