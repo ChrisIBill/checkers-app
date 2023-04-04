@@ -167,7 +167,7 @@ export interface ServerToClientGameEvents {
     /* just an http status res on the validity of the client update */
     gamesUpdateServerRes: (args: ISocketResponse) => void;
 }
-export type RoomTypes = "checkers";
+export type RoomTypes = "basic" | "checkers";
 export interface ClientJoinRoomReqType {
     roomType: RoomTypes;
     matchmakingType?: MatchmakingTypes;

@@ -1,5 +1,6 @@
 import { SOCKET_ROOM_STATUS_TYPES } from "@src/constants/SocketConsts";
 import { IUser } from "./User";
+import { RoomTypes } from "@src/interfaces/SocketIO-Interfaces";
 
 /**
  * string: "empty" | "open" | "full" | "private" | "init"
@@ -26,22 +27,24 @@ export interface ISocketRoom {
     id: string;
     members: Set<string>;
     data: any;
-    status?: string;
+    status: string;
 }
 export class SocketRoom implements ISocketRoom {
     public id: string;
-
     public members: Set<string>;
+    public type: RoomTypes;
     public data: any;
     public status: string;
     public constructor(
         id: string | number,
         members?: Set<string>,
+        type?: RoomTypes,
         data?: any,
         status?: string
     ) {
         this.id = typeof id === "number" ? id.toString() : id;
         this.members = members ?? new Set();
+        this.type = type ?? "basic";
         this.data = data ?? {};
         this.status = status ?? SocketRoomStatus.empty;
     }

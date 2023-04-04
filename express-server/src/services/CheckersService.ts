@@ -13,7 +13,6 @@ const playersInRooms = new Map<string, string>();
 const checkersRooms = new Map<string, CheckersRoom>();
 const openRoomsSet = new Set<string>();
 export async function findCheckersRoom(
-    socket: Socket,
     matchType: MatchmakingTypes,
     user: string
 ): Promise<CheckersRoom | null> {
@@ -75,7 +74,7 @@ export async function findPVPCheckersRoom(
         while (checkersRooms.has(newID)) {
             newID = randomstring.generate(10);
         }
-        const newRoom = new CheckersRoom(newID, "open");
+        const newRoom = new CheckersRoom(newID);
         checkersRooms.set(newID, newRoom);
         const success = await joinCheckersRoom(newID, user);
         if (!success) {

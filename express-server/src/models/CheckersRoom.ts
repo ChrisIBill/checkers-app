@@ -11,6 +11,7 @@ import {
     ValueOf,
 } from "./SocketRoom";
 import { IUser } from "./User";
+import { RoomTypes } from "@src/interfaces/SocketIO-Interfaces";
 
 export const CheckersRoomStatus = {
     p1turn: "p1turn",
@@ -22,12 +23,16 @@ export const AllCheckersRoomStatus = {
     ...CheckersRoomStatus,
 };
 export type CheckersRoomStatusType = ValueOf<typeof AllCheckersRoomStatus>;
+
 export const DEFAULT_CHECKERS_ROOM_STATE: ICheckersRoomState = {
     players: [null, null],
     gameState: DEFAULT_GAME_STATE,
 };
+
 export type PlayerType = typeof PLAYER_TYPE[number];
+
 export type CheckersPlayers = [string | null, string | null];
+
 export interface ICheckersRoomState {
     players: CheckersPlayers;
     gameState: CheckersGameState;
@@ -41,19 +46,18 @@ export interface ICheckersRoom extends ISocketRoom {
 /**
  * @param
  */
-export class CheckersRoom extends SocketRoom {
-    /*     public id: string;
-    public status: Checkers_Game_Status;
-    public members: Set<string>;
-    public data: ICheckersRoomState; */
-
+export class CheckersRoom extends SocketRoom implements ICheckersRoom {
+    public data: ICheckersRoomState;
+    public status: CheckersRoomStatusType;
     public constructor(
         id: string,
-        members: Set<string>,
-        data: ICheckersRoomState,
-        status: CheckersRoomStatusType
+        members?: Set<string>,
+        data?: ICheckersRoomState,
+        status?: CheckersRoomStatusType
     ) {
-        super(id, members, data);
+        super(id, members);
+        this.type = "checkers";
+        this.data = data ?? DEFAULT_CHECKERS_ROOM_STATE;
         this.status = status ?? AllCheckersRoomStatus.empty;
 
         /* this.id = typeof id === "number" ? id.toString() : id;
@@ -61,22 +65,22 @@ export class CheckersRoom extends SocketRoom {
         this.members = members ?? new Set();
         this.data = data ?? DEFAULT_CHECKERS_ROOM_STATE; */
     }
-    addMember(username: string): boolean {
-        if (this.members.has(username) || this.status == "private")
-            return false;
-        this.members.add(username);
+    getStatus(): CheckersRoomStatusType {
+        return this.status;
+    }
+    setStatus(status: CheckersRoomStatusType): boolean {
+        this.status = status;
         return true;
     }
-    removeMember(username: string): boolean {
-        if (!this.members.has(username)) return false;
-        this.members.delete(username);
+    getGameState(): CheckersGameState {
+        return this.data.gameState;
+    }
+    setGameState(gameState: CheckersGameState): boolean {
+        this.data.gameState = gameState;
         return true;
     }
     addPlayer(user: string): boolean {
-        if (
-            this.data.players.includes(user) &&
-            this.status != "missingPlayer"
-        ) {
+        if (this.data.players.includes(user)) {
             console.log("Error: User already in room");
             return false;
         }
@@ -90,8 +94,9 @@ export class CheckersRoom extends SocketRoom {
                 this.addMember(user);
                 console.log("Added player to room", this.data.players);
             }
-            if (this.data.players.includes(null)) this.status = "open";
-            else this.status = "waitingForPlayers";
+            if (this.data.players.includes(null))
+                this.status = AllCheckersRoomStatus.open;
+            else this.status = AllCheckersRoomStatus.open;
         } else {
             console.log("Error: Room is full", this.status);
             return false;
@@ -104,17 +109,10 @@ export class CheckersRoom extends SocketRoom {
             this.data.players[index] = null;
             this.removeMember(user);
             if (this.data.players.includes(null)) this.status = "open";
-            else this.status = "waitingForPlayers";
+            else this.status = AllCheckersRoomStatus.full;
             return true;
         }
         return false;
-    }
-    getGameState(): CheckersGameState {
-        return this.data.gameState;
-    }
-    setGameState(gameState: CheckersGameState): boolean {
-        this.data.gameState = gameState;
-        return true;
     }
     /* updates board state and returns true if given boardstate is valid change, else returns false */
     updateBoardState(moves: number[]): boolean {
