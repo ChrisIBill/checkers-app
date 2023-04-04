@@ -5,14 +5,7 @@ import { IUser } from "./User";
  * string: "empty" | "open" | "full" | "private" | "init"
  */
 /* export type SocketRoomStatus = typeof SOCKET_ROOM_STATUS_TYPES[number]; */
-export enum SocketRoomStatus {
-    empty = "empty",
-    open = "open",
-    full = "full",
-    private = "private",
-    init = "init",
-    error = "error",
-}
+
 export const SocketRoomStatus = {
     empty: "empty",
     open: "open",
@@ -20,8 +13,9 @@ export const SocketRoomStatus = {
     private: "private",
     init: "init",
     error: "error",
-}
-export type SocketRoomStatusType = SocketRoomStatus;
+} as const;
+export type ValueOf<T> = T[keyof T];
+export type SocketRoomStatusType = ValueOf<typeof SocketRoomStatus>;
 /**
  * @param id - The id of the room
  * @param status - The status of the room
@@ -32,25 +26,24 @@ export interface ISocketRoom {
     id: string;
     members: Set<string>;
     data: any;
-    status: SocketRoomStatus;
+    status?: string;
 }
-
 export class SocketRoom implements ISocketRoom {
     public id: string;
 
     public members: Set<string>;
     public data: any;
-    public status: SocketRoomStatusType;
+    public status: string;
     public constructor(
         id: string | number,
         members?: Set<string>,
-        data?: any
-        status?: SocketRoomStatusType,
+        data?: any,
+        status?: string
     ) {
         this.id = typeof id === "number" ? id.toString() : id;
         this.members = members ?? new Set();
         this.data = data ?? {};
-        this.status = status ?? status.empty;
+        this.status = status ?? SocketRoomStatus.empty;
     }
 
     public addMember(username: string): boolean {
