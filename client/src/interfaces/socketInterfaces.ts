@@ -76,6 +76,7 @@ export interface GuestServerToClientEvents {
 }
 
 export interface GuestClientToServerEvents {
+	"Room:Join_Req": (args: IPayloadCall) => void;
 	"Room:Find_Req": (args: IPayloadCall) => void;
 	"Room:Leave_Req": (args: IPayloadCall) => void;
 	"Room:List_Public_Req": (args: IPayloadCall) => void;
@@ -92,7 +93,7 @@ export interface UserServerToClientEvents extends GuestServerToClientEvents {
 export interface UserClientToServerEvents extends GuestClientToServerEvents {
 	"Users:Get_Me_Req": (args: IPayloadCall) => void;
 	"Users:Delete_Me_Req": (args: IPayloadCall) => void;
-	"Room:Join_Req": (args: IPayloadCall) => void;
+	"Users:Update_Me_Req": (args: IPayloadCall) => void;
 	"Room:Create_Req": (args: IPayloadCall) => void;
 }
 
@@ -106,6 +107,7 @@ export interface AdminServerToClientEvents extends UserServerToClientEvents {
 export interface AdminClientToServerEvents extends UserClientToServerEvents {
 	"Users:List_All_Req": (args: IPayloadCall) => void;
 	"Users:Delete_Req": (args: IPayloadCall) => void;
+	"Users:Update_Req": (args: IPayloadCall) => void;
 	"Room:Delete_Req": (args: IPayloadCall) => void;
 	"Room:List_All_Req": (args: IPayloadCall) => void;
 }

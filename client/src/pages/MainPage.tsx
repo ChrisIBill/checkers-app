@@ -32,6 +32,7 @@ import {AppHeader} from "../components/main-components/header";
 import {adminSocket, baseSocket, guestSocket, userSocket} from "../socket";
 import {LoginModal} from "../components/main-components/LoginModal";
 import {DEFAULT_SESSION_DATA} from "../constants/SessionConsts";
+import HttpStatusCode from "../constants/HttpStatusCodes";
 /* const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
 	Paths.App.Base,
 	{
@@ -87,6 +88,27 @@ export const MainPage = () => {
 			}
 		}
 	}, [sessionContext]);
+	useEffect(() => {
+		if (socket) {
+			socket.connect();
+			socket.on("connect", () => {
+				console.log("Connected to server");
+				socket.emit(
+					"Test:Guest_Listener",
+					{status: HttpStatusCode.OK, data: "Hello from client"},
+					(res: any) => {
+						console.log("Guest Listener Response: ", res);
+					}
+				);
+			});
+		}
+		return () => {
+			if (socket) {
+				socket.off("connect");
+				socket.disconnect();
+			}
+		};
+	}, [socket]);
 	console.log("Session Context: ", sessionContext);
 	console.log("User data: ", userData);
 	return (
@@ -97,7 +119,13 @@ export const MainPage = () => {
 			<ErrorBoundary fallback={<div>User Panel Error</div>}>
 				<PlayGamesButton onClick={onPlayGamesClick} />
 			</ErrorBoundary>
-			{userData?.role == UserRoles.Invalid ? <LoginModal /> : null}
+			{userData ? (
+				userData.role !== UserRoles.Invalid ? null : (
+					<LoginModal />
+				)
+			) : (
+				<LoginModal />
+			)}
 		</div>
 	);
 };
