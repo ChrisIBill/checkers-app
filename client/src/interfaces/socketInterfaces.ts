@@ -68,7 +68,7 @@ export interface AuthClientToServerEvents extends BaseClientToServerEvents {
 
 export interface GuestServerToClientEvents {
 	"Room:Find_Res": (args: IPayloadCall) => void;
-	"Room:Leave_Res": (args: IPayload) => void;
+	"Room:Leave_Res": (args: IPayloadCall) => void;
 	"Room:List_Public_Res": (args: IPayloadCall) => void;
 	"Room:Connect_Res": (args: IPayloadCall) => void;
 	"Room:Init": (args: IPayloadCall) => void;
@@ -76,9 +76,9 @@ export interface GuestServerToClientEvents {
 }
 
 export interface GuestClientToServerEvents {
-	"Room:Find_Req": (args: IPayload) => void;
-	"Room:Leave_Req": (args: IPayload) => void;
-	"Room:List_Public_Req": (args: IPayload) => void;
+	"Room:Find_Req": (args: IPayloadCall) => void;
+	"Room:Leave_Req": (args: IPayloadCall) => void;
+	"Room:List_Public_Req": (args: IPayloadCall) => void;
 	"Room:Update_Server": (args: IPayloadCall) => void;
 }
 
@@ -90,10 +90,10 @@ export interface UserServerToClientEvents extends GuestServerToClientEvents {
 }
 
 export interface UserClientToServerEvents extends GuestClientToServerEvents {
-	"Users:Get_Me_Req": (args: IPayload) => void;
+	"Users:Get_Me_Req": (args: IPayloadCall) => void;
 	"Users:Delete_Me_Req": (args: IPayloadCall) => void;
-	"Room:Join_Req": (args: IPayload) => void;
-	"Room:Create_Req": (args: IPayload) => void;
+	"Room:Join_Req": (args: IPayloadCall) => void;
+	"Room:Create_Req": (args: IPayloadCall) => void;
 }
 
 export interface AdminServerToClientEvents extends UserServerToClientEvents {
@@ -104,10 +104,10 @@ export interface AdminServerToClientEvents extends UserServerToClientEvents {
 }
 
 export interface AdminClientToServerEvents extends UserClientToServerEvents {
-	"Users:List_All_Req": (args: IPayload) => void;
-	"Users:Delete_Req": (args: IPayload) => void;
-	"Room:Delete_Req": (args: IPayload) => void;
-	"Room:List_All_Req": (args: IPayload) => void;
+	"Users:List_All_Req": (args: IPayloadCall) => void;
+	"Users:Delete_Req": (args: IPayloadCall) => void;
+	"Room:Delete_Req": (args: IPayloadCall) => void;
+	"Room:List_All_Req": (args: IPayloadCall) => void;
 }
 
 /* !!!DEPRECATED!!! */

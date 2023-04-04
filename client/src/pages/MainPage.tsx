@@ -29,7 +29,7 @@ import {useNavigate, useOutletContext} from "react-router-dom";
 import {PlayGamesButton} from "../components/GameComponents";
 import {AuthTypes, ISessionContext} from "../interfaces/SessionInterfaces";
 import {AppHeader} from "../components/main-components/header";
-import {baseSocket} from "../socket";
+import {adminSocket, baseSocket, guestSocket, userSocket} from "../socket";
 import {LoginModal} from "../components/main-components/LoginModal";
 import {DEFAULT_SESSION_DATA} from "../constants/SessionConsts";
 /* const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
@@ -51,33 +51,39 @@ export const MainPage = () => {
 	//const sessionContext = sessionData.
 	const [userData, setUserData] = useState<UserData>(null);
 	const [isOnline, setIsOnline] = useState<boolean>(false);
+	const [socket, setSocket] = useState<Socket>();
 	console.log("Main Session Context: ", sessionContext);
-	/* if (sessionContext) {
-		if (sessionContext.isOnline) {
-			setIsOnline(true);
-		}
-		if (sessionContext.userData) {
-			setUserData(sessionContext.userData);
-		}
-	} */
 	const navigate = useNavigate();
-	/* baseSocket.on("connect", () => {
-		console.log("Connected with App Server: ", baseSocket.id);
-		//socket.emit("authTokenValidation", localStorage.token);
-		//If auth, should move forward
-		//else should login
-	}); */
-	function onPlayGamesClick() {
-		navigate(Paths.Games.Base);
-	}
-
+	function onPlayGamesClick() {}
 	useEffect(() => {
 		if (sessionContext !== undefined) {
 			if (sessionContext.isOnline) {
 				setIsOnline(true);
 			}
 			if (sessionContext.userData) {
+				console.log(
+					"Setting Main Page user data: ",
+					sessionContext.userData
+				);
 				setUserData(sessionContext.userData);
+				if (sessionContext.userData.role !== UserRoles.Invalid) {
+					const role = sessionContext.userData.role;
+					console.log("Setting socket: ");
+					switch (role) {
+						case UserRoles.Guest:
+							setSocket(guestSocket);
+							break;
+						case UserRoles.User:
+							setSocket(userSocket);
+							break;
+						case UserRoles.Admin:
+							setSocket(adminSocket);
+							break;
+						default:
+							console.log("Invalid role: ", role);
+							break;
+					}
+				}
 			}
 		}
 	}, [sessionContext]);

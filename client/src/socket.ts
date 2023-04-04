@@ -4,9 +4,17 @@ import {
 	AuthServerToClientEvents,
 	BaseClientToServerEvents,
 	BaseServerToClientEvents,
+	GuestClientToServerEvents,
+	GuestServerToClientEvents,
+	UserClientToServerEvents,
+	UserServerToClientEvents,
 } from "./interfaces/socketInterfaces";
 import {SERVER_PATHS} from "./paths/SocketPaths";
-import {SocketNamespaces} from "./interfaces/socketInterfaces";
+import {
+	SocketNamespaces,
+	AdminServerToClientEvents,
+	AdminClientToServerEvents,
+} from "./interfaces/socketInterfaces";
 
 const URL =
 	process.env.NODE_ENV === "production" ? undefined : "http://localhost:3001";
@@ -24,6 +32,23 @@ export const authSocket: Socket<
 	AuthServerToClientEvents,
 	AuthClientToServerEvents
 > = io("/Auth", opts);
-export const guestSocket = io("/Guest", opts);
-export const userSocket = io("/User", opts);
-export const adminSocket = io("/Admin", opts);
+export const guestSocket: Socket<
+	GuestServerToClientEvents,
+	GuestClientToServerEvents
+> = io("/Guest", opts);
+export const userSocket: Socket<
+	UserServerToClientEvents,
+	UserClientToServerEvents
+> = io("/User", opts);
+export const adminSocket: Socket<
+	AdminServerToClientEvents,
+	AdminClientToServerEvents
+> = io("/Admin", opts);
+
+export const SocketMap = {
+	baseSocket: baseSocket,
+	authSocket: authSocket,
+	guestSocket: guestSocket,
+	userSocket: userSocket,
+	adminSocket: adminSocket,
+} as const;
