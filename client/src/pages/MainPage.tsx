@@ -51,7 +51,7 @@ export const MainPage = () => {
 	//const sessionContext = sessionData.
 	const [userData, setUserData] = useState<UserData>(null);
 	const [isOnline, setIsOnline] = useState<boolean>(false);
-	//console.log("Session Context: ", sessionContext);
+	console.log("Main Session Context: ", sessionContext);
 	/* if (sessionContext) {
 		if (sessionContext.isOnline) {
 			setIsOnline(true);
@@ -60,15 +60,7 @@ export const MainPage = () => {
 			setUserData(sessionContext.userData);
 		}
 	} */
-	const role: UserRoles =
-		userData !== null ? userData.role : UserRoles.Invalid;
-	if (!isOnline) {
-	}
 	const navigate = useNavigate();
-	console.log("In App");
-	if (userData == undefined) {
-		console.log("ERROR: User data is undefined");
-	}
 	/* baseSocket.on("connect", () => {
 		console.log("Connected with App Server: ", baseSocket.id);
 		//socket.emit("authTokenValidation", localStorage.token);
@@ -94,12 +86,12 @@ export const MainPage = () => {
 	return (
 		<div className="App">
 			<ErrorBoundary fallback={<div>User Panel Error</div>}>
-				<AppHeader />
+				<AppHeader userData={userData} />
 			</ErrorBoundary>
 			<ErrorBoundary fallback={<div>User Panel Error</div>}>
 				<PlayGamesButton onClick={onPlayGamesClick} />
 			</ErrorBoundary>
-			{role == UserRoles.Invalid ? <LoginModal /> : null}
+			{userData?.role == UserRoles.Invalid ? <LoginModal /> : null}
 		</div>
 	);
 };

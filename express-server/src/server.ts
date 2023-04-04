@@ -46,6 +46,17 @@ import {
 /* import { onCheckersClientReady, registerCheckersHandlers } from './sockets/checkers-socket'; */
 /* import * as checkersSocket from "./sockets/checkers-socket"; */
 import { IPayloadCall, NewClientPaths } from "./interfaces/SocketIO-Interfaces";
+import { utilMw } from "./routes/middleware/utilMw";
+import {
+    registerGuestRoomHandlers,
+    registerUserRoomHandlers,
+    registerAdminRoomHandlers,
+} from "./services/handlers/RoomHandlers";
+import {
+    registerGuestUsersHandlers,
+    registerUserUsersHandlers,
+    registerAdminUsersHandlers,
+} from "./services/handlers/UsersHandlers";
 // **** Variables **** //
 
 const app = express();
@@ -112,11 +123,8 @@ if (EnvVars.NodeEnv === NodeEnvs.Production) {
     //else send valid, maybe find where user should be?
     next();
 }); */
-/* Global Validation Middleware */
-io.of(NewPaths.Guest).use(guestAuthMw);
-io.of(NewPaths.User).use(userAuthMw);
-io.of(NewPaths.Admin).use(adminAuthMw);
-io.of(NewPaths.Base).use(async (socket, next) => {
+/* Validation Middleware */
+io.use(async (socket, next) => {
     console.log("Handling base connection: ", socket.id);
     try {
         const role: UserRoles = await authMw(socket);
@@ -126,6 +134,13 @@ io.of(NewPaths.Base).use(async (socket, next) => {
         next(error);
     }
 });
+/* io.use(utilMw);
+io.on("new_namespace", (namespace) => {
+    namespace.use(utilMw);
+}); */
+io.of(NewPaths.Guest).use(guestAuthMw);
+io.of(NewPaths.User).use(userAuthMw);
+io.of(NewPaths.Admin).use(adminAuthMw);
 
 // Add APIs, must be after middleware
 app.use(Paths.Base, BaseRouter);
@@ -173,6 +188,12 @@ const onConnection = async (socket: Socket) => {
             },
         });
     }
+    console.log("here");
+    socket.on("disconnect", (reason) => {
+        console.log("User Disconnected: ", socket.id);
+        console.log("Reason: ", reason);
+    });
+    socket.disconnect();
 };
 
 const authConnection = async (socket: Socket) => {
@@ -183,12 +204,18 @@ const authConnection = async (socket: Socket) => {
 
 const guestConnection = (socket: Socket) => {
     console.log("Guest Connection: ", socket.id);
+    registerGuestRoomHandlers(io, socket);
+    registerGuestUsersHandlers(io, socket);
 };
 const userConnection = (socket: Socket) => {
     console.log("User Connection: ", socket.id);
+    registerUserRoomHandlers(io, socket);
+    registerUserUsersHandlers(io, socket);
 };
 const adminConnection = (socket: Socket) => {
     console.log("Admin Connection: ", socket.id);
+    registerAdminRoomHandlers(io, socket);
+    registerAdminUsersHandlers(io, socket);
 };
 /* const authConnection = (socket: Socket) => {
     console.log("Auth Connection: ", socket.id);

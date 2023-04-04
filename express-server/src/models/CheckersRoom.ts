@@ -4,8 +4,15 @@ import {
     Checkers_Game_Status,
 } from "@src/interfaces/checkersInterfaces";
 import { stat } from "fs";
-import { ISocketRoom } from "./SocketRoom";
+import { ISocketRoom, SocketRoom, SocketRoomStatus } from "./SocketRoom";
 import { IUser } from "./User";
+
+export const CheckersRoomStatus = {
+    p1turn: "p1turn",
+    p2turn: "p2turn",
+    gameOver: "gameOver",
+} as const;
+export type CheckersRoomStatusType = SocketRoomStatus | CheckersRoomStatus;
 export const DEFAULT_CHECKERS_ROOM_STATE: ICheckersRoomState = {
     players: [null, null],
     gameState: DEFAULT_GAME_STATE,
@@ -18,28 +25,36 @@ export interface ICheckersRoomState {
 }
 export interface ICheckersRoom extends ISocketRoom {
     status: Checkers_Game_Status;
-    data: ICheckersRoomState;
+    players: CheckersPlayers;
+    gameState: CheckersGameState;
 }
 /**
  * @param
  */
-export class CheckersRoom implements ICheckersRoom {
-    public id: string;
+export class CheckersRoom extends SocketRoom implements ICheckersRoom {
+    /*     public id: string;
     public status: Checkers_Game_Status;
     public members: Set<string>;
-    public data: ICheckersRoomState;
+    public data: ICheckersRoomState; */
 
     public constructor(
-        id: string | number,
-        status: Checkers_Game_Status,
-        members?: Set<string>,
-        data?: ICheckersRoomState
+        id: string,
+        members: Set<string>,
+        data: ICheckersRoomState,
+        status: CheckersRoomStatusType
     ) {
-        this.id = typeof id === "number" ? id.toString() : id;
+        super(id, members, data);
+        this.status = status;
+
+        /* this.id = typeof id === "number" ? id.toString() : id;
         this.status = status;
         this.members = members ?? new Set();
-        this.data = data ?? DEFAULT_CHECKERS_ROOM_STATE;
+        this.data = data ?? DEFAULT_CHECKERS_ROOM_STATE; */
     }
+    status: string;
+    data: ICheckersRoomState;
+    id: string;
+    members: Set<string>;
     addMember(username: string): boolean {
         if (this.members.has(username) || this.status == "private")
             return false;

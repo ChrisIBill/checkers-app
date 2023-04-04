@@ -14,7 +14,7 @@ export interface IPayload {
 export interface IPayloadCall {
 	status: HttpStatusCode;
 	data: any;
-	callback: () => void;
+	callback: (res: any) => void;
 }
 export interface ExpressServerConnectionEvent {
 	message: string;

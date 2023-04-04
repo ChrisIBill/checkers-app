@@ -19,7 +19,7 @@ export interface IPayload {
 export interface IPayloadCall {
     status: HttpStatusCodes;
     data: any;
-    callback: () => void;
+    callback: (res: any) => void;
 }
 
 interface ExpressServerConnectionEvent {
@@ -76,7 +76,7 @@ export interface GuestServerToClientEvents {
 }
 
 export interface GuestClientToServerEvents {
-    "Room:Find_Req": (args: IPayload) => void;
+    "Room:Find_Req": (args: IPayloadCall) => void;
     "Room:Leave_Req": (args: IPayload) => void;
     "Room:List_Public_Req": (args: IPayload) => void;
     "Room:Update_Server": (args: IPayloadCall) => void;

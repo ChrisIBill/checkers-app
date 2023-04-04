@@ -36,6 +36,7 @@ export const RootPage = () => {
 		useState<ISessionContext>(DEFAULT_SESSION_DATA);
 	const navigate = useNavigate();
 	console.log("Loading Root");
+
 	function onConnect(this: Socket) {
 		const socket = this;
 		console.log("Connected With Base Server: ", socket.id);
@@ -51,9 +52,12 @@ export const RootPage = () => {
 				userData: user,
 				isOnline: true,
 			});
-			socket.disconnect();
+			args.callback({
+				statusCode: HttpStatusCode.OK,
+			});
 		});
 	}
+
 	function onDisconnect(this: Socket) {
 		const socket = this;
 		console.log("Disconnected From Base Server: ", socket.id);
@@ -69,44 +73,26 @@ export const RootPage = () => {
 			if (item) {
 				setToken(item);
 			}
-			/* if (!localStorage.token || localStorage.token === "undefined") {
-				console.log("No Token Found");
-				setSessionData({
-					hasToken: false,
-					userData: null,
-					isOnline: false,
-				});
-			} else if (sessionData.userData === null) {
-				console.log("Token Found, Attempting Connection with Base Server");
-				baseSocket.connect();
-				baseSocket.on("connect", onConnect);
-				baseSocket.on("connect_error", onConnectError);
-				baseSocket.on("disconnect", onDisconnect);
-			} else {
-				console.log(
-					"Token Found, User Data Found, No Base Connection Attempted"
-				);
-			} */
 		}
 		window.addEventListener("storage", checkForToken);
 		return () => {
 			window.removeEventListener("storage", checkForToken);
-			/* baseSocket.off("connect", onConnect);
-			baseSocket.off("connect_error", onConnectError);
-			baseSocket.off("disconnect", onDisconnect);
-			baseSocket.disconnect(); */
 		};
 	}, []);
 
 	useEffect(() => {
 		console.log("State Token: ", token);
-		if (token) {
+		console.log("Root Effect Session Data: ", sessionData);
+		if (sessionData.userData) {
+			console.log("User Data Found: ", sessionData.userData);
+			navigate(Paths.Games.Base);
+		} else if (token) {
 			console.log("Token Found, Attempting Connection with Base Server");
 			baseSocket.connect();
 			baseSocket.on("connect", onConnect);
 			baseSocket.on("connect_error", onConnectError);
 			baseSocket.on("disconnect", onDisconnect);
-		} else {
+		} else if (!token) {
 			console.log("No Token Found");
 		}
 		return () => {
