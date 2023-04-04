@@ -31,6 +31,7 @@ const socket: Socket<BaseServerToClientEvents, ClientToServerEvents> = io("/", {
 });
 export const RootPage = () => {
 	const [userData, setUserData] = useState<IUser | null>();
+	const [token, setToken] = useState<string | undefined>(localStorage.token);
 	const [sessionData, setSessionData] =
 		useState<ISessionContext>(DEFAULT_SESSION_DATA);
 	const navigate = useNavigate();
@@ -38,55 +39,83 @@ export const RootPage = () => {
 	function onConnect(this: Socket) {
 		const socket = this;
 		console.log("Connected With Base Server: ", socket.id);
-		setSessionData({
+		/* setSessionData({
 			userData: null,
 			isOnline: true,
-		});
+		}); */
 		socket.on("Auth:Token_Res", (args: IPayloadCall) => {
 			console.log("Token Res: ", args);
+			const user: UserData = args.data ? args.data : null;
+			console.log("User: ", user);
+			setSessionData({
+				userData: user,
+				isOnline: true,
+			});
+			socket.disconnect();
 		});
 	}
 	function onDisconnect(this: Socket) {
 		const socket = this;
 		console.log("Disconnected From Base Server: ", socket.id);
-		setSessionData({
-			userData: sessionData.userData,
-			isOnline: false,
-		});
 	}
 
-	//baseSocket.on("redirect", (args: IPayload) => onRedirect(navigate, args));
-	/* authSocket.on("Auth:Token_Res", (args: IPayloadCall) => {
-		const user: UserData = onAuthTokenRes(args);
-		setSessionData({
-			userData: user,
-			isOnline: true,
-		});
-	}); */
 	/* Should only fire on launch and when user data is changed
 	user data is only changed when user signs up, or logs in or out */
 	useEffect(() => {
-		console.log("Token: ", localStorage.token);
-		if (!localStorage.token) {
-			console.log("No Token Found");
-			navigate(Paths.App.Base);
-		} else {
+		console.log("Storage Token: ", localStorage.token);
+		function checkForToken() {
+			console.log("Checking For Token");
+			const item = localStorage.getItem("token");
+			if (item) {
+				setToken(item);
+			}
+			/* if (!localStorage.token || localStorage.token === "undefined") {
+				console.log("No Token Found");
+				setSessionData({
+					hasToken: false,
+					userData: null,
+					isOnline: false,
+				});
+			} else if (sessionData.userData === null) {
+				console.log("Token Found, Attempting Connection with Base Server");
+				baseSocket.connect();
+				baseSocket.on("connect", onConnect);
+				baseSocket.on("connect_error", onConnectError);
+				baseSocket.on("disconnect", onDisconnect);
+			} else {
+				console.log(
+					"Token Found, User Data Found, No Base Connection Attempted"
+				);
+			} */
+		}
+		window.addEventListener("storage", checkForToken);
+		return () => {
+			window.removeEventListener("storage", checkForToken);
+			/* baseSocket.off("connect", onConnect);
+			baseSocket.off("connect_error", onConnectError);
+			baseSocket.off("disconnect", onDisconnect);
+			baseSocket.disconnect(); */
+		};
+	}, []);
+
+	useEffect(() => {
+		console.log("State Token: ", token);
+		if (token) {
 			console.log("Token Found, Attempting Connection with Base Server");
 			baseSocket.connect();
 			baseSocket.on("connect", onConnect);
 			baseSocket.on("connect_error", onConnectError);
 			baseSocket.on("disconnect", onDisconnect);
+		} else {
+			console.log("No Token Found");
 		}
-
 		return () => {
-			if (localStorage.token) {
-				baseSocket.off("connect", onConnect);
-				baseSocket.off("connect_error", onConnectError);
-				baseSocket.off("disconnect", onDisconnect);
-				baseSocket.disconnect();
-			}
+			baseSocket.off("connect", onConnect);
+			baseSocket.off("connect_error", onConnectError);
+			baseSocket.off("disconnect", onDisconnect);
+			baseSocket.disconnect();
 		};
-	}, [sessionData.userData]);
+	}, [token]);
 	return (
 		<div className="RootWrapper">
 			<Outlet context={[sessionData, setSessionData]} />

@@ -24,6 +24,6 @@ export const authSocket: Socket<
 	AuthServerToClientEvents,
 	AuthClientToServerEvents
 > = io("/Auth", opts);
-export const guestSocket = io("/guest", opts);
-export const userSocket = io("/user", opts);
-export const adminSocket = io("/admin", opts);
+export const guestSocket = io("/Guest", opts);
+export const userSocket = io("/User", opts);
+export const adminSocket = io("/Admin", opts);

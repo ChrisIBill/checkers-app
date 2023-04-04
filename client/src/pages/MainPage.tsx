@@ -27,11 +27,11 @@ import {ErrorBoundary} from "react-error-boundary";
 import {UserPanel} from "../components/UserComponents";
 import {useNavigate, useOutletContext} from "react-router-dom";
 import {PlayGamesButton} from "../components/GameComponents";
-import {SessionContext} from "../context/SessionContext";
 import {AuthTypes, ISessionContext} from "../interfaces/SessionInterfaces";
 import {AppHeader} from "../components/main-components/header";
 import {baseSocket} from "../socket";
 import {LoginModal} from "../components/main-components/LoginModal";
+import {DEFAULT_SESSION_DATA} from "../constants/SessionConsts";
 /* const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
 	Paths.App.Base,
 	{
@@ -47,9 +47,19 @@ if invalid, need to pass to header to handle login
 if user, give regular access
 if admin? */
 export const MainPage = () => {
-	const sessionContext: ISessionContext = useOutletContext();
-	const userData = sessionContext.userData ? sessionContext.userData : null;
-	const isOnline = sessionContext.isOnline;
+	const [sessionContext, setSessionContext]: any = useOutletContext();
+	//const sessionContext = sessionData.
+	const [userData, setUserData] = useState<UserData>(null);
+	const [isOnline, setIsOnline] = useState<boolean>(false);
+	//console.log("Session Context: ", sessionContext);
+	/* if (sessionContext) {
+		if (sessionContext.isOnline) {
+			setIsOnline(true);
+		}
+		if (sessionContext.userData) {
+			setUserData(sessionContext.userData);
+		}
+	} */
 	const role: UserRoles =
 		userData !== null ? userData.role : UserRoles.Invalid;
 	if (!isOnline) {
@@ -68,6 +78,17 @@ export const MainPage = () => {
 	function onPlayGamesClick() {
 		navigate(Paths.Games.Base);
 	}
+
+	useEffect(() => {
+		if (sessionContext !== undefined) {
+			if (sessionContext.isOnline) {
+				setIsOnline(true);
+			}
+			if (sessionContext.userData) {
+				setUserData(sessionContext.userData);
+			}
+		}
+	}, [sessionContext]);
 	console.log("Session Context: ", sessionContext);
 	console.log("User data: ", userData);
 	return (

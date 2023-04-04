@@ -19,6 +19,7 @@ import {CheckersPage} from "./pages/CheckersPage";
 import {GamesPage} from "./pages/GamesPage";
 import {TEMPINTERNALDEFAULTCHECKERSSTATE} from "./constants/checkersData";
 import {AppHeader} from "./components/main-components/header";
+import {AdminPage} from "./pages/AdminPage";
 const routes = [
 	{
 		path: Paths.Base,
@@ -27,7 +28,7 @@ const routes = [
 		children: [
 			{
 				path: Paths.App.Base,
-				element: <MainPage />,
+				indexElement: <MainPage />,
 				errorElement: <ErrorPage />,
 			},
 			{
@@ -49,15 +50,36 @@ const routes = [
 		],
 	},
 ];
+
+const elemRoutes = createRoutesFromElements(
+	<Route path={Paths.Base} element={<RootPage />} errorElement={<ErrorPage />}>
+		<Route
+			path={Paths.Admin.Base}
+			element={<AdminPage />}
+			errorElement={<ErrorPage />}
+		/>
+		<Route
+			path={Paths.Games.Base}
+			element={<GamesPage />}
+			errorElement={<ErrorPage />}
+		>
+			<Route
+				path={Paths.Games.Checkers}
+				element={<CheckersPage />}
+				errorElement={<ErrorPage />}
+			/>
+		</Route>
+		<Route index element={<MainPage />} errorElement={<ErrorPage />} />
+	</Route>
+);
 /* const eRoutes = createRoutesFromElements(
 	<Route path={Paths.Base} element={<RootPage />} />
 	<Route path={Paths.Auth.Base} element={<RootPage />} />
 ); */
-const router = createBrowserRouter(routes);
+const router = createBrowserRouter(elemRoutes);
 const root = ReactDOM.createRoot(
 	document.getElementById("root") as HTMLElement
 );
-console.log("Index");
 root.render(<RouterProvider router={router} />);
 
 // If you want to start measuring performance in your app, pass a function

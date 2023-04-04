@@ -32,7 +32,10 @@ export async function authMw(
         } else if (role && user.role !== role) {
             throw new Error("UNAUTHORIZED: USER NOT AUTHORIZED FOR ROLE: ");
         } else {
-            console.log(`User: ${user.name} is authorized for role: ${role}`);
+            console.log("User Found From Token: ", user);
+            console.log(
+                `User: ${user.name} is authorized for role: ${user.role}`
+            );
             return user.role;
         }
     }

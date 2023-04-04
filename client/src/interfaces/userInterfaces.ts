@@ -4,8 +4,8 @@ export type UserTokenType = string;
 
 export interface IUser {
 	name: string;
-	token: UserTokenType;
 	role: UserRoles;
+	token?: UserTokenType;
 }
 
 export type UserData = IUser | null;

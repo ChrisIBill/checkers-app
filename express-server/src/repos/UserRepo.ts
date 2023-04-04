@@ -53,6 +53,7 @@ async function getAll(): Promise<IUser[]> {
 async function add(user: IUser): Promise<void> {
     const db = await orm.openDb();
     user.id = getRandomInt();
+    console.log("Adding user: ", user);
     db.users.push(user);
     return orm.saveDb(db);
 }

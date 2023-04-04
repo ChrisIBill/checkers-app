@@ -62,8 +62,8 @@ export interface AuthServerToClientEvents extends BaseServerToClientEvents {
 }
 
 export interface AuthClientToServerEvents extends BaseClientToServerEvents {
-	"Auth:Sign_Up_Req": (args: IPayload) => void;
-	"Auth:Login_Req": (args: IPayload) => void;
+	"Auth:Sign_Up_Req": (args: IPayload, callback: (res: any) => void) => void;
+	"Auth:Login_Req": (args: IPayload, callback: (res: any) => void) => void;
 }
 
 export interface GuestServerToClientEvents {
