@@ -32,6 +32,13 @@ const CheckersRoomsManager = {
             return null;
         }
     },
+    getBoardState(roomID: string) {
+        const room = this.checkersRooms.get(roomID);
+        if (!room) {
+            throw new ReferenceError("Room does not exist");
+        }
+        return room.getBoardState();
+    },
     addPlayerToRoom(roomID: string, user: string) {
         const room = this.checkersRooms.get(roomID);
         if (!room) {
@@ -43,6 +50,7 @@ const CheckersRoomsManager = {
             }
             this.playersInRooms.set(user, roomID);
         } catch (e) {
+            this.openRooms.delete(roomID);
             throw e;
         }
     },
