@@ -70,6 +70,13 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
     getBoardState(): ValidTokens[] {
         return this.data.gameState.boardState;
     }
+    setBoardState(boardState: ValidTokens[]): boolean {
+        this.data.gameState.boardState = validateCheckersBoard(
+            this.data.gameState.boardState,
+            boardState
+        );
+        return true;
+    }
     /** Returns Num players in room */
     addPlayer(user: string): number {
         if (this.players.includes(user)) {
@@ -116,6 +123,7 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
             boardState: zipGameState(this.getBoardState()),
             curPlayer: this.data.gameState.curPlayer,
             turnNum: this.data.gameState.turnNum,
+            validMoves: this.data.gameState.validMoves,
         };
     }
 }
