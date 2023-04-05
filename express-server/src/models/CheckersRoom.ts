@@ -2,6 +2,7 @@ import { DEFAULT_GAME_STATE, PLAYER_TYPE } from "@src/constants/checkersData";
 import {
     CheckersGameState,
     Checkers_Game_Status,
+    ValidTokens,
 } from "@src/interfaces/checkersInterfaces";
 import { stat } from "fs";
 import {
@@ -72,29 +73,26 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
         this.data.gameState = gameState;
         return true;
     }
-    addPlayer(user: string): boolean {
+    getBoardState(): ValidTokens[] {
+        return this.data.gameState.boardState;
+    }
+    /** Returns Num players in room */
+    addPlayer(user: string): number {
         if (this.data.players.includes(user)) {
-            console.log("Error: User already in room");
-            return false;
+            throw new ReferenceError("User already in room");
         }
-        if (["empty", "open"].includes(this.status)) {
-            const open = this.data.players.indexOf(null);
-            if (open == -1) {
-                console.log("Error: Room is full, bad status ", this.status);
-                return false;
-            } else {
-                this.data.players[open] = user;
-                this.addMember(user);
-                console.log("Added player to room", this.data.players);
-            }
-            if (this.data.players.includes(null))
-                this.status = AllCheckersRoomStatus.open;
-            else this.status = AllCheckersRoomStatus.open;
-        } else {
-            console.log("Error: Room is full", this.status);
-            return false;
+        const open = this.data.players.indexOf(null);
+        if (open == -1) {
+            /* If full, return -1 instead of throwing to handle removing from room manager */
+            console.log("Error: Room is full, bad status ", this.status);
+            this.status = AllCheckersRoomStatus.full;
+            throw new ReferenceError("Room was already full");
         }
-        return true;
+        this.data.players[open] = user;
+        this.addMember(user);
+        const numPlayers = this.data.players.filter((p) => p != null).length;
+        if (numPlayers == 0) this.status = AllCheckersRoomStatus.full;
+        return numPlayers;
     }
     removePlayer(user: string): boolean {
         if (this.data.players.includes(user)) {

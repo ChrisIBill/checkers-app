@@ -30,11 +30,16 @@ export const registerUserUsersHandlers = (
     registerGuestUsersHandlers(io, socket);
 
     socket.on("Users:Get_Me_Req", (args: IPayload, cb: (res: any) => void) => {
-        console.log("Users:Get_Me_Req", args);\
+        console.log("Users:Get_Me_Req", args);
     });
-    socket.on("Users:Delete_Me_Req", (args: IPayload, cb: (res: any) => void) => { });
-    socket.on("Users:Update_Me_Req", (args: IPayload, cb: (res: any) => void) => { });
-    
+    socket.on(
+        "Users:Delete_Me_Req",
+        (args: IPayload, cb: (res: any) => void) => {}
+    );
+    socket.on(
+        "Users:Update_Me_Req",
+        (args: IPayload, cb: (res: any) => void) => {}
+    );
 };
 
 export const registerAdminUsersHandlers = (
@@ -43,8 +48,16 @@ export const registerAdminUsersHandlers = (
 ) => {
     registerUserUsersHandlers(io, socket);
 
-    socket.on("Users:List_All_Req", (args: IPayload, cb: (res: any) => void) => { });
-    socket.on("Users:Delete_Req", (args: IPayload, cb: (res: any) => void) => { });
-    socket.on("Users:Update_Req", (args: IPayload, cb: (res: any) => void) => { });
-    
+    socket.on(
+        "Users:List_All_Req",
+        (args: IPayload, cb: (res: any) => void) => {}
+    );
+    socket.on(
+        "Users:Delete_Req",
+        (args: IPayload, cb: (res: any) => void) => {}
+    );
+    socket.on(
+        "Users:Update_Req",
+        (args: IPayload, cb: (res: any) => void) => {}
+    );
 };
