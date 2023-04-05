@@ -24,6 +24,14 @@ const SocketRoomsManager = {
         this.SocketRoomsMap.set(roomID, room);
         return roomID;
     },
+    getUserRooms(userID: string): Set<string> {
+        const userRooms = this.usersInRooms.get(userID);
+        if (userRooms) return userRooms;
+        else {
+            console.log("ERROR: User not in any rooms, userID: ", userID);
+            return new Set();
+        }
+    },
 };
 
 export default SocketRoomsManager;
