@@ -73,15 +73,15 @@ export function compareCheckersTokens(tok1: ValidTokens, tok2: ValidTokens) {
     if ([tok1, tok2].includes(CHECKERS_TOKENS.Empty)) {
         return 0;
     }
-    /* If tokens are of same player, return 1 */
+    /* If tokens are of same player, return -1 */
     if (
         Math.floor(VALID_TOKENS.indexOf(tok1) / NUM_PLAYER_TOKEN_TYPES) ==
         Math.floor(VALID_TOKENS.indexOf(tok2) / NUM_PLAYER_TOKEN_TYPES)
     ) {
-        return 1;
+        return -1;
     }
-    /* Else return 2 */
-    return 2;
+    /* Else return 1 */
+    return 1;
 }
 /* Game Logic */
 export function newValidMoves() {
