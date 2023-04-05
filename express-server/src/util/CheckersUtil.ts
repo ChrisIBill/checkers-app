@@ -3,6 +3,7 @@ import {
     BOARD_ROW_LENGTH,
     LEGAL_MOVES_MAP,
     NUM_PLAYER_TOKEN_TYPES,
+    CHECKERS_TOKENS,
     VALID_TOKENS,
     VALID_TOKENS_STRING,
 } from "@src/constants/checkersData";
@@ -64,11 +65,51 @@ export function zipGameState(gameState: ValidTokens[]): string {
     console.log("Comp gameState: ", ret);
     return ret;
 }
-
+/* If either is "E", return 0
+   If same player, return 1
+   if different players, return 2*/
+export function compareCheckersTokens(tok1: ValidTokens, tok2: ValidTokens) {
+    /* If either token is empty return 0 */
+    if ([tok1, tok2].includes(CHECKERS_TOKENS.Empty)) {
+        return 0;
+    }
+    /* If tokens are of same player, return 1 */
+    if (
+        Math.floor(VALID_TOKENS.indexOf(tok1) / NUM_PLAYER_TOKEN_TYPES) ==
+        Math.floor(VALID_TOKENS.indexOf(tok2) / NUM_PLAYER_TOKEN_TYPES)
+    ) {
+        return 1;
+    }
+    /* Else return 2 */
+    return 2;
+}
 /* Game Logic */
 export function newValidMoves() {
     /* would be more efficient to just check positions around recently moved piece
     to change valid moves than regenerating whole board */
+}
+/* Receives list of moves,  */
+export function validateMoves(
+    boardState: ValidTokens[],
+    moves: number[]
+): ValidTokens[] {
+    if (newBoardState.length !== 32) {
+        throw new Error(
+            "Invalid Board State Length of " + newBoardState.length
+        );
+    }
+    for (let i = 0; i < oldBoardState.length; i++) {
+        if (oldBoardState[i] !== newBoardState[i]) {
+            if (
+                oldBoardState[i] === ValidTokens.EMPTY &&
+                newBoardState[i] !== ValidTokens.EMPTY
+            ) {
+                continue;
+            }
+            throw new Error("Board state is not valid");
+        }
+    }
+    return newBoardState;
 }
 
 export function findValidMoves(boardState: ValidTokens[], selectIndex: number) {
