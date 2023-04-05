@@ -1,18 +1,14 @@
 import { DEFAULT_GAME_STATE, PLAYER_TYPE } from "@src/constants/checkersData";
 import {
     CheckersGameState,
-    Checkers_Game_Status,
     ValidTokens,
 } from "@src/interfaces/checkersInterfaces";
-import { stat } from "fs";
 import {
     ISocketRoom,
     SocketRoom,
     SocketRoomStatus,
     ValueOf,
 } from "./SocketRoom";
-import { IUser } from "./User";
-import { RoomTypes } from "@src/interfaces/SocketIO-Interfaces";
 import { zipGameState } from "@src/util/CheckersUtil";
 
 export const CheckersRoomStatus = {

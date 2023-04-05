@@ -1,15 +1,7 @@
-import { AllCheckersRoomStatus, CheckersRoom } from "@src/models/CheckersRoom";
-import randomstring from "randomstring";
-import { Socket } from "socket.io";
-import { PIECE_TOKENS } from "../../../client/src/constants/checkersData";
+import { CheckersRoom } from "@src/models/CheckersRoom";
 import HttpStatusCode from "../../../client/src/constants/HttpStatusCodes";
 import { MatchmakingTypes } from "../../../client/src/interfaces/GameInterfaces";
-import {
-    CheckersRoomConnectPayload,
-    IPayload,
-} from "../../../client/src/interfaces/socketInterfaces";
-import { zipGameState } from "../../../client/src/lib/serverHandlers";
-import { CheckersGameState } from "@src/interfaces/checkersInterfaces";
+import { IPayload } from "../../../client/src/interfaces/socketInterfaces";
 import { CheckersRoomsManager } from "./room-managers/checkers-manager";
 /* const playersInRooms = new Map<string, string>();
 const checkersRooms = new Map<string, CheckersRoom>();
@@ -42,11 +34,6 @@ export async function findCheckersRoom(
     } */
 }
 export function findPVPCheckersRoom(user: string): string | null {
-    /* Checks if open room exists, if so routes them to room.
-    else if matchmaking type is pvp, search for open room and add,
-        if no open rooms found, make new room and add player
-    elif matchmaking type is local, make new room with same player twice?
-    elif matchmaking type is computer, make new room with bot as player? */
     const roomID = CheckersRoomsManager.playersInRooms.get(user) ?? null;
     const openRoomID = CheckersRoomsManager.getNextOpenRoom();
     if (roomID) {
@@ -155,17 +142,5 @@ export async function leaveCheckersRoom(user: string) {
     } else {
         console.log("ERROR: Player not in any rooms");
         return -1;
-    }
-}
-
-/* Handles validating client update data  */
-export async function checkersUpdateRoom(
-    user: string,
-    gameState: CheckersGameState
-) {
-    const room = CheckersRoomsManager.getUserRoom(user);
-
-    if (!room) {
-        throw new Error("ERROR: Room does not exist");
     }
 }
