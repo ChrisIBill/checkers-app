@@ -9,6 +9,7 @@ import {
     IPayload,
 } from "../../../client/src/interfaces/socketInterfaces";
 import { zipGameState } from "../../../client/src/lib/serverHandlers";
+import { CheckersGameState } from "@src/interfaces/checkersInterfaces";
 const playersInRooms = new Map<string, string>();
 const checkersRooms = new Map<string, CheckersRoom>();
 const openRoomsSet = new Set<string>();
@@ -224,8 +225,13 @@ export async function leaveCheckersRoom(user: string) {
     }
 }
 
-export async function checkersUpdateRoom(user: string) {
+/* Handles validating client update data  */
+export async function checkersUpdateRoom(
+    user: string,
+    gameState: CheckersGameState
+) {
     const room = getCheckersRoom(user);
+
     if (!room) {
         throw new Error("ERROR: Room does not exist");
     }
