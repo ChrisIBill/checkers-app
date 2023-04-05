@@ -18,13 +18,14 @@ const CheckersRoomsManager = {
         const room = new CheckersRoom(roomID);
         this.checkersRooms.set(roomID, room);
         this.openRooms.add(roomID);
+        return roomID;
     },
     getUserRoom(user: string) {
         const roomID = this.playersInRooms.get(user);
         if (!roomID) return null;
         return roomID;
     },
-    getNextOpenRoom() {
+    getNextOpenRoom(): string | null {
         if (this.openRooms.size > 0) {
             const roomID = this.openRooms.values().next().value;
             return roomID;
@@ -32,12 +33,12 @@ const CheckersRoomsManager = {
             return null;
         }
     },
-    getBoardState(roomID: string) {
+    getRoomPayload(roomID: string) {
         const room = this.checkersRooms.get(roomID);
         if (!room) {
             throw new ReferenceError("Room does not exist");
         }
-        return room.getBoardState();
+        return room.getPayload();
     },
     addPlayerToRoom(roomID: string, user: string) {
         const room = this.checkersRooms.get(roomID);
@@ -53,6 +54,20 @@ const CheckersRoomsManager = {
             this.openRooms.delete(roomID);
             throw e;
         }
+    },
+    getBoardState(roomID: string) {
+        const room = this.checkersRooms.get(roomID);
+        if (!room) {
+            throw new ReferenceError("Room does not exist");
+        }
+        return room.getBoardState();
+    },
+    getCurrentPlayer(roomID: string) {
+        const room = this.checkersRooms.get(roomID);
+        if (!room) {
+            throw new ReferenceError("Room does not exist");
+        }
+        return room.getCurrentPlayerName();
     },
 };
 

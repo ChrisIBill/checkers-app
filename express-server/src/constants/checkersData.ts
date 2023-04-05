@@ -60,7 +60,8 @@ export const DEFAULT_CHECKERS_BOARD: ValidTokens[] = [
 
 export const DEFAULT_GAME_STATE: CheckersGameState = {
     boardState: DEFAULT_CHECKERS_BOARD,
-    curPlayer: "PK",
+    curPlayer: "",
+    turnNum: 0,
 };
 export const COMPRESSED_DEFAULT_GAME_STATE: CompressedCheckersGameState = {
     boardState: "p12/E8/P12",

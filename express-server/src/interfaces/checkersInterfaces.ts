@@ -14,7 +14,8 @@ export type PlayerTokens = typeof PIECE_TOKENS[number];
  */
 export interface CheckersGameState {
     boardState: ValidTokens[];
-    curPlayer: PlayerTokens;
+    curPlayer: string;
+    turnNum: number;
     history?: string[]; //Compressed
 }
 export interface CompressedCheckersGameState {

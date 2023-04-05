@@ -13,6 +13,7 @@ import {
 } from "./SocketRoom";
 import { IUser } from "./User";
 import { RoomTypes } from "@src/interfaces/SocketIO-Interfaces";
+import { zipGameState } from "@src/util/CheckersUtil";
 
 export const CheckersRoomStatus = {
     p1turn: "p1turn",
@@ -26,7 +27,6 @@ export const AllCheckersRoomStatus = {
 export type CheckersRoomStatusType = ValueOf<typeof AllCheckersRoomStatus>;
 
 export const DEFAULT_CHECKERS_ROOM_STATE: ICheckersRoomState = {
-    players: [null, null],
     gameState: DEFAULT_GAME_STATE,
 };
 
@@ -35,12 +35,11 @@ export type PlayerType = typeof PLAYER_TYPE[number];
 export type CheckersPlayers = [string | null, string | null];
 
 export interface ICheckersRoomState {
-    players: CheckersPlayers;
     gameState: CheckersGameState;
 }
 export interface ICheckersRoom extends ISocketRoom {
+    players: CheckersPlayers;
     data: {
-        players: CheckersPlayers;
         gameState: CheckersGameState;
     };
 }
@@ -48,23 +47,22 @@ export interface ICheckersRoom extends ISocketRoom {
  * @param
  */
 export class CheckersRoom extends SocketRoom implements ICheckersRoom {
-    public data: ICheckersRoomState;
+    public players: CheckersPlayers;
+    public data: {
+        gameState: CheckersGameState;
+    };
     public status: CheckersRoomStatusType;
     public constructor(
         id: string,
-        members?: Set<string>,
         data?: ICheckersRoomState,
         status?: CheckersRoomStatusType
     ) {
-        super(id, members);
+        super(id);
+        this.members = new Set();
+        this.players = [null, null];
         this.type = "checkers";
         this.data = data ?? DEFAULT_CHECKERS_ROOM_STATE;
         this.status = status ?? AllCheckersRoomStatus.empty;
-
-        /* this.id = typeof id === "number" ? id.toString() : id;
-        this.status = status;
-        this.members = members ?? new Set();
-        this.data = data ?? DEFAULT_CHECKERS_ROOM_STATE; */
     }
     getGameState(): CheckersGameState {
         return this.data.gameState;
@@ -78,28 +76,28 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
     }
     /** Returns Num players in room */
     addPlayer(user: string): number {
-        if (this.data.players.includes(user)) {
+        if (this.players.includes(user)) {
             throw new ReferenceError("User already in room");
         }
-        const open = this.data.players.indexOf(null);
+        const open = this.players.indexOf(null);
         if (open == -1) {
             /* If full, return -1 instead of throwing to handle removing from room manager */
             console.log("Error: Room is full, bad status ", this.status);
             this.status = AllCheckersRoomStatus.full;
             throw new ReferenceError("Room was already full");
         }
-        this.data.players[open] = user;
+        this.players[open] = user;
         this.addMember(user);
-        const numPlayers = this.data.players.filter((p) => p != null).length;
+        const numPlayers = this.players.filter((p) => p != null).length;
         if (numPlayers == 0) this.status = AllCheckersRoomStatus.full;
         return numPlayers;
     }
     removePlayer(user: string): boolean {
-        if (this.data.players.includes(user)) {
-            const index = this.data.players.indexOf(user);
-            this.data.players[index] = null;
+        if (this.players.includes(user)) {
+            const index = this.players.indexOf(user);
+            this.players[index] = null;
             this.removeMember(user);
-            if (this.data.players.includes(null)) this.status = "open";
+            if (this.players.includes(null)) this.status = "open";
             else this.status = AllCheckersRoomStatus.full;
             return true;
         }
@@ -108,5 +106,20 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
     /* updates board state and returns true if given boardstate is valid change, else returns false */
     updateBoardState(moves: number[]): boolean {
         return false;
+    }
+    getPlayerName(playerID: string): string {
+        return playerID;
+    }
+    async getCurrentPlayerName() {
+        const playerID = this.data.gameState.curPlayer;
+        const playerName = this.getPlayerName(playerID);
+        return playerName;
+    }
+    getPayload() {
+        return {
+            boardState: zipGameState(this.getBoardState()),
+            curPlayer: this.data.gameState.curPlayer,
+            turnNum: this.data.gameState.turnNum,
+        };
     }
 }

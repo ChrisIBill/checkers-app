@@ -37,7 +37,7 @@ export const roomPayloadRouter = (roomType: RoomTypes) => {
             console.log("Error: Basic Room Type");
             return;
         case "checkers":
-            return privateRoomHandler;
+            return; /* privateRoomHandler; */
         default:
             return () => {};
     }
