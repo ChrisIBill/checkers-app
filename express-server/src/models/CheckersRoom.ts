@@ -1,6 +1,7 @@
 import { DEFAULT_GAME_STATE, PLAYER_TYPE } from "@src/constants/checkersData";
 import {
     CheckersGameState,
+    PlayerTokens,
     ValidTokens,
 } from "@src/interfaces/checkersInterfaces";
 import {
@@ -9,7 +10,7 @@ import {
     SocketRoomStatus,
     ValueOf,
 } from "./SocketRoom";
-import { zipGameState } from "@src/util/CheckersUtil";
+import { findValidMoves, zipGameState } from "@src/util/CheckersUtil";
 
 export const CheckersRoomStatus = {
     p1turn: "p1turn",
@@ -71,10 +72,9 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
         return this.data.gameState.boardState;
     }
     setBoardState(boardState: ValidTokens[]): boolean {
-        this.data.gameState.boardState = validateCheckersBoard(
-            this.data.gameState.boardState,
-            boardState
-        );
+        if (boardState.length != 32)
+            throw new Error("Invalid board state length");
+        this.data.gameState.boardState = boardState;
         return true;
     }
     /** Returns Num players in room */
@@ -92,7 +92,7 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
         this.players[open] = user;
         this.addMember(user);
         const numPlayers = this.players.filter((p) => p != null).length;
-        if (numPlayers == 0) this.status = AllCheckersRoomStatus.full;
+        if (numPlayers == 2) this.status = AllCheckersRoomStatus.full;
         return numPlayers;
     }
     removePlayer(user: string): boolean {
@@ -107,7 +107,13 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
         return false;
     }
     /* updates board state and returns true if given boardstate is valid change, else returns false */
-    updateBoardState(moves: number[]): boolean {
+    updateRoomState(sender: string, moves: number[]): boolean {
+        if (sender != this.data.gameState.curPlayer) return false;
+        console.log("Updating room state");
+        console.log("Moves: ", moves);
+        const boardState = this.getBoardState();
+        const selToken = boardState[moves[0]];
+        console.log(findValidMoves(boardState, moves[0]));
         return false;
     }
     getPlayerName(playerID: string): string {
@@ -123,7 +129,7 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
             boardState: zipGameState(this.getBoardState()),
             curPlayer: this.data.gameState.curPlayer,
             turnNum: this.data.gameState.turnNum,
-            validMoves: this.data.gameState.validMoves,
+            validMoves: this.data.gameState.validSels,
         };
     }
 }

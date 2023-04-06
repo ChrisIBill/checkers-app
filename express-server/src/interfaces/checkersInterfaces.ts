@@ -16,6 +16,7 @@ export interface CheckersGameState {
     boardState: ValidTokens[];
     curPlayer: string;
     turnNum: number;
+    validSels: number[];
     history?: string[]; //Compressed
 }
 export interface CompressedCheckersGameState {
