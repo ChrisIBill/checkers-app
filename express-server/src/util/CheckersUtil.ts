@@ -68,18 +68,15 @@ export function zipGameState(gameState: ValidTokens[]): string {
    If same player, return 1
    if different players, return 2*/
 export function compareCheckersTokens(tok1: ValidTokens, tok2: ValidTokens) {
-    /* If either token is empty return 0 */
     if ([tok1, tok2].includes(CHECKERS_TOKENS.Empty)) {
         return 0;
     }
-    /* If tokens are of same player, return -1 */
     if (
         Math.floor(VALID_TOKENS.indexOf(tok1) / NUM_PLAYER_TOKEN_TYPES) ==
         Math.floor(VALID_TOKENS.indexOf(tok2) / NUM_PLAYER_TOKEN_TYPES)
     ) {
         return -1;
     }
-    /* Else return 1 */
     return 1;
 }
 /* Game Logic */
@@ -91,26 +88,37 @@ export function newValidMoves() {
 /* export function validateMoves(
     boardState: ValidTokens[],
     moves: number[]
-): ValidTokens[] {
-    if (newBoardState.length !== 32) {
-        throw new Error(
-            "Invalid Board State Length of " + newBoardState.length
-        );
-    }
-    for (let i = 0; i < oldBoardState.length; i++) {
-        if (oldBoardState[i] !== newBoardState[i]) {
-            if (
-                oldBoardState[i] === ValidTokens.EMPTY &&
-                newBoardState[i] !== ValidTokens.EMPTY
-            ) {
-                continue;
-            }
-            throw new Error("Board state is not valid");
-        }
-    }
-    return newBoardState;
-} */
+): boolean {
+    const playerToken = boardState[moves[0]];
+    let jumped = false;
+    for (let i = 1; i < moves.length - 1; i++) {
+        const curPos = moves[i];
+        const curToken = boardState[curPos];
+        const comp = compareCheckersTokens(playerToken, curToken);
+        switch (comp) {
+            case -1:
+                //Cant move to own piece
+                return false;
+            case 0:
+                //If square empty, can move. if prev move was on enemy piece, can move still
+                if (jumped) {
+                    jumped = false;
+                    break;
+                }
+                else if (i != moves.length - 1) {
+                    return false;
+                }
+            case 1:
+                //If square has enemy piece, can move if next square is empty
+                if (i + 1 >= moves.length || boardState[moves[i + 1]] != CHECKERS_TOKENS.Empty || jumped) {
+                    return false;
+                }
+                jumped = true;
+                break;
 
+    return true;
+}
+ */
 export function findValidMoves(boardState: ValidTokens[], selectIndex: number) {
     const selToken = boardState[selectIndex];
     return checkMoveValidity(boardState, selToken, selectIndex);
@@ -129,43 +137,25 @@ function checkMoveValidity(
     const isEdge = BOARD_EDGES.has(curPosition);
     posToCheck.forEach((checkPos, index) => {
         const posToken = boardState[checkPos];
-        /* console.log(
-			"Checking position: ",
-			checkPos,
-			posToken,
-			selToken,
-			curPosition
-		); */
-        if (posToken == "E") {
-            /* If position is empty is valid move */
-            validMoves.push(checkPos);
-        } else if (
-            Math.floor(
-                VALID_TOKENS.indexOf(posToken) / NUM_PLAYER_TOKEN_TYPES
-            ) ==
-            Math.floor(VALID_TOKENS.indexOf(selToken) / NUM_PLAYER_TOKEN_TYPES)
-        ) {
-            /* If position has token thats the same as player token, do nothing */
-        } else if (
-            /* Since there are only two token types in checkers, normal piece and kings
-             ** With VALID_TOKENS organized with each players tokens back to back in the index
-             ** This will check if tokens are of different players. */
-            Math.floor(
-                VALID_TOKENS.indexOf(posToken) / NUM_PLAYER_TOKEN_TYPES
-            ) !=
-            Math.floor(VALID_TOKENS.indexOf(selToken) / NUM_PLAYER_TOKEN_TYPES)
-        ) {
-            /* If tokens are of different players, need to check if viable squares to jump to are empty
-             ** the viable square to jump to must be diagonal from the original piece, with the pos being
-             ** jumped as the midpoint */
-            const leftOrRight = findleftOrRight(
-                curPosition,
-                checkPos,
-                isCurFlipped
-            );
-            const upOrDown = getUpOrDown(curPosition, checkPos);
-            const checkDiag = getPositionsToCheck(selToken, checkPos).filter(
-                (elem) => {
+        const comp = compareCheckersTokens(selToken, posToken);
+        switch (comp) {
+            case -1:
+                //Cant move to own piece
+                break;
+            case 0:
+                validMoves.push(checkPos);
+                break;
+            case 1:
+                const leftOrRight = findleftOrRight(
+                    curPosition,
+                    checkPos,
+                    isCurFlipped
+                );
+                const upOrDown = getUpOrDown(curPosition, checkPos);
+                const checkDiag = getPositionsToCheck(
+                    selToken,
+                    checkPos
+                ).filter((elem) => {
                     if (
                         leftOrRight !=
                         findleftOrRight(
@@ -180,17 +170,12 @@ function checkMoveValidity(
                         return false;
                     }
                     return true;
+                });
+                if (boardState[checkDiag[0]] == "E") {
+                    reqMoves.push(checkDiag[0]);
+                    piecesToTake.push(checkPos);
                 }
-            );
-            if (boardState[checkDiag[0]] == "E") {
-                reqMoves.push(checkDiag[0]);
-                piecesToTake.push(checkPos);
-            }
-        } else {
-            console.log(
-                "ERROR: INVALID TOKEN IN FUNC CHECKMOVEVALIDITY IN CLIENT LOGIC"
-            );
-            return [-1];
+                break;
         }
     });
     if (reqMoves.length > 0) {
