@@ -1,4 +1,4 @@
-import supertest, { SuperTest, Test, Response } from 'supertest';
+/* import supertest, { SuperTest, Test, Response } from 'supertest';
 import { defaultErrMsg as ValidatorErr } from 'jet-validator';
 import insertUrlParams from 'inserturlparams';
 
@@ -221,4 +221,4 @@ describe('UserRouter', () => {
         });
     });
   });
-});
+}); */

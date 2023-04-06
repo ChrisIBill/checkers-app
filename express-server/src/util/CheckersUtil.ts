@@ -6,10 +6,9 @@ import {
     CHECKERS_TOKENS,
     VALID_TOKENS,
     VALID_TOKENS_STRING,
-} from "@src/constants/checkersData";
-import { PlayerTokens, ValidTokens } from "@src/interfaces/checkersInterfaces";
-import { Direction } from "@src/interfaces/GameInterfaces";
-import { CheckersGameState } from "../../../client/src/interfaces/checkersInterfaces";
+} from "../constants/checkersData";
+import { PlayerTokens, ValidTokens } from "../interfaces/checkersInterfaces";
+import { Direction } from "../interfaces/GameInterfaces";
 
 export function unzipGameState(str: string): ValidTokens[] {
     const board: ValidTokens[] = [];
@@ -89,7 +88,7 @@ export function newValidMoves() {
     to change valid moves than regenerating whole board */
 }
 /* Receives list of moves,  */
-export function validateMoves(
+/* export function validateMoves(
     boardState: ValidTokens[],
     moves: number[]
 ): ValidTokens[] {
@@ -110,7 +109,7 @@ export function validateMoves(
         }
     }
     return newBoardState;
-}
+} */
 
 export function findValidMoves(boardState: ValidTokens[], selectIndex: number) {
     const selToken = boardState[selectIndex];

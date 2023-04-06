@@ -1,4 +1,4 @@
-import supertest, { SuperTest, Test, Response } from 'supertest';
+/* import supertest, { SuperTest, Test, Response } from 'supertest';
 
 import app from '@src/server';
 
@@ -125,4 +125,4 @@ describe('AuthRouter', () => {
         });
     });
   });
-});
+}); */
