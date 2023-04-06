@@ -29,17 +29,23 @@ import {
     UserServerToClientEvents,
 } from "@src/interfaces/SocketIO-Interfaces";
 import { Server, Socket } from "socket.io";
+import { CheckersRoomsManager } from "../room-managers/checkers-manager";
+import { findUserFromToken } from "../myAuthService";
+import { findRoomForClient } from "../GamesService";
+import { ISocketRoomsManager } from "../room-managers/room-manager";
 
 /* handles rerouting to appropriate room handler */
-export const roomPayloadRouter = (roomType: RoomTypes) => {
+export const roomPayloadRouter = (
+    roomType: RoomTypes
+): ISocketRoomsManager | null => {
     switch (roomType) {
         case "basic":
             console.log("Error: Basic Room Type");
-            return;
+            return null;
         case "checkers":
-            return; /* privateRoomHandler; */
+            return CheckersRoomsManager as ISocketRoomsManager; /* privateRoomHandler; */
         default:
-            return () => {};
+            return null;
     }
 };
 export const registerGuestRoomHandlers = (
@@ -47,8 +53,43 @@ export const registerGuestRoomHandlers = (
     socket: Socket
 ) => {
     console.log("Guest Room Connection: ", socket.id);
-    socket.on("Room:JoinReq", (args: IPayload, cb: (res: any) => void) => {});
-    socket.on("Room:Find_Req", (args: IPayload, cb: (res: any) => void) => {});
+    /* args: {type: 'checkers', id?: roomID} */
+    socket.on(
+        "Room:JoinReq",
+        async (args: IPayload, cb: (res: any) => void) => {
+            console.log("Received Join Room Request", args);
+            const { type, id } = args.data;
+            const roomHandler = roomPayloadRouter(type);
+            if (!roomHandler) {
+                cb({ status: 400, data: { message: "Invalid Room Type" } });
+                return;
+            }
+            const token = socket.handshake.auth.token;
+            /* TODO!!!!!!
+            !!!!!!!!!!!!!!!!
+            !!!!!!!!!!!!!!!! */
+        }
+    );
+    socket.on(
+        "Room:Find_Req",
+        async (args: IPayload, cb: (res: any) => void) => {
+            console.log("Received Join Room Request", args);
+            const { type, id } = args.data;
+            const roomHandler = roomPayloadRouter(type);
+            if (!roomHandler) {
+                cb({ status: 400, data: { message: "Invalid Room Type" } });
+                return;
+            }
+            const token = socket.handshake.auth.token;
+            if (!id) {
+                const room = roomHandler.findRoom(token);
+                if (room) {
+                    cb({ status: 200, data: { room } });
+                }
+            }
+            const room = roomHandler.joinRoom(id);
+        }
+    );
     socket.on("Room:Leave_Req", (args: IPayload, cb: (res: any) => void) => {});
     socket.on(
         "Room:List_Public_Req",

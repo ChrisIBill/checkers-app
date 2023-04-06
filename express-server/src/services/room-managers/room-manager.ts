@@ -2,6 +2,24 @@
 rooms. */
 import { SocketRoom } from "@src/models/SocketRoom";
 
+/* export interface ISocketRoomsManager {
+    SocketRoomsMap: Map<string, SocketRoom>;
+    usersInRooms: Map<string, Set<string>>;
+    newRoom: (roomID?: string) => string;
+    getUserRooms: (user: string) => Set<string>;
+    joinRoom: (user: string, roomID: string) => SocketRoom;
+    leaveRoom: (user: string, roomID?: string) => void;
+    findRoom: (user: string) => SocketRoom | null;
+    updateRoom: (roomID: string, room: SocketRoom) => Promise<boolean>;
+} */
+export interface ISocketRoomsManager {
+    managerRoomsMap: Map<string, SocketRoom>;
+    usersInRooms: Map<string, Set<string>>;
+    joinRoom: (...args: any) => any;
+    leaveRoom: (...args: any) => any;
+    findRoom: (...args: any) => any;
+    updateRoom: (...args: any) => any;
+}
 const SocketRoomsManager = {
     /* room-id -> Room */
     SocketRoomsMap: new Map<string, SocketRoom>(),
@@ -31,6 +49,21 @@ const SocketRoomsManager = {
             console.log("ERROR: User not in any rooms, userID: ", userID);
             return new Set();
         }
+    },
+    joinRoom(userID: string, roomID: string): SocketRoom {
+        console.log("ERROR: IN BASE ROOM MANAGER");
+        return new SocketRoom("ERROR");
+    },
+    leaveRoom(userID: string, roomID?: string): void {
+        console.log("ERROR: IN BASE ROOM MANAGER");
+    },
+    findRoom(userID: string): SocketRoom | null {
+        console.log("ERROR: IN BASE ROOM MANAGER");
+        return null;
+    },
+    updateRoom(roomID: string, room: SocketRoom): Promise<boolean> {
+        console.log("ERROR: IN BASE ROOM MANAGER");
+        return Promise.resolve(false);
     },
 };
 
