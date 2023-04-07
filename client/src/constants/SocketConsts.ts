@@ -18,3 +18,13 @@ export const GAME_STATUS_TYPES = [
 export const DEFAULT_PAYLOAD = {
 	status: HttpStatusCode.OK,
 };
+
+export const ROOM_TYPES = {
+	checkers: "checkers",
+	chat: "chat",
+} as const;
+export const CHECKERS_ROOM_STYLES = {
+	PVP: "pvp",
+	BOT: "computer",
+	LOCAL: "local",
+} as const;
