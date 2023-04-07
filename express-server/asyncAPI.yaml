@@ -1,0 +1,38 @@
+channels:
+  /:
+    publish:
+      message:
+        oneOf:
+          - $ref: "#/components/messages/"
+    subscribe: {}
+    bindings:
+      ws:
+        query:
+          type: object
+          properties:
+            token:
+              type: string
+          required: [token]
+  /Auth: {}
+  /Guest: {}
+  /User: {}
+  /Admin: {}
+
+components:
+  messages:
+   AuthorizationTokenResponse:
+    name: Auth:Token_Res
+    payload:
+      type: object
+      properties:
+        status:
+          type: httpStatusCode
+        data:
+          type: object
+          properties:
+            username:
+              type: string
+            role:
+              type: number
+        
+       
