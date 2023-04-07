@@ -3,8 +3,7 @@ channels:
     publish:
       message:
         oneOf:
-          - $ref: "#/components/messages/"
-    subscribe: {}
+          - $ref: "#/components/messages/AuthorizationTokenResponse"
     bindings:
       ws:
         query:
@@ -14,7 +13,16 @@ channels:
               type: string
           required: [token]
   /Auth: {}
-  /Guest: {}
+  /Guest:
+    publish:
+      message:
+        $ref: "#/components/messages/UpdateClientsInRoom"
+    subscribe:
+      message:
+        oneOf:
+          - $ref: "#/components/messages/ClientJoinRoomRequest"
+          - $ref: "#/components/messages/ClientFindRoomRequest"
+            
   /User: {}
   /Admin: {}
 
@@ -34,5 +42,81 @@ components:
               type: string
             role:
               type: number
+    ClientJoinRoomRequest:
+      name: Room:Join_Req
+      payload:
+        type: object
+        properties:
+          roomType:
+            type: string
+            enum: [
+              "checkers",
+              "chat"
+            ]
+          roomStyle:
+            type: string
+            enum: [
+              "pvp",
+              "computer",
+              "local"
+            ]
+          required: [
+            "roomStyle"
+          ]
+    ClientFindRoomRequest:
+      name: Room:Find_Req
+      payload:
+        type: object
+        properties:
+          roomType:
+            type: string
+            enum: [
+              "checkers",
+              "chat"
+            ]
+          roomStyle:
+            type: string
+            enum: [
+              "pvp",
+              "computer",
+              "local"
+            ]
+          required: [
+            "roomType"
+          ]
+    UpdateClientsInRoom:
+      name: Room:Update_Clients
+      payload:
+        type: object
+        properties:
+          roomType:
+            type: string
+            enum: [
+              "checkers",
+              "chat"
+            ]
+          roomStyle:
+            type: string
+            enum: [
+              "pvp",
+              "computer",
+              "local"
+            ]
+          roomData:
+            type: object
+            properties:
+              members:
+                type: [string]
+                description: "List of usernames"
+              data:
+                type: object
+                properties:
+                  args: 
+          required: [
+            "roomType",
+            "roomData"
+          ]
+    
+      
         
        
