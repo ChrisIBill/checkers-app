@@ -1,0 +1,8 @@
+Root Page handles connection with the base server and session context
+Main Page handles the header <!!!TODO!!!>, sidebar <!!!TODO!!!> and Window Manager <!!!TODO!!!>
+Header displays user info, time?, more?
+Sidebar manages server room connections
+    Games such as checkers, chess
+    Social such as chat and forum?
+    more???
+Window manager handles the positioning of the various room connections, which should tile and be draggable
