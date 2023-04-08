@@ -1,7 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 
-import {io, Socket} from "socket.io-client";
 import "./index.css";
 import {MainPage} from "./pages/MainPage";
 import reportWebVitals from "./reportWebVitals";
@@ -13,10 +12,8 @@ import {
 } from "react-router-dom";
 import {Paths} from "./paths/SocketPaths";
 import {RootPage} from "./pages/RootPage";
-import {LoginPage} from "./pages/LoginPage";
 import {ErrorPage} from "./pages/ErrorPage";
 import {GamesPage} from "./pages/GamesPage";
-import {AppHeader} from "./components/main-components/header";
 import {AdminPage} from "./pages/AdminPage";
 const routes = [
 	{
@@ -28,10 +25,6 @@ const routes = [
 				path: Paths.App.Base,
 				indexElement: <MainPage />,
 				errorElement: <ErrorPage />,
-			},
-			{
-				path: Paths.Auth.Login,
-				element: <LoginPage />,
 			},
 			{
 				path: Paths.Games.Base,
@@ -57,10 +50,7 @@ const elemRoutes = createRoutesFromElements(
 		<Route index element={<MainPage />} errorElement={<ErrorPage />} />
 	</Route>
 );
-/* const eRoutes = createRoutesFromElements(
-	<Route path={Paths.Base} element={<RootPage />} />
-	<Route path={Paths.Auth.Base} element={<RootPage />} />
-); */
+
 const router = createBrowserRouter(elemRoutes);
 const root = ReactDOM.createRoot(
 	document.getElementById("root") as HTMLElement
