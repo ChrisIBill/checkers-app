@@ -255,7 +255,13 @@ const GameHistory: React.FC<CheckersHistoryProps> = (props) => {
 	});
 	return <div id="MoveListWrapper">{histList}</div>;
 };
-const CheckersPage = () => {
+export const CheckersWindow = ({
+	roomID,
+	onRoomDataChange,
+}: {
+	roomID: string;
+	onRoomDataChange: (args: any) => void;
+}) => {
 	const [gameHistory, setGameHistory] = useState<
 		CompressedCheckersGameState[]
 	>([COMPRESSED_DEFAULT_GAME_STATE]); //Stored in compressed format?
@@ -263,6 +269,7 @@ const CheckersPage = () => {
 	const [status, setStatus] = useState("loading"); //loading, init, waiting, playing, over, error
 	const [playerTokens, setPlayerTokens] = useState<PlayerTokens>();
 	const [isCurPlayer, setIsCurPlayer] = useState<boolean>(false);
+
 	socket.on("checkersClientInit", (args: IPayload) => {
 		console.log("Received checkersClientInit", args);
 		const boardState = onCheckersClientInit(args);
@@ -318,6 +325,10 @@ const CheckersPage = () => {
 			socket.emit("checkersClientReady", {status: HttpStatusCode.OK});
 		}
 	});
+	useEffect(() => {
+		/* socket.emit("Room:Join_Req", {roomID})
+		socket.on("Room:ClientConnect", ) */
+	}, []);
 	return (
 		<div id="CheckersPageWrapper">
 			{/* <div id="CheckersHistoryWrapper">
@@ -358,4 +369,3 @@ const CheckersPage = () => {
 		</div>
 	);
 }; */
-export {CheckersPage};

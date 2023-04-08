@@ -15,7 +15,6 @@ import {Paths} from "./paths/SocketPaths";
 import {RootPage} from "./pages/RootPage";
 import {LoginPage} from "./pages/LoginPage";
 import {ErrorPage} from "./pages/ErrorPage";
-import {CheckersPage} from "./pages/CheckersPage";
 import {GamesPage} from "./pages/GamesPage";
 import {TEMPINTERNALDEFAULTCHECKERSSTATE} from "./constants/checkersData";
 import {AppHeader} from "./components/main-components/header";
@@ -39,13 +38,6 @@ const routes = [
 				path: Paths.Games.Base,
 				element: <GamesPage />,
 				errorElement: <ErrorPage />,
-				children: [
-					{
-						path: Paths.Games.Checkers /*  + "/:id" */,
-						element: <CheckersPage />,
-						errorElement: <ErrorPage />,
-					},
-				],
 			},
 		],
 	},
@@ -62,13 +54,7 @@ const elemRoutes = createRoutesFromElements(
 			path={Paths.Games.Base}
 			element={<GamesPage />}
 			errorElement={<ErrorPage />}
-		>
-			<Route
-				path={Paths.Games.Checkers}
-				element={<CheckersPage />}
-				errorElement={<ErrorPage />}
-			/>
-		</Route>
+		></Route>
 		<Route index element={<MainPage />} errorElement={<ErrorPage />} />
 	</Route>
 );

@@ -1,7 +1,12 @@
 import {Box} from "@mui/material";
 import {Container} from "@mui/system";
 import {useState} from "react";
-import {Outlet, redirect, useNavigate} from "react-router-dom";
+import {
+	Outlet,
+	redirect,
+	useNavigate,
+	useOutletContext,
+} from "react-router-dom";
 import {Socket, io} from "socket.io-client";
 import {PlayGamesButton} from "../components/GameComponents";
 import {DEFAULT_CHECKERS_BOARD} from "../constants/checkersData";
@@ -23,16 +28,17 @@ import {
 	onJoinGameRoomRes,
 	onLeaveGameRoomRes,
 } from "../services/gamesServices";
-import {CheckersPage} from "./CheckersPage";
+import {SessionContext} from "../context/SessionContext";
+import {useSessionContextType} from "../interfaces/SessionInterfaces";
 
-const socket: Socket<ServerToClientGameEvents, ClientToServerGameEvents> = io(
+/* const socket: Socket<ServerToClientGameEvents, ClientToServerGameEvents> = io(
 	Paths.Games.Base,
 	{
 		auth: (cb) => {
 			cb({token: localStorage.token});
 		},
 	}
-);
+); */
 /* 
 Ask User How they would like to play (local, ai or pvp)
 Emit room req w game and choice
@@ -44,44 +50,20 @@ function displayGameSelection(stat: GameStatusType) {
 }
 export const GamesPage = () => {
 	/* Need to implement status state in way that grabs game type and room id from url if it matches and is legal */
+	const [sessionContext, setSessionContext] =
+		useOutletContext<useSessionContextType>();
 	const [status, setStatus] = useState<GameStatusType>("selecting");
 	const [gameType, setGameType] = useState<GameTypes>();
 	const [playType, setPlayType] = useState<MatchmakingTypes>();
 	const navigate = useNavigate();
+
 	function onPlayTypeClick(vsSel: MatchmakingTypes) {
 		/* if (vsSel == "local") {
             setStatus("")
         } */
 		setStatus("connecting");
 		setPlayType(vsSel);
-		socket.emit(
-			"gamesJoinRoomReq",
-			{
-				gameType: gameType,
-				matchmakingType: vsSel,
-			},
-			(res: any) => {
-				console.log("Games Join Room Res: ", res);
-				if (res.status == HttpStatusCode.OK) {
-					console.log("Found Room");
-					setStatus("connecting");
-				} else {
-					console.log("ERROR finding room");
-					setStatus("selecting");
-				}
-			}
-		);
 	}
-	socket.on("connect", () => {
-		console.log("Connected to Games Page");
-		console.log("Socket ID: ", socket.id);
-	});
-	socket.on("gamesJoinRoomRes", (args: any) => {
-		console.log("Found room data: ", args);
-		console.log("Path: ", args.data.path);
-		navigate(args.data.path);
-	});
-	socket.on("gamesLeaveRoomRes", onLeaveGameRoomRes);
 	console.log("Game Page States: ", status, gameType, playType);
 	return (
 		<Container sx={{display: () => displayGameSelection(status)}}>
