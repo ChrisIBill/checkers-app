@@ -16,7 +16,6 @@ import {RootPage} from "./pages/RootPage";
 import {LoginPage} from "./pages/LoginPage";
 import {ErrorPage} from "./pages/ErrorPage";
 import {GamesPage} from "./pages/GamesPage";
-import {TEMPINTERNALDEFAULTCHECKERSSTATE} from "./constants/checkersData";
 import {AppHeader} from "./components/main-components/header";
 import {AdminPage} from "./pages/AdminPage";
 const routes = [

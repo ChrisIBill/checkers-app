@@ -19,6 +19,7 @@ export const RoomManager = ({roomID, roomType}: IActiveRoomState) => {
 	function onRoomDataChange(roomData: any) {
 		setRoomData(roomData);
 	}
+	console.log("RoomManager: ", roomID, roomType);
 	switch (roomType) {
 		case ROOM_TYPES.checkers:
 			return (
@@ -40,7 +41,7 @@ export const WindowManager = ({rooms}: {rooms: any}) => {
 	const ActiveWindows = rooms.map((room: any, index: number) => {
 		return (
 			<Box className="Window_Wrapper">
-				<RoomManager roomType={"checkers"} roomID={room} />
+				<RoomManager roomID={room} roomType={"checkers"} />
 			</Box>
 		);
 	});

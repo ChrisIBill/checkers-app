@@ -87,12 +87,10 @@ export const MainPage = () => {
 			if (socket.connected) {
 				socket.emit("Room:Find_Req", newRoomData, (res: any) => {
 					console.log("Find Room Response: ", res);
-					if (res.status !== HttpStatusCode.OK || !res.data) {
+					if (res.status !== HttpStatusCode.OK || !res.data.roomID) {
 						console.log("Bad response from server");
 					}
-					const roomID = res.data.room;
-					const roomType = res.data.roomType;
-					setActiveRooms([...activeRooms, roomID]);
+					setActiveRooms([...activeRooms, res.data.roomID]);
 				});
 			}
 		}

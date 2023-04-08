@@ -55,14 +55,19 @@ export const DEFAULT_CHECKERS_BOARD: ValidTokens[] = [
     "P","P","P","P",
     "P","P","P","K",
 ];
+//prettier-ignore
+export const EMPTY_CHECKERS_BOARD: ValidTokens[] = [
+	"E", "E", "E", "E",
+	"E", "E", "E", "E",
+	"E", "E", "E", "E",
+	"E", "E", "E", "E",
+	"E", "E", "E", "E",
+	"E", "E", "E", "E",
+	"E", "E", "E", "E",
+	"E", "E", "E", "E",
+];
 
 export const COMPRESSED_DEFAULT_GAME_STATE: CompressedCheckersGameState = {
 	boardState: "p12/E8/P12/0,P",
 	curPlayer: "PK",
-};
-
-export const TEMPINTERNALDEFAULTCHECKERSSTATE: CheckersGameState = {
-	player: "PK",
-	status: "",
-	boardState: DEFAULT_CHECKERS_BOARD,
 };

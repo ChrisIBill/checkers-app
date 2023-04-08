@@ -28,3 +28,12 @@ export interface IRoomData {
 	status: RoomStatusTypes;
 	data: any;
 }
+
+export const SocketRoomStatus = {
+	empty: "empty",
+	open: "open",
+	full: "full",
+	private: "private",
+	init: "init",
+	error: "error",
+} as const;

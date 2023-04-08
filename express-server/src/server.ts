@@ -249,6 +249,13 @@ const checkersConnection = (socket: Socket) => {
     registerCheckersHandlers(io.of(Paths.Games.Checkers), socket);
     //socket.on("checkersClientReady", () => console.log("ADSGFHGADFSH"));
 }; */
+io.of("/").adapter.on("create-room", (room) => {
+    console.log(`room ${room} was created`);
+});
+
+io.of("/").adapter.on("join-room", (room, id) => {
+    console.log(`socket ${id} has joined room ${room}`);
+});
 io.of(NewPaths.Base).on("connection", onConnection);
 io.of(NewPaths.Auth).on("connection", authConnection);
 io.of(NewPaths.Guest).on("connection", guestConnection);

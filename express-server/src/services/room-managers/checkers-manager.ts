@@ -53,7 +53,11 @@ const CheckersRoomsManager = {
         if (!room) {
             throw new ReferenceError("Room does not exist");
         }
-        return room.getPayload();
+        const payload = {
+            ...room.getPayload(),
+            roomID: roomID,
+        };
+        return payload;
     },
     addPlayerToRoom(roomID: string, user: string) {
         const room = this.managerRoomsMap.get(roomID);
@@ -108,8 +112,14 @@ const CheckersRoomsManager = {
         if (!room) {
             throw new ReferenceError("Room does not exist");
         }
-        this.addPlayerToRoom(roomID, user);
-        return room.getPayload();
+        if (!room.players.includes(user)) {
+            throw new ReferenceError("User not in room");
+            /* TODO */
+            /* Better handle this, maybe try to add user */
+        }
+        const payload = room.getJoinPayload();
+        console.log("Room Join Payload: " + payload);
+        return payload;
     },
     findRoom(user: string) {
         const roomID =
@@ -127,7 +137,7 @@ const CheckersRoomsManager = {
             }
             return null;
         }
-        return this.managerRoomsMap.get(roomID);
+        return roomID;
     },
     leaveRoom(user: string, roomID?: string) {
         console.log("CheckersRoomsManager: Leaving not implemented yet");

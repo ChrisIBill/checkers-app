@@ -72,7 +72,7 @@ export interface GuestServerToClientEvents {
 	"Room:List_Public_Res": (args: IPayloadCall) => void;
 	"Room:Connect_Res": (args: IPayloadCall) => void;
 	"Room:Init": (args: IPayloadCall) => void;
-	"Room:Update_Room": (args: IPayloadCall) => void;
+	"Room:Update_Members": (args: IPayloadCall) => void;
 }
 
 export interface GuestClientToServerEvents {

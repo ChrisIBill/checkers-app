@@ -127,9 +127,36 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
     getPayload() {
         return {
             boardState: zipGameState(this.getBoardState()),
+            roomStatus: this.status,
             curPlayer: this.data.gameState.curPlayer,
             turnNum: this.data.gameState.turnNum,
-            validMoves: this.data.gameState.validSels,
+            validSels: this.data.gameState.validSels,
+        };
+    }
+    getJoinPayload() {
+        return {
+            roomStatus: this.status,
+            boardState: zipGameState(this.getBoardState()),
+            roomID: this.id,
+        };
+    }
+    getInitPayload() {
+        return {
+            roomStatus: this.status,
+            boardState: this.status,
+            players: this.players,
+            curPlayer: this.data.gameState.curPlayer,
+            validSels: this.data.gameState.validSels,
+            roomID: this.id,
+        };
+    }
+    getUpdatePayload() {
+        return {
+            roomStatus: this.status,
+            boardState: this.status,
+            curPlayer: this.data.gameState.curPlayer,
+            validSels: this.data.gameState.validSels,
+            roomID: this.id,
         };
     }
 }

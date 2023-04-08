@@ -3,6 +3,7 @@ import {findValidMoves, getReqSelections} from "../lib/checkersClientLogic";
 import {
 	COMPRESSED_DEFAULT_GAME_STATE,
 	DEFAULT_CHECKERS_BOARD,
+	EMPTY_CHECKERS_BOARD,
 	NUM_PLAYER_TOKEN_TYPES,
 	PIECE_TOKENS,
 } from "../constants/checkersData";
@@ -19,11 +20,10 @@ import {Socket, io} from "socket.io-client";
 import {
 	CheckersGameState,
 	CompressedCheckersGameState,
+	ICheckersRoomInitPayload,
+	ICheckersRoomUpdatePayload,
+	ICheckersRoomJoinPayload,
 } from "../interfaces/checkersInterfaces";
-import {
-	ClientToServerCheckersEvents,
-	ServerToClientCheckersEvents,
-} from "../interfaces/socketInterfaces";
 import {Paths} from "../paths/SocketPaths";
 import HttpStatusCode from "../constants/HttpStatusCodes";
 import {onCheckersClientInit} from "../services/gamesServices";
@@ -36,15 +36,10 @@ import {
 	onCheckersRoomConnect,
 	onCheckersUpdateClient,
 } from "../services/gamesServices";
+import {useOutletContext} from "react-router-dom";
+import {useSessionContextType} from "../interfaces/SessionInterfaces";
+import {ROOM_TYPES} from "../constants/RoomConsts";
 
-const socket: Socket<
-	ServerToClientCheckersEvents,
-	ClientToServerCheckersEvents
-> = io(Paths.Games.Checkers, {
-	auth: (cb) => {
-		cb({token: localStorage.token});
-	},
-});
 const CheckersSquare = ({
 	elem,
 	index,
@@ -143,22 +138,81 @@ const CheckersSquare = ({
 	}
 };
 
+/* const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
+	const { onMove, gameState } = props;
+	const { boardState, validSels, isCurPlayer, playerTokens } = gameState;
+
+	const [selectIndex, setSelectIndex] = useState<number>(-1);
+	const [validMoves, setValidMoves] = useState<number[]>([]);
+	
+	function handleSquareClick(index: number) {
+		if (validSels)
+	}
+
+	let isFlippedRow = false;
+	const GameBoard = boardState.map((elem, index) => {
+		if (index % 4 == 0) {
+			isFlippedRow = !isFlippedRow;
+		}
+		let squareStatus = "default";
+		if (index == selectIndex) {
+			squareStatus = "selected";
+		} else if (validMoves.includes(index)) {
+			squareStatus = "valid";
+		}
+
+		if (isFlippedRow) {
+			return (
+				<div className="CheckersSquares" key={index}>
+					<CheckersSquare
+						elem={elem}
+						index={index}
+						status={squareStatus}
+						onSquareClick={() => handleSquareClick(index)}
+					/>
+					<div className="DeadSquare"></div>
+				</div>
+			);
+		}
+		return (
+			<div className="CheckersSquares" key={index}>
+				<div className="DeadSquare"></div>
+				<CheckersSquare
+					elem={elem}
+					index={index}
+					status={squareStatus}
+					onSquareClick={() => handleSquareClick(index)}
+				/>
+			</div>
+		);
+	});
+	console.log(GameBoard);
+	return <ul id="CheckersBoard">{GameBoard}</ul>; */
+
 const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
-	const [status, setStatus] = useState("select"); //populate?, select, move, submit
+	const {onMove, gameState} = props;
+	const {boardState, validSels, reqSels, isCurPlayer, playerTokens} =
+		gameState;
+	const [boardStatus, setBoardStatus] = useState("select"); //populate?, select, move, submit
 	const [selectIndex, setSelectIndex] = useState<number>(-1);
 	const [validMoves, setValidMoves] = useState<number[]>([]);
 	const [piecesToTake, setPiecesToTake] = useState<number[] | undefined>([]);
-	console.log("ReqSels: ", props.reqSels);
+	const [playerPieces, setPlayerPieces] = useState<PlayerTokens>();
+	if (playerTokens) {
+		setPlayerPieces(playerTokens);
+	}
+	console.log("ReqSels: ", reqSels);
 	//let validMoves: number[] = [];
-	let board = props.board;
+	let board = boardState;
 	let isFlippedRow = true;
 	function handleSquareClick(sel: number) {
 		console.log("click: ", sel);
-		console.log("Status: ", status);
+		console.log("Status: ", boardStatus);
+		if (!isCurPlayer) return;
 		if (validMoves.length && validMoves.includes(sel)) {
 			//If validMoves has been set and includes selection
 			let jump = "move";
-			setStatus(jump);
+			setBoardStatus(jump);
 			if (jump == "move") {
 				const index = validMoves.indexOf(sel);
 				console.log("valid move");
@@ -183,17 +237,17 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 					}
 				} else {
 					jump = "select";
-					setStatus("select");
+					setBoardStatus("select");
 				}
 			}
 			//do while valid moves for selection available?
 			props.onMove(board);
 		} else if (
-			!props.playerTokens?.includes(board[sel]) ||
-			(props.reqSels && !props.reqSels.includes(sel))
+			playerPieces?.includes(board[sel]) ||
+			(reqSels && !reqSels.includes(sel))
 		) {
 			console.log("Invalid Selection.");
-			console.log("Required Selections: ", props.reqSels);
+			console.log("Required Selections: ", reqSels);
 		} else if (status == "select") {
 			//Selection is valid
 			console.log("Valid Selection.");
@@ -262,72 +316,54 @@ export const CheckersWindow = ({
 	roomID: string;
 	onRoomDataChange: (args: any) => void;
 }) => {
+	const [sessionContext, setSessionContext] =
+		useOutletContext<useSessionContextType>();
+	const {userData, isOnline, socket} = sessionContext;
+	const [gameState, setGameState] = useState<CheckersGameState>();
 	const [gameHistory, setGameHistory] = useState<
 		CompressedCheckersGameState[]
 	>([COMPRESSED_DEFAULT_GAME_STATE]); //Stored in compressed format?
-	const [gameBoard, setGameBoard] = useState<ValidTokens[]>();
+	const [gameBoard, setGameBoard] =
+		useState<ValidTokens[]>(EMPTY_CHECKERS_BOARD);
 	const [status, setStatus] = useState("loading"); //loading, init, waiting, playing, over, error
 	const [playerTokens, setPlayerTokens] = useState<PlayerTokens>();
 	const [isCurPlayer, setIsCurPlayer] = useState<boolean>(false);
+	const socketRoomType = ROOM_TYPES.checkers;
 
-	socket.on("checkersClientInit", (args: IPayload) => {
-		console.log("Received checkersClientInit", args);
-		const boardState = onCheckersClientInit(args);
-		if (boardState) {
-			console.log("Board State: ", boardState);
-			setGameBoard(boardState);
-			setStatus("init");
-		} else {
-			console.log("Error initializing game.");
-		}
-	});
-	socket.on("checkersRoomConnect", (args: CheckersRoomConnectPayload) => {
-		const gameState = onCheckersRoomConnect(args);
-		if (gameState) {
-			setGameBoard(gameState.boardState);
-			setPlayerTokens(gameState.player);
-			setStatus(gameState.status);
-		} else {
-			console.log("Error connecting to room.");
-		}
-	});
-	socket.on("checkersUpdateClient", (args: IPayload) => {
-		setPlayerTokens(onCheckersUpdateClient(args));
-	});
-	socket.on("checkersClientUpdateRes", onCheckersClientUpdateRes);
+	if (!socket) {
+		throw new Error("Bad Error: Socket not initialized.");
+	}
 	const [turnNum, setTurnNum] = useState<number>(0);
-	/* 	function handleHistoryClick(compGameState: CompressedCheckersGameState) {
-		const boardState = unzipGameState(compGameState.boardState);
-		setGameBoard(boardState);
-		setCurPlayer(compGameState.curPlayer);
-		//setTurnNum(turn);
-	} */
 	function handleMove(board: ValidTokens[]) {
-		socket.emit(
-			"checkersUpdateServer",
-			zipGameState(board),
-			(res: HttpStatusCode) => {
-				if (res == HttpStatusCode.OK) {
-					console.log("Move Successful.");
-				} else {
-					console.log("Move Failed.");
-				}
-			}
-		);
 		setGameBoard(board);
 	}
 	useEffect(() => {
-		if (status == "loading") {
-			console.log("Emitting checkersClientLoaded");
-			socket.emit("checkersClientLoaded", {status: HttpStatusCode.OK});
-		} else if (status == "init") {
-			console.log("Emitting checkersClientReady");
-			socket.emit("checkersClientReady", {status: HttpStatusCode.OK});
-		}
-	});
-	useEffect(() => {
-		/* socket.emit("Room:Join_Req", {roomID})
-		socket.on("Room:ClientConnect", ) */
+		console.log("Checkers Page RoomID: ", roomID);
+		socket.emit(
+			"Room:Join_Req",
+			{socketRoomType, roomID},
+			(res: ICheckersRoomJoinPayload) => {
+				console.log("Checkers Join Response: ", res);
+				if (res.status != HttpStatusCode.OK) {
+					console.log("Error Joining Room: ", res.status);
+					setStatus("error");
+				}
+				if (res.roomID == roomID) {
+					setGameState({
+						status: res.roomStatus,
+						boardState: unzipGameState(res.boardState),
+					});
+				}
+			}
+		);
+		socket.on("Room:Init", (data: any, cb: (res: HttpStatusCode) => void) => {
+			console.log("Room Initialized", data);
+			cb(HttpStatusCode.OK);
+		});
+		socket.on("Room:Update_Members", (data: any, cb: (res: any) => void) => {
+			console.log("Room Members Updated", data);
+			cb(HttpStatusCode.OK);
+		});
 	}, []);
 	return (
 		<div id="CheckersPageWrapper">
@@ -338,14 +374,12 @@ export const CheckersWindow = ({
 				/>
 			</div> */}
 			<div id="CheckersBoardWrapper">
-				{status == "loading" ? (
+				{!gameState ? (
 					<div>Initializing...</div>
 				) : (
 					<CheckersBoard
-						board={gameBoard!}
-						isCurPlayer={true}
-						playerTokens={playerTokens}
 						onMove={handleMove}
+						gameState={gameState}
 						/* reqSels={getReqSelections(PIECE_TOKENS[curPlayer], gameBoard)} */
 					/>
 				)}
@@ -353,6 +387,7 @@ export const CheckersWindow = ({
 		</div>
 	);
 };
+
 /* const CheckersPage2 = () => {
 	const [game, setGame] = useState<CheckersGameState>();
 	const [boardState, setBoardState] = useState<ValidTokens[]>([]);

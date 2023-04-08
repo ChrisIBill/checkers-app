@@ -54,22 +54,34 @@ export const registerGuestRoomHandlers = (
 ) => {
     console.log("Guest Room Handler");
     /* args: {type: 'checkers', id?: roomID} */
-    socket.on(
-        "Room:JoinReq",
-        async (args: IPayload, cb: (res: any) => void) => {
-            console.log("Received Join Room Request", args);
-            const { type, id } = args.data;
-            const roomHandler = roomPayloadRouter(type);
-            if (!roomHandler) {
-                cb({ status: 400, data: { message: "Invalid Room Type" } });
+    socket.on("Room:Join_Req", async (args: any, cb: (res: any) => void) => {
+        console.log("Received Join Room Request", args);
+        const { socketRoomType, roomID } = args;
+        const roomHandler = roomPayloadRouter(socketRoomType);
+        if (!roomHandler) {
+            cb({ status: 400, data: { message: "Invalid Room Type" } });
+            return;
+        }
+        const token = socket.handshake.auth.token;
+        const user = await findUserFromToken(token);
+        if (!user) {
+            cb({ status: 400, data: { message: "Invalid User" } });
+            return;
+        } else {
+            const payload = await roomHandler.joinRoom(user.name, roomID);
+            console.log("Room Join Res Payload: ", payload);
+            if (!payload) {
+                cb({ status: 400, data: { message: "Invalid Room" } });
                 return;
+            } else {
+                socket.join(roomID);
+                cb({ ...payload, status: 200 });
             }
-            const token = socket.handshake.auth.token;
-            /* TODO!!!!!!
+        }
+        /* TODO!!!!!!
             !!!!!!!!!!!!!!!!
             !!!!!!!!!!!!!!!! */
-        }
-    );
+    });
     socket.on("Room:Find_Req", async (args: any, cb: (res: any) => void) => {
         console.log("Received Join Room Request", args);
         const { roomType, roomStyle } = args;
@@ -85,11 +97,11 @@ export const registerGuestRoomHandlers = (
             cb({ status: 400, data: { message: "Invalid User" } });
             return;
         }
-        const room = roomHandler.findRoom(user.name);
-        if (room) {
+        const roomID = roomHandler.findRoom(user.name);
+        if (roomID) {
             cb({
                 status: 200,
-                data: { room },
+                data: { roomID },
             });
         }
         CheckersRoomsManager.listRooms();
