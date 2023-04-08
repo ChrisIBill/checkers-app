@@ -191,9 +191,10 @@ const CheckersSquare = ({
 
 const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 	const {onMove, gameState} = props;
-	const {boardState, validSels, reqSels, isCurPlayer, playerTokens} =
+	const {boardState, validSels, reqSels, isCurPlayer, playerTokens, status} =
 		gameState;
-	const [boardStatus, setBoardStatus] = useState("select"); //populate?, select, move, submit
+	const [curBoard, setCurBoard] = useState<ValidTokens[]>(boardState);
+	const [boardStatus, setBoardStatus] = useState("loading"); //populate?, select, move, submit
 	const [selectIndex, setSelectIndex] = useState<number>(-1);
 	const [validMoves, setValidMoves] = useState<number[]>([]);
 	const [piecesToTake, setPiecesToTake] = useState<number[] | undefined>([]);
@@ -203,12 +204,19 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 	}
 	console.log("ReqSels: ", reqSels);
 	//let validMoves: number[] = [];
-	let board = boardState;
+	let board = curBoard;
 	let isFlippedRow = true;
 	function handleSquareClick(sel: number) {
 		console.log("click: ", sel);
 		console.log("Status: ", boardStatus);
-		if (!isCurPlayer) return;
+		if (!isCurPlayer) {
+			console.log("Not your turn!");
+			return;
+		}
+		if (!playerPieces?.includes(board[sel])) {
+			console.log("Not your piece!", board[sel], playerPieces);
+			return;
+		}
 		if (validMoves.length && validMoves.includes(sel)) {
 			//If validMoves has been set and includes selection
 			let jump = "move";
@@ -325,6 +333,7 @@ export const CheckersWindow = ({
 	>([COMPRESSED_DEFAULT_GAME_STATE]); //Stored in compressed format?
 	const [gameBoard, setGameBoard] =
 		useState<ValidTokens[]>(EMPTY_CHECKERS_BOARD);
+	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [status, setStatus] = useState("loading"); //loading, init, waiting, playing, over, error
 	const [playerTokens, setPlayerTokens] = useState<PlayerTokens>();
 	const [isCurPlayer, setIsCurPlayer] = useState<boolean>(false);
@@ -356,10 +365,25 @@ export const CheckersWindow = ({
 				}
 			}
 		);
-		socket.on("Room:Init", (data: any, cb: (res: HttpStatusCode) => void) => {
-			console.log("Room Initialized", data);
-			cb(HttpStatusCode.OK);
-		});
+		socket.on(
+			"Room:Join_Res",
+			(payload: any, cb: (res: HttpStatusCode) => void) => {
+				try {
+					console.log("Room Initialized", payload.data);
+					const data = payload.data;
+					console.log(data.roomStatus, data.boardState);
+					setGameState({
+						status: data.roomStatus,
+						boardState: unzipGameState(data.boardState),
+					});
+				} catch (err) {
+					console.log("BAD_ERROR Joining Room: ", err);
+					setStatus("error");
+				} finally {
+					cb(HttpStatusCode.OK);
+				}
+			}
+		);
 		socket.on("Room:Update_Members", (data: any, cb: (res: any) => void) => {
 			console.log("Room Members Updated", data);
 			cb(HttpStatusCode.OK);

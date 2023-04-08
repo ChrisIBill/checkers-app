@@ -18,6 +18,7 @@ export interface ISocketRoomsManager {
     joinRoom: (...args: any) => any;
     leaveRoom: (...args: any) => any;
     findRoom: (...args: any) => any;
+    initRoom: (...args: any) => any;
     updateRoom: (...args: any) => any;
     listRooms: (...args: any) => any;
 }
@@ -67,6 +68,10 @@ const SocketRoomsManager = {
         console.log("ERROR: IN BASE ROOM MANAGER");
     },
     findRoom(userID: string): SocketRoom | null {
+        console.log("ERROR: IN BASE ROOM MANAGER");
+        return null;
+    },
+    initRoom(roomID: string): SocketRoom | null {
         console.log("ERROR: IN BASE ROOM MANAGER");
         return null;
     },

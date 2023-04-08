@@ -9,8 +9,10 @@ export type ValidTokens = typeof VALID_TOKENS[number]; //"p" | "P" | "k" | "K" |
 export type PlayerTokens = typeof PIECE_TOKENS[number];
 /**
  * @member boardState: ValidTokens[]
- * @member curPlayer: number
- * @member history?: string[]
+ * @member curPlayer: string
+ * @member turnNum: number
+ * @member validSels: number[]
+ * @member history?: string[] //Compressed
  */
 export interface CheckersGameState {
     boardState: ValidTokens[];

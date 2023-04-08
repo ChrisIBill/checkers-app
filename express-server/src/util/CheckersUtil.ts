@@ -84,6 +84,20 @@ export function newValidMoves() {
     /* would be more efficient to just check positions around recently moved piece
     to change valid moves than regenerating whole board */
 }
+
+export async function findValidSelections(
+    boardState: ValidTokens[],
+    player: PlayerTokens
+) {
+    const validSelections: number[] = [];
+    for (let i = 0; i < boardState.length; i++) {
+        const curToken = boardState[i];
+        if (player.includes(curToken)) {
+            validSelections.push(i);
+        }
+    }
+    return validSelections;
+}
 /* Receives list of moves,  */
 /* export function validateMoves(
     boardState: ValidTokens[],

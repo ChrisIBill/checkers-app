@@ -139,6 +139,14 @@ const CheckersRoomsManager = {
         }
         return roomID;
     },
+    initRoom(roomID: string) {
+        const room = this.managerRoomsMap.get(roomID);
+        if (!room) {
+            throw new ReferenceError("Room does not exist");
+        }
+        room.init();
+    },
+
     leaveRoom(user: string, roomID?: string) {
         console.log("CheckersRoomsManager: Leaving not implemented yet");
     },

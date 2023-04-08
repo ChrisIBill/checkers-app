@@ -29,6 +29,8 @@ export const DEFAULT_CHECKERS_ROOM_STATE: ICheckersRoomState = {
 
 export type PlayerType = typeof PLAYER_TYPE[number];
 
+/* export type PlayerType = [string, (PlayerTokens | null)]; */
+
 export type CheckersPlayers = [string | null, string | null];
 
 export interface ICheckersRoomState {
@@ -61,6 +63,7 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
         this.data = data ?? DEFAULT_CHECKERS_ROOM_STATE;
         this.status = status ?? AllCheckersRoomStatus.empty;
     }
+    numPlayersConnected = 0;
     getGameState(): CheckersGameState {
         return this.data.gameState;
     }
@@ -76,6 +79,13 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
             throw new Error("Invalid board state length");
         this.data.gameState.boardState = boardState;
         return true;
+    }
+
+    setValidSelections() {}
+    init() {
+        if (Math.random() > 0.5) {
+            this.players = [this.players[1], this.players[0]];
+        }
     }
     /** Returns Num players in room */
     addPlayer(user: string): number {
@@ -94,6 +104,16 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
         const numPlayers = this.players.filter((p) => p != null).length;
         if (numPlayers == 2) this.status = AllCheckersRoomStatus.full;
         return numPlayers;
+    }
+    playerConnected(user: string) {
+        if (this.players.includes(user)) {
+            this.numPlayersConnected++;
+            if (this.numPlayersConnected == 2) {
+                this.status = AllCheckersRoomStatus.init;
+            }
+        } else {
+            throw new ReferenceError("User not in room");
+        }
     }
     removePlayer(user: string): boolean {
         if (this.players.includes(user)) {

@@ -30,6 +30,7 @@ export interface ISocketRoom {
     status: string;
 }
 export class SocketRoom implements ISocketRoom {
+    [x: string]: any;
     public id: string;
     public members: Set<string>;
     public type: RoomTypes;
