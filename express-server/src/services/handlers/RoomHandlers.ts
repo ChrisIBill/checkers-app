@@ -52,7 +52,7 @@ export const registerGuestRoomHandlers = (
     io: Server<GuestClientToServerEvents, GuestServerToClientEvents>,
     socket: Socket
 ) => {
-    console.log("Guest Room Connection: ", socket.id);
+    console.log("Guest Room Handler");
     /* args: {type: 'checkers', id?: roomID} */
     socket.on(
         "Room:JoinReq",
@@ -70,33 +70,50 @@ export const registerGuestRoomHandlers = (
             !!!!!!!!!!!!!!!! */
         }
     );
+    socket.on("Room:Find_Req", async (args: any, cb: (res: any) => void) => {
+        console.log("Received Join Room Request", args);
+        const { roomType, roomStyle } = args;
+        console.log("type: ", roomType, "id: ", roomStyle);
+        const roomHandler = roomPayloadRouter(roomType);
+        if (!roomHandler || !roomStyle) {
+            cb({ status: 400, data: { message: "Invalid Request" } });
+            return;
+        }
+        const token = socket.handshake.auth.token;
+        const user = await findUserFromToken(token);
+        if (!user) {
+            cb({ status: 400, data: { message: "Invalid User" } });
+            return;
+        }
+        const room = roomHandler.findRoom(user.name);
+        if (room) {
+            cb({
+                status: 200,
+                data: { room },
+            });
+        }
+        CheckersRoomsManager.listRooms();
+    });
+    socket.on("Room:Leave_Req", (args: IPayload, cb: (res: any) => void) => {});
     socket.on(
-        "Room:Find_Req",
-        async (args: IPayload, cb: (res: any) => void) => {
-            console.log("Received Join Room Request", args);
-            const { type, id } = args.data;
+        "Room:List_Public_Req",
+        (args: IPayload, cb: (res: any) => void) => {
+            const { type } = args.data;
             const roomHandler = roomPayloadRouter(type);
             if (!roomHandler) {
                 cb({ status: 400, data: { message: "Invalid Room Type" } });
                 return;
             }
-            const token = socket.handshake.auth.token;
-            if (!id) {
-                const room = roomHandler.findRoom(token);
-                if (room) {
-                    cb({ status: 200, data: { room } });
-                }
-            }
-            const room = roomHandler.joinRoom(id);
+            const rooms = roomHandler.listRooms();
+            cb({ status: 200, data: { rooms } });
         }
-    );
-    socket.on("Room:Leave_Req", (args: IPayload, cb: (res: any) => void) => {});
-    socket.on(
-        "Room:List_Public_Req",
-        (args: IPayload, cb: (res: any) => void) => {}
     );
     socket.on(
         "Room:Update_Server",
+        (args: IPayload, cb: (res: any) => void) => {}
+    );
+    socket.on(
+        "Room:Update_Req",
         (args: IPayload, cb: (res: any) => void) => {}
     );
 };
