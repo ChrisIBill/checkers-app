@@ -1,38 +1,18 @@
-import React, {useContext, useEffect, useState} from "react";
-import logo from "./logo.svg";
-import "../App.css";
-import {io, Socket} from "socket.io-client";
-import {CheckersPage} from "./CheckersPage";
-import {
-	CheckersBoardJSON,
-	PlayerTokens,
-	ValidTokens,
-} from "../interfaces/interfaces";
-import {zipGameState, unzipGameState} from "../lib/serverHandlers";
-import {IUser, UserContextType, UserData} from "../interfaces/userInterfaces";
-import {LoginPage} from "./LoginPage";
-import {
-	CheckersGameState,
-	CheckersRoomState,
-} from "../interfaces/checkersInterfaces";
-import {PIECE_TOKENS} from "../constants/checkersData";
-import {Paths} from "../paths/SocketPaths";
-import {
-	ServerToClientEvents,
-	ClientToServerEvents,
-	IPayload,
-} from "../interfaces/socketInterfaces";
-import {UserContext, UserRoles} from "../context/userContext";
+import React, {useEffect, useState} from "react";
+import {UserRoles} from "../context/userContext";
 import {ErrorBoundary} from "react-error-boundary";
-import {UserPanel} from "../components/UserComponents";
 import {useNavigate, useOutletContext} from "react-router-dom";
-import {PlayGamesButton} from "../components/GameComponents";
-import {AuthTypes, ISessionContext} from "../interfaces/SessionInterfaces";
+import {useSessionContextType} from "../interfaces/SessionInterfaces";
 import {AppHeader} from "../components/main-components/header";
-import {adminSocket, baseSocket, guestSocket, userSocket} from "../socket";
 import {LoginModal} from "../components/main-components/LoginModal";
-import {DEFAULT_SESSION_DATA} from "../constants/SessionConsts";
 import HttpStatusCode from "../constants/HttpStatusCodes";
+import {WindowManager} from "../components/window-manager/WindowManager";
+import {AppSidebar} from "../components/main-components/Sidebar";
+import {
+	AllRoomStylesTypes,
+	INewRoomState,
+	RoomTypes,
+} from "../interfaces/RoomInterfaces";
 /* const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
 	Paths.App.Base,
 	{
@@ -48,67 +28,73 @@ if invalid, need to pass to header to handle login
 if user, give regular access
 if admin? */
 export const MainPage = () => {
-	const [sessionContext, setSessionContext]: any = useOutletContext();
+	const [sessionContext, setSessionContext] =
+		useOutletContext<useSessionContextType>();
+	const [newRoomData, setNewRoomData] = useState<INewRoomState>();
+	/* array of strings equal to the id's of the server rooms the client has been assigned */
+	const [activeRooms, setActiveRooms] = useState<any[]>([]);
 	//const sessionContext = sessionData.
-	const [userData, setUserData] = useState<UserData>(null);
-	const [isOnline, setIsOnline] = useState<boolean>(false);
-	const [socket, setSocket] = useState<Socket>();
+	const {userData, isOnline, socket} = sessionContext;
 	console.log("Main Session Context: ", sessionContext);
 	const navigate = useNavigate();
-	function onPlayGamesClick() {}
-	useEffect(() => {
-		if (sessionContext !== undefined) {
-			if (sessionContext.isOnline) {
-				setIsOnline(true);
-			}
-			if (sessionContext.userData) {
-				console.log(
-					"Setting Main Page user data: ",
-					sessionContext.userData
-				);
-				setUserData(sessionContext.userData);
-				if (sessionContext.userData.role !== UserRoles.Invalid) {
-					const role = sessionContext.userData.role;
-					console.log("Setting socket: ");
-					switch (role) {
-						case UserRoles.Guest:
-							setSocket(guestSocket);
-							break;
-						case UserRoles.User:
-							setSocket(userSocket);
-							break;
-						case UserRoles.Admin:
-							setSocket(adminSocket);
-							break;
-						default:
-							console.log("Invalid role: ", role);
-							break;
+	function onAuthorizedConnect() {
+		console.log("Authorized Connect");
+	}
+	function onFindRoomClick(
+		roomType: RoomTypes,
+		roomStyle: AllRoomStylesTypes
+	) {
+		console.log("Find Room Clicked: ", roomType, roomStyle);
+		setNewRoomData({roomType, roomStyle});
+		/* if (socket) {
+			socket.emit(
+				"Room:Find_Req",
+				{data: {roomType, roomStyle}},
+				(res: any) => {
+					console.log("Find Room Response: ", res);
+					if (res.status !== HttpStatusCode.OK || !res.data) {
+						console.log("Bad response from server");
+					} else {
+						const {roomID} = res.data;
+						console.log("Setting active room: ", roomID);
+						setActiveRooms([...activeRooms, roomID]);
 					}
 				}
-			}
-		}
-	}, [sessionContext]);
+			);
+		} */
+	}
+
+	console.log("Active Rooms: ", activeRooms);
 	useEffect(() => {
 		if (socket) {
-			socket.connect();
-			socket.on("connect", () => {
-				console.log("Connected to server");
-				socket.emit(
-					"Test:Guest_Listener",
-					{status: HttpStatusCode.OK, data: "Hello from client"},
-					(res: any) => {
-						console.log("Guest Listener Response: ", res);
-					}
-				);
-			});
+			if (socket.connected) {
+				console.log("Socket Already Connected");
+			} else {
+				console.log("Socket Not Connected");
+				socket.connect();
+				socket.on("connect", onAuthorizedConnect);
+			}
+		} else {
+			console.log("Socket is undefined");
 		}
 		return () => {
-			if (socket) {
-				socket.off("connect");
-				socket.disconnect();
-			}
+			socket?.disconnect();
 		};
 	}, [socket]);
+	useEffect(() => {
+		if (newRoomData && socket) {
+			console.log("New Room Data: ", newRoomData);
+			if (socket.connected) {
+				socket.emit("Room:Find_Req", newRoomData, (res: any) => {
+					console.log("Find Room Response: ", res);
+					if (res.status !== HttpStatusCode.OK || !res.data.roomID) {
+						console.log("Bad response from server");
+					}
+					setActiveRooms([...activeRooms, res.data.roomID]);
+				});
+			}
+		}
+	}, [newRoomData, socket]);
 	console.log("Session Context: ", sessionContext);
 	console.log("User data: ", userData);
 	return (
@@ -116,9 +102,9 @@ export const MainPage = () => {
 			<ErrorBoundary fallback={<div>User Panel Error</div>}>
 				<AppHeader userData={userData} />
 			</ErrorBoundary>
-			<ErrorBoundary fallback={<div>User Panel Error</div>}>
-				<PlayGamesButton onClick={onPlayGamesClick} />
-			</ErrorBoundary>
+			<AppSidebar onRoomSelection={onFindRoomClick} />
+
+			<ErrorBoundary fallback={<div>User Panel Error</div>}></ErrorBoundary>
 			{userData ? (
 				userData.role !== UserRoles.Invalid ? null : (
 					<LoginModal />
@@ -126,6 +112,7 @@ export const MainPage = () => {
 			) : (
 				<LoginModal />
 			)}
+			<WindowManager rooms={activeRooms} />
 		</div>
 	);
 };

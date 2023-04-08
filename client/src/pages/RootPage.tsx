@@ -18,17 +18,18 @@ import {
 import {IUser, UserData} from "../interfaces/userInterfaces";
 import {Paths, PathsSet} from "../paths/SocketPaths";
 import {onConnectError, onRedirect} from "../services/socketServices";
-import {LoginPage} from "./LoginPage";
 import {ISessionContext} from "../interfaces/SessionInterfaces";
 import {DEFAULT_SESSION_DATA} from "../constants/SessionConsts";
-import {onAuthTokenRes} from "../services/authServices";
-import {authSocket, baseSocket} from "../socket";
+import {getAuthSocket} from "../lib/SocketLib";
 
-const socket: Socket<BaseServerToClientEvents, ClientToServerEvents> = io("/", {
-	auth: (cb) => {
-		cb({token: localStorage.token});
-	},
-});
+const baseSocket: Socket<BaseServerToClientEvents, ClientToServerEvents> = io(
+	"/",
+	{
+		auth: (cb) => {
+			cb({token: localStorage.token});
+		},
+	}
+);
 export const RootPage = () => {
 	const [userData, setUserData] = useState<IUser | null>();
 	const [token, setToken] = useState<string | undefined>(localStorage.token);
@@ -47,10 +48,19 @@ export const RootPage = () => {
 		socket.on("Auth:Token_Res", (args: IPayloadCall) => {
 			console.log("Token Res: ", args);
 			const user: UserData = args.data ? args.data : null;
+			if (!user) {
+				console.log("No User Data");
+				args.callback({
+					status: HttpStatusCode.UNAUTHORIZED,
+					message: "No User Data",
+				});
+				return;
+			}
 			console.log("User: ", user);
 			setSessionData({
 				userData: user,
 				isOnline: true,
+				socket: getAuthSocket(user.role),
 			});
 			args.callback({
 				statusCode: HttpStatusCode.OK,

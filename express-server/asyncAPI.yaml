@@ -1,0 +1,122 @@
+channels:
+  /:
+    publish:
+      message:
+        oneOf:
+          - $ref: "#/components/messages/AuthorizationTokenResponse"
+    bindings:
+      ws:
+        query:
+          type: object
+          properties:
+            token:
+              type: string
+          required: [token]
+  /Auth: {}
+  /Guest:
+    publish:
+      message:
+        $ref: "#/components/messages/UpdateClientsInRoom"
+    subscribe:
+      message:
+        oneOf:
+          - $ref: "#/components/messages/ClientJoinRoomRequest"
+          - $ref: "#/components/messages/ClientFindRoomRequest"
+            
+  /User: {}
+  /Admin: {}
+
+components:
+  messages:
+   AuthorizationTokenResponse:
+    name: Auth:Token_Res
+    payload:
+      type: object
+      properties:
+        status:
+          type: httpStatusCode
+        data:
+          type: object
+          properties:
+            username:
+              type: string
+            role:
+              type: number
+    ClientJoinRoomRequest:
+      name: Room:Join_Req
+      payload:
+        type: object
+        properties:
+          roomType:
+            type: string
+            enum: [
+              "checkers",
+              "chat"
+            ]
+          roomStyle:
+            type: string
+            enum: [
+              "pvp",
+              "computer",
+              "local"
+            ]
+          required: [
+            "roomStyle"
+          ]
+    ClientFindRoomRequest:
+      name: Room:Find_Req
+      payload:
+        type: object
+        properties:
+          roomType:
+            type: string
+            enum: [
+              "checkers",
+              "chat"
+            ]
+          roomStyle:
+            type: string
+            enum: [
+              "pvp",
+              "computer",
+              "local"
+            ]
+          required: [
+            "roomType"
+          ]
+    UpdateClientsInRoom:
+      name: Room:Update_Clients
+      payload:
+        type: object
+        properties:
+          roomType:
+            type: string
+            enum: [
+              "checkers",
+              "chat"
+            ]
+          roomStyle:
+            type: string
+            enum: [
+              "pvp",
+              "computer",
+              "local"
+            ]
+          roomData:
+            type: object
+            properties:
+              members:
+                type: [string]
+                description: "List of usernames"
+              data:
+                type: object
+                properties:
+                  args: 
+          required: [
+            "roomType",
+            "roomData"
+          ]
+    
+      
+        
+       

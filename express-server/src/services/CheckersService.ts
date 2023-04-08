@@ -9,16 +9,16 @@ const openRoomsSet = new Set<string>(); */
 export async function findCheckersRoom(
     matchType: MatchmakingTypes,
     user: string
-): Promise<CheckersRoom | null> {
+): Promise<string | null> {
     if (matchType == "pvp") {
         const roomID = await findPVPCheckersRoom(user);
         if (roomID) {
-            const room = CheckersRoomsManager.checkersRooms.get(roomID);
+            const room = CheckersRoomsManager.managerRoomsMap.get(roomID);
             if (!room) {
                 return null;
             } else {
                 /* socket.join(roomID); */
-                return room;
+                return roomID;
             }
         } else {
             return null;
@@ -68,7 +68,7 @@ export async function joinOpenRoom(
 ): Promise<string> {
     const room = roomID ?? CheckersRoomsManager.getNextOpenRoom();
     if (room) {
-        const success = await joinCheckersRoom(room, user);
+        const success = joinCheckersRoom(room, user);
         if (success) return room;
         else {
             throw new Error("Could not join open checkers room");
@@ -87,7 +87,7 @@ export function joinCheckersRoom(roomID: string, user: string): boolean {
         /* Does this work? */
         return false;
     }
-    const room = CheckersRoomsManager.checkersRooms.get(roomID);
+    const room = CheckersRoomsManager.managerRoomsMap.get(roomID);
     if (!room) {
         console.log("ERROR: Room doesnt exist");
         return false;
@@ -102,7 +102,7 @@ export function joinCheckersRoom(roomID: string, user: string): boolean {
 }
 
 export async function updateCheckersRoom(roomID: string): Promise<IPayload> {
-    const room = CheckersRoomsManager.checkersRooms.get(roomID);
+    const room = CheckersRoomsManager.managerRoomsMap.get(roomID);
     if (!room) {
         throw new Error("Room doesnt exist");
     }
@@ -120,7 +120,7 @@ export async function updateCheckersRoom(roomID: string): Promise<IPayload> {
 export async function leaveCheckersRoom(user: string) {
     const roomID = CheckersRoomsManager.playersInRooms.get(user);
     if (roomID) {
-        const room = CheckersRoomsManager.checkersRooms.get(roomID);
+        const room = CheckersRoomsManager.managerRoomsMap.get(roomID);
         if (room) {
             room.removePlayer(user);
             CheckersRoomsManager.playersInRooms.delete(user);
@@ -131,7 +131,7 @@ export async function leaveCheckersRoom(user: string) {
             } else {
                 console.log("Room is empty, deleting room");
                 CheckersRoomsManager.openRooms.delete(roomID);
-                CheckersRoomsManager.checkersRooms.delete(roomID);
+                CheckersRoomsManager.managerRoomsMap.delete(roomID);
                 return 0;
             }
             console.log(`Player ${user} left room ${roomID}`);

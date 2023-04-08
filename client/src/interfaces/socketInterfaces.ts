@@ -72,7 +72,7 @@ export interface GuestServerToClientEvents {
 	"Room:List_Public_Res": (args: IPayloadCall) => void;
 	"Room:Connect_Res": (args: IPayloadCall) => void;
 	"Room:Init": (args: IPayloadCall) => void;
-	"Room:Update_Room": (args: IPayloadCall) => void;
+	"Room:Update_Members": (args: IPayloadCall) => void;
 }
 
 export interface GuestClientToServerEvents {
@@ -113,6 +113,9 @@ export interface AdminClientToServerEvents extends UserClientToServerEvents {
 }
 
 /* !!!DEPRECATED!!! */
+/**
+ * @deprecated
+ */
 export interface ServerToClientAuthEvents {
 	noArg: () => void;
 	basicEmit: (a: number, b: string, c: Buffer) => void;
@@ -123,7 +126,9 @@ export interface ServerToClientAuthEvents {
 	authSignUpRes: (args: IPayload) => void;
 	authLoginRes: (args: IPayload) => void;
 }
-
+/**
+ * @deprecated
+ */
 export interface ClientToServerAuthEvents {
 	authSignUpReq: (args: IPayload) => void;
 	authLoginReq: (args: IPayload) => void;
@@ -132,6 +137,7 @@ export interface ClientToServerAuthEvents {
 /* Game Socket */
 /* Server */
 /**
+ * @deprecated
  * @property status: HTTPStatusCode
  * @property data: {
  *    @property boardState: string
@@ -147,6 +153,9 @@ export interface CheckersRoomConnectPayload extends ISocketResponse {
 		turnNum?: number;
 	};
 }
+/**
+ * @deprecated
+ */
 export interface CheckersUpdateClientType extends ISocketResponse {
 	/* status: if  */
 	data: {
@@ -156,6 +165,9 @@ export interface CheckersUpdateClientType extends ISocketResponse {
 		turnNum?: number;
 	};
 }
+/**
+ * @deprecated
+ */
 export interface ServerToClientGameEvents {
 	/* just a standard status response informing client of success/failure w/ roomID as data*/
 	gamesJoinRoomRes: (args: IPayload) => void;
@@ -169,7 +181,9 @@ export interface ServerToClientGameEvents {
 	/* just an http status res on the validity of the client update */
 	gamesUpdateServerRes: (args: ISocketResponse) => void;
 }
-/* Client */
+/**
+ * @deprecated
+ */
 export interface ClientJoinRoomReqType {
 	gameType: GameTypes;
 	matchmakingType?: MatchmakingTypes;
@@ -184,6 +198,9 @@ export interface CheckersUpdateServerType extends ISocketResponse {
 		movesList: MovesListType /*  */;
 	};
 }
+/**
+ * @deprecated
+ */
 export interface ClientToServerGameEvents {
 	gamesJoinRoomReq: (
 		args: ClientJoinRoomReqType,
@@ -195,6 +212,9 @@ export interface ClientToServerGameEvents {
 	/* just an http status res on the validity of the client update */
 	gamesUpdateClientRes: (args: ISocketResponse) => void;
 }
+/**
+ * @deprecated
+ */
 export interface ServerToClientCheckersEvents {
 	checkersClientInit: (args: IPayload) => void;
 	/* playerTokens: PlayerTokens, boardState: ValidTokens */
@@ -211,7 +231,9 @@ export interface ServerToClientCheckersEvents {
 	/* Ok or not ok, if not ok, also contains prev turn data */
 	checkersClientUpdateRes: (args: IPayload) => void;
 }
-
+/**
+ * @deprecated
+ */
 export interface ClientToServerCheckersEvents {
 	checkersClientLoaded: (args: IPayload) => void;
 	checkersClientReady: (args: IPayload) => void;

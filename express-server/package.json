@@ -47,6 +47,7 @@
     "ts-command-line-args": "^2.4.2"
   },
   "devDependencies": {
+    "@asyncapi/generator": "^1.9.18",
     "@babel/core": "^7.21.4",
     "@babel/preset-env": "^7.21.4",
     "@babel/preset-typescript": "^7.21.4",

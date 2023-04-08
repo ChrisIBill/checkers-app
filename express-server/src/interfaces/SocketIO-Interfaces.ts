@@ -21,7 +21,8 @@ export interface IPayloadCall {
     data: any;
     callback: (res: any) => void;
 }
-
+export type ClientPaths = typeof CLIENT_PATHS[number];
+export type NewClientPaths = typeof NEW_CLIENT_PATHS[number];
 interface ExpressServerConnectionEvent {
     message: string;
 }
@@ -211,6 +212,3 @@ export interface ClientToServerCheckersEvents {
     checkersUpdateServer: (boardState: string, callback: () => void) => void;
     checkersServerUpdateRes: (args: IPayload) => void;
 }
-
-export type ClientPaths = typeof CLIENT_PATHS[number];
-export type NewClientPaths = typeof NEW_CLIENT_PATHS[number];
