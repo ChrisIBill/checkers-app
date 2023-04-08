@@ -95,6 +95,12 @@ const CheckersRoomsManager = {
         }
         return user;
     },
+    listRooms() {
+        console.log("Listing rooms");
+        this.managerRoomsMap.forEach((room) => {
+            console.log(room);
+        });
+    },
 
     /* Services */
     joinRoom(user: string, roomID: string) {
@@ -109,10 +115,19 @@ const CheckersRoomsManager = {
         const roomID =
             this.getUserRoom(user) ?? this.getNextOpenRoom() ?? this.newRoom();
         if (!roomID) throw new Error("Could not find room for client");
-        this.addPlayerToRoom(roomID, user);
-        const room = this.managerRoomsMap.get(roomID);
-        if (!room) throw new Error("BAD_ERROR: Room does not exist");
-        return room.getPayload();
+        try {
+            this.addPlayerToRoom(roomID, user);
+        } catch (error) {
+            console.log("Error adding player to room: " + error);
+            if (
+                error instanceof ReferenceError &&
+                error.message == "User already in room"
+            ) {
+                return roomID;
+            }
+            return null;
+        }
+        return this.managerRoomsMap.get(roomID);
     },
     leaveRoom(user: string, roomID?: string) {
         console.log("CheckersRoomsManager: Leaving not implemented yet");

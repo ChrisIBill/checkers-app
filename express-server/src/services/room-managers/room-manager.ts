@@ -19,6 +19,7 @@ export interface ISocketRoomsManager {
     leaveRoom: (...args: any) => any;
     findRoom: (...args: any) => any;
     updateRoom: (...args: any) => any;
+    listRooms: (...args: any) => any;
 }
 const SocketRoomsManager = {
     /* room-id -> Room */
@@ -41,6 +42,14 @@ const SocketRoomsManager = {
         const room = new SocketRoom(roomID);
         this.SocketRoomsMap.set(roomID, room);
         return roomID;
+    },
+    getRoom(roomID: string): SocketRoom | null {
+        const room = this.SocketRoomsMap.get(roomID);
+        if (room) return room;
+        else {
+            console.log("ERROR: Room does not exist, roomID: ", roomID);
+            return null;
+        }
     },
     getUserRooms(userID: string): Set<string> {
         const userRooms = this.usersInRooms.get(userID);
