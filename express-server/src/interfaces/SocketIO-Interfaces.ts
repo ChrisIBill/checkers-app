@@ -41,6 +41,15 @@ interface InterServerEvents {
     ping: () => void;
 }
 
+export interface IRoomPayloadCall {
+    roomInfo: {
+        roomType: RoomTypes;
+        roomID: string;
+    };
+    data: object;
+    callback: (res: any) => void;
+}
+
 /* The base server namespace only handles redirecting the client to
 the correct namespace, auth, guest, user, admin. It then closes */
 export interface BaseServerToClientEvents {
@@ -72,7 +81,7 @@ export interface GuestServerToClientEvents {
     "Room:Leave_Res": (args: IPayload) => void;
     "Room:List_Public_Res": (args: IPayloadCall) => void;
     "Room:Connect_Res": (args: IPayloadCall) => void;
-    "Room:Init": (args: IPayloadCall) => void;
+    "Room:Init": (args: IRoomPayloadCall) => void;
     "Room:Update_Room": (args: IPayloadCall) => void;
 }
 

@@ -1,6 +1,5 @@
 import {Socket} from "socket.io-client";
 import HttpStatusCode from "../constants/HttpStatusCodes";
-import {GameTypes, MatchmakingTypes} from "../interfaces/GameInterfaces";
 import {ValidTokens} from "../interfaces/interfaces";
 import {
 	CheckersRoomConnectPayload,
@@ -15,7 +14,6 @@ import {unzipGameState, zipGameState} from "../lib/serverHandlers";
 import {CheckersGameState} from "../interfaces/checkersInterfaces";
 import {PlayerTokens} from "../interfaces/interfaces";
 import {redirect} from "react-router-dom";
-import {routerRedirect} from "../lib/RouterLib";
 import {PathsSet} from "../paths/SocketPaths";
 
 export function onJoinGameRoomRes(args: IPayload) {

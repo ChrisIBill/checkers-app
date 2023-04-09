@@ -153,11 +153,11 @@ const adminConnection = (socket: Socket) => {
     registerAdminUsersHandlers(io, socket);
 };
 
-io.of("/").adapter.on("create-room", (room) => {
+io.of(NewPaths.Guest).adapter.on("create-room", (room) => {
     console.log(`room ${room} was created`);
 });
 
-io.of("/").adapter.on("join-room", (room, id) => {
+io.of(NewPaths.Guest).adapter.on("join-room", (room, id) => {
     console.log(`socket ${id} has joined room ${room}`);
 });
 io.of(NewPaths.Base).on("connection", onConnection);

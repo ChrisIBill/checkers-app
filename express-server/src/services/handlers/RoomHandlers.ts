@@ -114,17 +114,17 @@ export const registerGuestRoomHandlers = (
                         room.playerConnected(user.name);
                         if (room.status === "init") {
                             console.log("Room is init, starting game", room);
-                            const roomType = room.roomType;
-                            socket.to(roomID).emit("Room:Initialize", {
-                                roomInfo: {
-                                    roomType,
-                                    roomID,
+                            const initPayload = room.getInitPayload();
+                            io.to(roomID).emit("Room:Init", {
+                                roomInfo: initPayload.roomInfo,
+                                data: initPayload.data,
+                                callback: (res: any) => {
+                                    console.log("Room:Init Callback: ", res);
                                 },
-                                data: {},
                             });
                         }
-                        console.log("User Joined Room: ", roomID);
                     }
+                    console.log("User Joined Room: ", roomID);
                 });
             }
         }
