@@ -58,8 +58,8 @@ export const registerGuestRoomHandlers = (
         console.log("Received Find Room Request", args);
         const { roomType, roomStyle } = args;
         console.log("type: ", roomType, "id: ", roomStyle);
-        const roomHandler = roomPayloadRouter(roomType);
-        if (!roomHandler || !roomStyle) {
+        const roomManager = roomPayloadRouter(roomType);
+        if (!roomManager || !roomStyle) {
             cb({ status: 400, data: { message: "Invalid Request" } });
             return;
         }
@@ -69,7 +69,7 @@ export const registerGuestRoomHandlers = (
             cb({ status: 400, data: { message: "Invalid User" } });
             return;
         }
-        const roomID = roomHandler.findRoom(user.name);
+        const roomID = roomManager.findRoom(user.name);
         if (roomID) {
             cb({
                 status: 200,
@@ -81,19 +81,19 @@ export const registerGuestRoomHandlers = (
     socket.on("Room:Join_Req", async (args: any, cb: (res: any) => void) => {
         console.log("Received Join Room Request", args);
         const { socketRoomType, roomID } = args;
-        const roomHandler = roomPayloadRouter(socketRoomType);
-        if (!roomHandler) {
+        const roomManager = roomPayloadRouter(socketRoomType);
+        if (!roomManager) {
             cb({ status: 400, data: { message: "Invalid Room Type" } });
             return;
         }
-        const room = roomHandler.managerRoomsMap.get(roomID);
+        const room = roomManager.managerRoomsMap.get(roomID);
         const token = socket.handshake.auth.token;
         const user = await findUserFromToken(token);
         if (!user) {
             cb({ status: 400, data: { message: "Invalid User" } });
             return;
         } else {
-            const payload = await roomHandler.joinRoom(user.name, roomID);
+            const payload = await roomManager.joinRoom(user.name, roomID);
             console.log("Room Join Res Payload: ", payload);
             if (!payload) {
                 cb({ status: 400, data: { message: "Invalid Room" } });
@@ -114,6 +114,14 @@ export const registerGuestRoomHandlers = (
                         room.playerConnected(user.name);
                         if (room.status === "init") {
                             console.log("Room is init, starting game", room);
+                            const roomType = room.roomType;
+                            socket.to(roomID).emit("Room:Initialize", {
+                                roomInfo: {
+                                    roomType,
+                                    roomID,
+                                },
+                                data: {},
+                            });
                         }
                         console.log("User Joined Room: ", roomID);
                     }
@@ -131,12 +139,12 @@ export const registerGuestRoomHandlers = (
         "Room:List_Public_Req",
         (args: IPayload, cb: (res: any) => void) => {
             const { type } = args.data;
-            const roomHandler = roomPayloadRouter(type);
-            if (!roomHandler) {
+            const roomManager = roomPayloadRouter(type);
+            if (!roomManager) {
                 cb({ status: 400, data: { message: "Invalid Room Type" } });
                 return;
             }
-            const rooms = roomHandler.listRooms();
+            const rooms = roomManager.listRooms();
             cb({ status: 200, data: { rooms } });
         }
     );

@@ -28,41 +28,86 @@ channels:
 
 components:
   messages:
-   AuthorizationTokenResponse:
-    name: Auth:Token_Res
-    payload:
-      type: object
-      properties:
-        status:
-          type: httpStatusCode
-        data:
-          type: object
-          properties:
-            username:
-              type: string
-            role:
-              type: number
-    ClientJoinRoomRequest:
-      name: Room:Join_Req
+    AuthorizationTokenResponse:
+      name: Auth:Token_Res
       payload:
         type: object
         properties:
-          roomType:
-            type: string
-            enum: [
-              "checkers",
-              "chat"
-            ]
-          roomStyle:
-            type: string
-            enum: [
-              "pvp",
-              "computer",
-              "local"
-            ]
-          required: [
-            "roomStyle"
-          ]
+          status:
+            type: httpStatusCode
+          data:
+            type: object
+            properties:
+              username:
+                type: string
+              role:
+                type: number
+    InitializeRoom:
+      name: Room:Init
+      description: "Sent to all clients in a room after all required clients
+        have joined and loaded into the room, or if no clients are required,
+        sent to each client after they have joined the room."
+      payload:
+        type: object
+        properties:
+          roomInfo:
+            type: object
+            properties:
+              roomType:
+                type: string
+                enum: [
+                  "checkers",
+                  "chat"
+                ]
+              roomID:
+                type: string
+          data:
+            type: RoomInitData
+    UpdateClientsInRoom:
+      name: Room:Update_Room
+      payload:
+        type: object
+        properties:
+          roomInfo:
+              type: object
+              properties:
+                roomType:
+                  type: string
+                  enum: [
+                    "checkers",
+                    "chat"
+                  ]
+                roomID:
+                  type: string
+          data:
+            type: object
+            properties: {}
+    ClientJoinRoomRequest:
+      name: Room:Join_Req
+      description: "Request to join a room by id."
+      payload:
+        type: object
+        properties:
+          roomInfo:
+            type: object
+            properties:
+              roomType:
+                type: string
+                enum: [
+                  "checkers",
+                  "chat"
+                ]
+              roomID:
+                type: string
+          data:
+            type: object
+            properties: 
+              status:
+                type: string
+                enum: []
+              boardState:
+                type: string
+                description: "The current state of the board in FEN-like notation."
     ClientFindRoomRequest:
       name: Room:Find_Req
       payload:
@@ -84,39 +129,25 @@ components:
           required: [
             "roomType"
           ]
-    UpdateClientsInRoom:
-      name: Room:Update_Clients
-      payload:
-        type: object
-        properties:
-          roomType:
-            type: string
-            enum: [
-              "checkers",
-              "chat"
-            ]
-          roomStyle:
-            type: string
-            enum: [
-              "pvp",
-              "computer",
-              "local"
-            ]
-          roomData:
-            type: object
-            properties:
-              members:
-                type: [string]
-                description: "List of usernames"
-              data:
-                type: object
-                properties:
-                  args: 
-          required: [
-            "roomType",
-            "roomData"
-          ]
     
-      
-        
-       
+  schemas:
+    type: CheckersRoomInitData
+    properties:
+      status:
+        type: string
+        enum: []
+      boardState:
+        type: string
+        description: "The current state of the board in FEN-like notation."
+      players:
+        type: array
+        items:
+          type: string
+          description: "The username of the player."
+      curPlayer:
+        type: string
+      validSels:
+        type: array
+        items:
+          type: string
+          description: "The valid selections for the current player."

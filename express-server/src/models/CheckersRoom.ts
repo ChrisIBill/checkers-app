@@ -74,6 +74,9 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
     getBoardState(): ValidTokens[] {
         return this.data.gameState.boardState;
     }
+    getZippedBoardState(): string {
+        return zipGameState(this.data.gameState.boardState);
+    }
     setBoardState(boardState: ValidTokens[]): boolean {
         if (boardState.length != 32)
             throw new Error("Invalid board state length");
@@ -146,7 +149,7 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
     }
     getPayload() {
         return {
-            boardState: zipGameState(this.getBoardState()),
+            boardState: this.getZippedBoardState(),
             roomStatus: this.status,
             curPlayer: this.data.gameState.curPlayer,
             turnNum: this.data.gameState.turnNum,
@@ -155,28 +158,43 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
     }
     getJoinPayload() {
         return {
-            roomStatus: this.status,
-            boardState: zipGameState(this.getBoardState()),
-            roomID: this.id,
+            roomInfo: {
+                roomType: this.type,
+                roomID: this.id,
+            },
+            data: {
+                status: this.status,
+                boardState: this.getZippedBoardState(),
+            },
         };
     }
     getInitPayload() {
         return {
-            roomStatus: this.status,
-            boardState: this.status,
-            players: this.players,
-            curPlayer: this.data.gameState.curPlayer,
-            validSels: this.data.gameState.validSels,
-            roomID: this.id,
+            roomInfo: {
+                roomType: this.type,
+                roomID: this.id,
+            },
+            data: {
+                status: this.status,
+                boardState: this.getZippedBoardState(),
+                players: this.players,
+                curPlayer: this.data.gameState.curPlayer,
+                validSels: this.data.gameState.validSels,
+            },
         };
     }
     getUpdatePayload() {
         return {
-            roomStatus: this.status,
-            boardState: this.status,
-            curPlayer: this.data.gameState.curPlayer,
-            validSels: this.data.gameState.validSels,
-            roomID: this.id,
+            roomInfo: {
+                roomType: this.type,
+                roomID: this.id,
+            },
+            data: {
+                status: this.status,
+                boardState: this.getZippedBoardState(),
+                curPlayer: this.data.gameState.curPlayer,
+                validSels: this.data.gameState.validSels,
+            },
         };
     }
 }

@@ -384,6 +384,9 @@ export const CheckersWindow = ({
 				}
 			}
 		);
+		socket.on("Room:Init", (data: any, cb: (res: any) => void) => {
+			console.log("Room Initialized", data);
+			
 		socket.on("Room:Update_Members", (data: any, cb: (res: any) => void) => {
 			console.log("Room Members Updated", data);
 			cb(HttpStatusCode.OK);
@@ -411,20 +414,3 @@ export const CheckersWindow = ({
 		</div>
 	);
 };
-
-/* const CheckersPage2 = () => {
-	const [game, setGame] = useState<CheckersGameState>();
-	const [boardState, setBoardState] = useState<ValidTokens[]>([]);
-	const [player, setPlayer] = useState<PlayerTokens>();
-	const [isCurPlayer, setIsCurPlayer] = useState<boolean>(false);
-	socket.on("checkersRoomConnect", onCheckersRoomConnect);
-	socket.on("checkersServerUpdate", (args: IPayload) => {
-		setPlayer(onCheckersServerUpdate(args));
-	});
-	socket.on("checkersClientUpdateRes", onCheckersClientUpdateRes);
-	return (
-		<div id="CheckersPage">
-			{game ? <CheckersApp game={game} /> : <div>Loading...</div>}
-		</div>
-	);
-}; */
