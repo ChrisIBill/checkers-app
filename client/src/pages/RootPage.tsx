@@ -36,7 +36,6 @@ export const RootPage = () => {
 	const [sessionData, setSessionData] =
 		useState<ISessionContext>(DEFAULT_SESSION_DATA);
 	const navigate = useNavigate();
-	console.log("Loading Root");
 
 	function onConnect(this: Socket) {
 		const socket = this;
@@ -45,14 +44,13 @@ export const RootPage = () => {
 			userData: null,
 			isOnline: true,
 		}); */
-		socket.on("Auth:Token_Res", (args: IPayloadCall) => {
+		socket.on("Auth:Token_Res", (args: IPayload, cb: (res: any) => void) => {
 			console.log("Token Res: ", args);
 			const user: UserData = args.data ? args.data : null;
 			if (!user) {
 				console.log("No User Data");
-				args.callback({
-					status: HttpStatusCode.UNAUTHORIZED,
-					message: "No User Data",
+				cb({
+					statusCode: HttpStatusCode.UNAUTHORIZED,
 				});
 				return;
 			}
@@ -62,7 +60,7 @@ export const RootPage = () => {
 				isOnline: true,
 				socket: getAuthSocket(user.role),
 			});
-			args.callback({
+			cb({
 				statusCode: HttpStatusCode.OK,
 			});
 		});
@@ -76,7 +74,6 @@ export const RootPage = () => {
 	/* Should only fire on launch and when user data is changed
 	user data is only changed when user signs up, or logs in or out */
 	useEffect(() => {
-		console.log("Storage Token: ", localStorage.token);
 		function checkForToken() {
 			console.log("Checking For Token");
 			const item = localStorage.getItem("token");
@@ -91,8 +88,6 @@ export const RootPage = () => {
 	}, []);
 
 	useEffect(() => {
-		console.log("State Token: ", token);
-		console.log("Root Effect Session Data: ", sessionData);
 		if (sessionData.userData) {
 			console.log("User Data Found: ", sessionData.userData);
 			navigate(Paths.Games.Base);

@@ -93,8 +93,13 @@ export const registerGuestRoomHandlers = (
             cb({ status: 400, data: { message: "Invalid User" } });
             return;
         } else {
-            const payload = await roomManager.joinRoom(user.name, roomID);
-            console.log("Room Join Res Payload: ", payload);
+            try {
+                const payload = roomManager.joinRoom(user.name, roomID);
+                console.log("Room Join Res Payload: ", payload);
+            } catch (error) {
+                cb({ status: 400, data: { message: "Invalid Room" } });
+            }
+
             if (!payload) {
                 cb({ status: 400, data: { message: "Invalid Room" } });
                 return;

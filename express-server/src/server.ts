@@ -115,13 +115,19 @@ const onConnection = async (socket: Socket) => {
     const token = socket.handshake.auth.token;
     const user = await findUserFromToken(token);
     if (user && user.role) {
-        socket.emit("Auth:Token_Res", {
-            status: HttpStatusCodes.OK,
-            data: user,
-            callback: () => {
-                console.log("Received Client Callback for Auth:Token_Res");
+        socket.emit(
+            "Auth:Token_Res",
+            {
+                status: HttpStatusCodes.OK,
+                data: user,
             },
-        });
+            (res: any) => {
+                console.log(
+                    "Received Client Callback for Auth:Token_Res: ",
+                    res
+                );
+            }
+        );
     }
     console.log("here");
     socket.on("disconnect", (reason) => {

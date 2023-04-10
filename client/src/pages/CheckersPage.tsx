@@ -318,10 +318,10 @@ const GameHistory: React.FC<CheckersHistoryProps> = (props) => {
 	return <div id="MoveListWrapper">{histList}</div>;
 };
 export const CheckersWindow = ({
-	roomID,
+	windowRoomID,
 	onRoomDataChange,
 }: {
-	roomID: string;
+	windowRoomID: string;
 	onRoomDataChange: (args: any) => void;
 }) => {
 	const [sessionContext, setSessionContext] =
@@ -347,17 +347,17 @@ export const CheckersWindow = ({
 		setGameBoard(board);
 	}
 	useEffect(() => {
-		console.log("Checkers Page RoomID: ", roomID);
+		console.log("Checkers Page RoomID: ", windowRoomID);
 		socket.emit(
 			"Room:Join_Req",
-			{socketRoomType, roomID},
+			{socketRoomType, windowRoomID},
 			(res: ICheckersRoomJoinPayload) => {
 				console.log("Checkers Join Response: ", res);
 				if (res.status != HttpStatusCode.OK) {
 					console.log("Error Joining Room: ", res.status);
 					setStatus("error");
 				}
-				if (res.roomID == roomID) {
+				if (res.roomID == windowRoomID) {
 					setGameState({
 						status: res.roomStatus,
 						boardState: unzipGameState(res.boardState),
@@ -368,12 +368,18 @@ export const CheckersWindow = ({
 		socket.on(
 			"Room:Join_Res",
 			(payload: any, cb: (res: HttpStatusCode) => void) => {
+				const {roomID, roomType} = payload.roomInfo;
+				const data = payload.data;
+				if (roomID != windowRoomID || roomType != socketRoomType) {
+					cb(HttpStatusCode.BAD_REQUEST);
+					return;
+				}
 				try {
 					console.log("Room Initialized", payload.data);
 					const data = payload.data;
-					console.log(data.roomStatus, data.boardState);
+					console.log(data.status, data.boardState);
 					setGameState({
-						status: data.roomStatus,
+						status: data.status,
 						boardState: unzipGameState(data.boardState),
 					});
 				} catch (err) {
@@ -386,10 +392,14 @@ export const CheckersWindow = ({
 		);
 		socket.on("Room:Init", (data: any, cb: (res: any) => void) => {
 			console.log("Room Initialized", data);
-			
-		socket.on("Room:Update_Members", (data: any, cb: (res: any) => void) => {
-			console.log("Room Members Updated", data);
-			cb(HttpStatusCode.OK);
+
+			socket.on(
+				"Room:Update_Members",
+				(data: any, cb: (res: any) => void) => {
+					console.log("Room Members Updated", data);
+					cb(HttpStatusCode.OK);
+				}
+			);
 		});
 	}, []);
 	return (
