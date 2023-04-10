@@ -96,13 +96,9 @@ export const MainPage = () => {
 	}, [newRoomData, socket]);
 	console.log("User data: ", userData);
 	return (
-		<div className="App">
-			<ErrorBoundary fallback={<div>User Panel Error</div>}>
-				<AppHeader userData={userData} />
-			</ErrorBoundary>
+		<div className="App" style={{display: "flex"}}>
+			<AppHeader userData={userData} />
 			<AppSidebar onRoomSelection={onFindRoomClick} />
-
-			<ErrorBoundary fallback={<div>User Panel Error</div>}></ErrorBoundary>
 			{userData ? (
 				userData.role !== UserRoles.Invalid ? null : (
 					<LoginModal />

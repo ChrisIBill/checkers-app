@@ -49,12 +49,16 @@ const SessionToolbar = () => {
 export const AppHeader = ({userData}: {userData: UserData}) => {
 	//const userData = sessionContext.userData;
 	return (
-		<Box sx={{flexGrow: 1}}>
-			<AppBar position="static">
+		<ErrorBoundary fallback={<div>App Header Error</div>}>
+			<AppBar sx={{zIndex: (theme) => theme.zIndex.drawer + 1}}>
 				<Toolbar>
-					{userData ? <UserHeaderComponent user={userData} /> : <>Login</>}
+					{userData ? (
+						<UserHeaderComponent user={userData} />
+					) : (
+						<div style={{height: "100px"}}>Login</div>
+					)}
 				</Toolbar>
 			</AppBar>
-		</Box>
+		</ErrorBoundary>
 	);
 };

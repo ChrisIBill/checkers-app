@@ -6,7 +6,7 @@ import {
 } from "../../interfaces/RoomInterfaces";
 import {useSessionContextType} from "../../interfaces/SessionInterfaces";
 import {useEffect, useState} from "react";
-import {Box} from "@mui/material";
+import {Box, Toolbar} from "@mui/material";
 import HttpStatusCode from "../../constants/HttpStatusCodes";
 import {ROOM_TYPES} from "../../constants/RoomConsts";
 import {CheckersWindow} from "../../pages/CheckersPage";
@@ -43,6 +43,7 @@ export const WindowManager = ({rooms}: {rooms: any}) => {
 	});
 	return (
 		<div className="window-manager">
+			<Toolbar sx={{height: "100px"}} />
 			<div className="window-manager__windows">{ActiveWindows}</div>
 		</div>
 	);

@@ -7,9 +7,12 @@ import {
 	Drawer,
 	Collapse,
 	Typography,
+	Toolbar,
+	Box,
 } from "@mui/material";
 import {useState} from "react";
 import {RoomTypes, AllRoomStylesTypes} from "../../interfaces/RoomInterfaces";
+import {ErrorBoundary} from "react-error-boundary";
 
 const GameRoomsList = ({
 	onRoomSelection,
@@ -59,10 +62,28 @@ export const AppSidebar = ({
 		useOutletContext<useSessionContextType>();
 	const {userData, isOnline, socket} = sessionContext;
 	return (
-		<Drawer anchor="left" open={true} variant="permanent">
-			<Typography variant="h6">Game-Rooms</Typography>
-			<GameRoomsList onRoomSelection={onRoomSelection} />
-			<Typography variant="h6">Social-Rooms</Typography>
-		</Drawer>
+		<ErrorBoundary fallback={<div>App Sidebar Error</div>}>
+			<Drawer
+				anchor="left"
+				open={true}
+				variant="permanent"
+				sx={{
+					height: "100%",
+					boxSizing: "border-box",
+					alignContent: "center",
+					flexShrink: 0,
+					[`& .MuiDrawer-paper`]: {
+						boxSizing: "border-box",
+					},
+				}}
+			>
+				<Toolbar sx={{height: "100px"}} />
+				<Box sx={{overflow: "auto"}}>
+					<Typography variant="h6">Game-Rooms</Typography>
+					<GameRoomsList onRoomSelection={onRoomSelection} />
+					<Typography variant="h6">Social-Rooms</Typography>
+				</Box>
+			</Drawer>
+		</ErrorBoundary>
 	);
 };
