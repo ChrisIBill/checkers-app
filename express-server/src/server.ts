@@ -33,9 +33,9 @@ import {
     userAuthMw,
 } from "./routes/middleware/authMw";
 import {
-    registerGuestRoomHandlers,
     registerUserRoomHandlers,
     registerAdminRoomHandlers,
+    registerBaseRoomHandlers,
 } from "./services/handlers/RoomHandlers";
 import {
     registerGuestUsersHandlers,
@@ -134,7 +134,8 @@ const onConnection = async (socket: Socket) => {
         console.log("User Disconnected: ", socket.id);
         console.log("Reason: ", reason);
     });
-    socket.disconnect();
+    registerBaseRoomHandlers(io, socket);
+    /* socket.disconnect(); */
 };
 
 const authConnection = async (socket: Socket) => {
@@ -145,18 +146,18 @@ const authConnection = async (socket: Socket) => {
 
 const guestConnection = (socket: Socket) => {
     console.log("Guest Connection: ", socket.id);
-    registerGuestRoomHandlers(io, socket);
-    registerGuestUsersHandlers(io, socket);
+    /* registerGuestRoomHandlers(io, socket);
+    registerGuestUsersHandlers(io, socket); */
 };
 const userConnection = (socket: Socket) => {
     console.log("User Connection: ", socket.id);
-    registerUserRoomHandlers(io, socket);
-    registerUserUsersHandlers(io, socket);
+    /* registerUserRoomHandlers(io, socket);
+    registerUserUsersHandlers(io, socket); */
 };
 const adminConnection = (socket: Socket) => {
     console.log("Admin Connection: ", socket.id);
-    registerAdminRoomHandlers(io, socket);
-    registerAdminUsersHandlers(io, socket);
+    /* registerAdminRoomHandlers(io, socket);
+    registerAdminUsersHandlers(io, socket); */
 };
 
 io.of(NewPaths.Guest).adapter.on("create-room", (room) => {

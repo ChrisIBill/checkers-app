@@ -12,10 +12,14 @@ import { SocketRoom } from "@src/models/SocketRoom";
     findRoom: (user: string) => SocketRoom | null;
     updateRoom: (roomID: string, room: SocketRoom) => Promise<boolean>;
 } */
+export interface IRoomPayload {
+    roomInfo: {};
+    data: {};
+}
 export interface ISocketRoomsManager {
     managerRoomsMap: Map<string, SocketRoom>;
     usersInRooms: Map<string, Set<string>>;
-    joinRoom: (...args: any) => any;
+    joinRoom: (...args: any) => IRoomPayload;
     leaveRoom: (...args: any) => any;
     findRoom: (...args: any) => any;
     initRoom: (...args: any) => any;

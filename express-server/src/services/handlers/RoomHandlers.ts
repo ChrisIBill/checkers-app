@@ -15,7 +15,7 @@ All "Room:" calls from client follow the structure
     }
 }
 
-each listener restructures data and reroutes to appropriate room handler
+each listener restructures data and reroutes to appropriate room manager
  */
 
 import {
@@ -49,11 +49,11 @@ export const roomPayloadRouter = (
             return null;
     }
 };
-export const registerGuestRoomHandlers = (
+export const registerBaseRoomHandlers = (
     io: Server<GuestClientToServerEvents, GuestServerToClientEvents>,
     socket: Socket
 ) => {
-    console.log("Guest Room Handler");
+    console.log("Base Room Handler");
     socket.on("Room:Find_Req", async (args: any, cb: (res: any) => void) => {
         console.log("Received Find Room Request", args);
         const { roomType, roomStyle } = args;
@@ -84,54 +84,68 @@ export const registerGuestRoomHandlers = (
         const roomManager = roomPayloadRouter(socketRoomType);
         if (!roomManager) {
             cb({ status: 400, data: { message: "Invalid Room Type" } });
+
             return;
         }
         const room = roomManager.managerRoomsMap.get(roomID);
+        if (!room) {
+            cb({ status: 400, data: { message: "Invalid Room ID" } });
+            return;
+        }
         const token = socket.handshake.auth.token;
         const user = await findUserFromToken(token);
         if (!user) {
             cb({ status: 400, data: { message: "Invalid User" } });
+            console.log("No user found for token: ", token);
             return;
         } else {
+            let payload;
             try {
-                const payload = roomManager.joinRoom(user.name, roomID);
-                console.log("Room Join Res Payload: ", payload);
-            } catch (error) {
-                cb({ status: 400, data: { message: "Invalid Room" } });
-            }
-
-            if (!payload) {
-                cb({ status: 400, data: { message: "Invalid Room" } });
+                payload = roomManager.joinRoom(user.name, roomID);
+                console.log("Adding Socket to room: ", socketRoomType, roomID);
+                socket.join(`${socketRoomType} ${roomID}`);
+                cb({ status: 200, message: roomID });
+            } catch (err) {
+                console.log("Error: ", err);
+                cb({ status: 400, data: { message: err.message } });
                 return;
-            } else {
-                socket.join(roomID);
-                cb({ status: 200 });
-                socket.emit("Room:Join_Res", { data: payload }, (res: any) => {
-                    console.log(
-                        "Received Client Callback for Room:Join_Res, ",
-                        res
-                    );
-                    if (!room) {
-                        console.log("BAD_ERROR: Joined Room not found");
-                        return;
-                    }
-                    if (res === HttpStatusCodes.OK) {
-                        room.playerConnected(user.name);
-                        if (room.status === "init") {
-                            console.log("Room is init, starting game", room);
-                            const initPayload = room.getInitPayload();
-                            io.to(roomID).emit("Room:Init", {
-                                roomInfo: initPayload.roomInfo,
-                                data: initPayload.data,
-                                callback: (res: any) => {
-                                    console.log("Room:Init Callback: ", res);
-                                },
-                            });
+            }
+            socket.emit("Room:Join_Res", payload, (res: any) => {
+                console.log(
+                    "Received Client Callback for Room:Join_Res, ",
+                    res
+                );
+                if (res !== HttpStatusCodes.OK) {
+                    console.log("Error: Client Callback Error", res);
+                    return;
+                }
+                if (res === HttpStatusCodes.OK) {
+                    room.playerConnected(user.name);
+                    if (room.status === "init") {
+                        const initPayload = room.getInitPayload();
+                        console.log("Room is init, starting game", initPayload);
+                        if (initPayload) {
+                            console.log("gere" + roomID);
+                            io.to(`${socketRoomType} ${roomID}`).emit(
+                                "Room:Init",
+                                {
+                                    roomInfo: initPayload.roomInfo,
+                                    data: initPayload.data,
+                                    callback: (res: any) => {
+                                        console.log(
+                                            "Room:Init Callback: ",
+                                            res
+                                        );
+                                    },
+                                }
+                            );
+                        } else {
+                            console.log("Error: No Init Payload");
                         }
                     }
-                    console.log("User Joined Room: ", roomID);
-                });
-            }
+                }
+                console.log("User Joined Room: ", roomID);
+            });
         }
 
         /* TODO!!!!!!
@@ -167,7 +181,7 @@ export const registerUserRoomHandlers = (
     io: Server<UserServerToClientEvents, UserClientToServerEvents>,
     socket: Socket
 ) => {
-    registerGuestRoomHandlers(io, socket);
+    //registerGuestRoomHandlers(io, socket);
     console.log("User Room Handler");
 };
 
@@ -175,6 +189,6 @@ export const registerAdminRoomHandlers = (
     io: Server<AdminServerToClientEvents, AdminClientToServerEvents>,
     socket: Socket
 ) => {
-    registerUserRoomHandlers(io, socket);
+    //registerUserRoomHandlers(io, socket);
     console.log("Admin Room Handler");
 };

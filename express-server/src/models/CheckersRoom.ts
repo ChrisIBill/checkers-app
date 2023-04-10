@@ -86,9 +86,11 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
 
     setValidSelections() {}
     init() {
+        if (this.players.includes(null)) throw new Error("Room not full");
         if (Math.random() > 0.5) {
             this.players = [this.players[1], this.players[0]];
         }
+        this.data.gameState.curPlayer = this.players[0]!;
     }
     /** Returns Num players in room */
     addPlayer(user: string): number {
@@ -113,6 +115,7 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
             this.numPlayersConnected++;
             if (this.numPlayersConnected == 2) {
                 this.status = AllCheckersRoomStatus.init;
+                this.init();
             }
         } else {
             throw new ReferenceError("User not in room");

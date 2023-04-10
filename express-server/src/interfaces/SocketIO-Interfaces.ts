@@ -77,7 +77,7 @@ export interface AuthClientToServerEvents extends BaseClientToServerEvents {
 }
 
 export interface GuestServerToClientEvents {
-    "Room:Find_Res": (args: IPayloadCall) => void;
+    "Room:Join_Res": (args: IPayloadCall) => void;
     "Room:Leave_Res": (args: IPayload) => void;
     "Room:List_Public_Res": (args: IPayloadCall) => void;
     "Room:Connect_Res": (args: IPayloadCall) => void;
