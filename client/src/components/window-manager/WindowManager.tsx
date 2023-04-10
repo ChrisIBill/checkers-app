@@ -24,7 +24,7 @@ export const RoomManager = ({roomID, roomType}: IActiveRoomState) => {
 		case ROOM_TYPES.checkers:
 			return (
 				<CheckersWindow
-					roomID={roomID}
+					windowRoomID={roomID}
 					onRoomDataChange={onRoomDataChange}
 				/>
 			);
@@ -39,11 +39,7 @@ export const WindowManager = ({rooms}: {rooms: any}) => {
 	const {userData, isOnline, socket} = sessionContext;
 	console.log("Rooms in WindowManager: ", rooms);
 	const ActiveWindows = rooms.map((room: any, index: number) => {
-		return (
-			<Box className="Window_Wrapper">
-				<RoomManager roomID={room} roomType={"checkers"} />
-			</Box>
-		);
+		return <RoomManager key={index} roomID={room} roomType={"checkers"} />;
 	});
 	return (
 		<div className="window-manager">

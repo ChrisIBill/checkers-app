@@ -35,7 +35,6 @@ export const MainPage = () => {
 	const [activeRooms, setActiveRooms] = useState<any[]>([]);
 	//const sessionContext = sessionData.
 	const {userData, isOnline, socket} = sessionContext;
-	console.log("Main Session Context: ", sessionContext);
 	const navigate = useNavigate();
 	function onAuthorizedConnect() {
 		console.log("Authorized Connect");
@@ -95,7 +94,6 @@ export const MainPage = () => {
 			}
 		}
 	}, [newRoomData, socket]);
-	console.log("Session Context: ", sessionContext);
 	console.log("User data: ", userData);
 	return (
 		<div className="App">
