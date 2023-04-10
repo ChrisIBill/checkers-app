@@ -58,7 +58,7 @@ export const RootPage = () => {
 			setSessionData({
 				userData: user,
 				isOnline: true,
-				socket: getAuthSocket(user.role),
+				socket: socket,
 			});
 			cb({
 				statusCode: HttpStatusCode.OK,

@@ -350,7 +350,7 @@ export const CheckersWindow = ({
 		console.log("Checkers Page RoomID: ", windowRoomID);
 		socket.emit(
 			"Room:Join_Req",
-			{socketRoomType, windowRoomID},
+			{socketRoomType, roomID: windowRoomID},
 			(res: ICheckersRoomJoinPayload) => {
 				console.log("Checkers Join Response: ", res);
 				if (res.status != HttpStatusCode.OK) {
@@ -368,6 +368,7 @@ export const CheckersWindow = ({
 		socket.on(
 			"Room:Join_Res",
 			(payload: any, cb: (res: HttpStatusCode) => void) => {
+				console.log("Room Join Response: ", payload);
 				const {roomID, roomType} = payload.roomInfo;
 				const data = payload.data;
 				if (roomID != windowRoomID || roomType != socketRoomType) {
@@ -375,7 +376,7 @@ export const CheckersWindow = ({
 					return;
 				}
 				try {
-					console.log("Room Initialized", payload.data);
+					console.log("Initial Room Data", payload.data);
 					const data = payload.data;
 					console.log(data.status, data.boardState);
 					setGameState({
@@ -390,16 +391,12 @@ export const CheckersWindow = ({
 				}
 			}
 		);
-		socket.on("Room:Init", (data: any, cb: (res: any) => void) => {
+		socket.on("Room:Init", (data: any) => {
 			console.log("Room Initialized", data);
-
-			socket.on(
-				"Room:Update_Members",
-				(data: any, cb: (res: any) => void) => {
-					console.log("Room Members Updated", data);
-					cb(HttpStatusCode.OK);
-				}
-			);
+		});
+		socket.on("Room:Update_Members", (data: any, cb: (res: any) => void) => {
+			console.log("Room Members Updated", data);
+			cb(HttpStatusCode.OK);
 		});
 	}, []);
 	return (
