@@ -21,11 +21,13 @@ export const DEFAULT_ROOM_STATUS = [
 	"error",
 ] as const;
 export type RoomStatusTypes = typeof DEFAULT_ROOM_STATUS[number];
-/* export interface ICheckersRoomData {
 
-export type RoomDataTypes = ICheckersRoomData | IChatRoomData; */
-export interface IRoomData {
-	status: RoomStatusTypes;
+export interface IRoomInfo {
+	roomType: RoomTypes;
+	roomID: string;
+}
+export interface IRoomPayload {
+	roomInfo: IRoomInfo;
 	data: any;
 }
 

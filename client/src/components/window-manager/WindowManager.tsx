@@ -16,7 +16,7 @@ export const RoomManager = ({roomID, roomType}: IActiveRoomState) => {
 	const [sessionContext, setSessionContext] =
 		useOutletContext<useSessionContextType>();
 	const {userData, isOnline, socket} = sessionContext;
-	function onRoomDataChange(roomData: any) {
+	function onRoomStatusChange(roomData: any) {
 		setRoomData(roomData);
 	}
 	console.log("RoomManager: ", roomID, roomType);
@@ -25,7 +25,7 @@ export const RoomManager = ({roomID, roomType}: IActiveRoomState) => {
 			return (
 				<CheckersWindow
 					windowRoomID={roomID}
-					onRoomDataChange={onRoomDataChange}
+					onRoomStatusChange={onRoomStatusChange}
 				/>
 			);
 		default:

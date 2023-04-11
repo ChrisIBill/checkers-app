@@ -14,10 +14,12 @@ export interface CheckersRoomState {
 	boardState: string;
 }
 /**
- * @member status: string
  * @member boardState: ValidTokens[]
  * @member validSels?: number[]
+ * @member reqSels?: number[]
  * @member isCurPlayer?: boolean
+ * @member playerTokens?: PlayerTokens
+ * @member status?: string
  */
 
 export interface CheckersGameState {
