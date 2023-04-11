@@ -210,9 +210,8 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 	if (playerTokens && !playerPieces) {
 		setPlayerPieces(playerTokens);
 	}
-	if (status == "init" && boardStatus == "loading") {
-		const stat = isCurPlayer ? "select" : "waiting";
-		setBoardStatus(stat);
+	if (isCurPlayer && ["waiting", "loading"].includes(boardStatus)) {
+		setBoardStatus("select");
 	}
 	let board = curBoard;
 	let isFlippedRow = true;
@@ -223,35 +222,44 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 			console.log("Not your turn!");
 			return;
 		}
-		if (!playerPieces.includes(board[sel])) {
-			console.log("Not your piece!", board[sel], playerPieces);
-			return;
-		}
 		if (!["select", "move"].includes(boardStatus)) {
 			console.log("Cannot select/move at this time!", boardStatus);
 			return;
 		}
 		if (boardStatus == "select") {
-			const [moves, canTake] = findValidMoves(board, sel);
-			console.log("moves: ", moves, " canTake: ", canTake);
-			if (moves) {
-				setSelectIndex(sel);
-				setValidMoves(moves);
+			if (!playerPieces.includes(board[sel])) {
+				console.log("Not your piece!", board[sel], playerPieces);
+				return;
 			}
+			const [moves, canTake] = findValidMoves(board, sel);
+			if (!moves) {
+				console.log("No valid moves!");
+				return;
+			}
+			setSelectIndex(sel);
+			setValidMoves(moves);
 			if (canTake) {
 				setPiecesToTake(canTake);
 			}
 			setBoardStatus("move");
 		}
-		if (
-			boardStatus == "move" &&
-			validMoves.length &&
-			validMoves.includes(sel)
-		) {
-			//If validMoves has been set and includes selection
+		if (boardStatus == "move") {
+			if (!validMoves.includes(sel)) {
+				console.log("Not a valid move!");
+				return;
+			}
+			if (!validMoves.length) {
+				console.log("BAD_ERROR: No valid moves while in move state!");
+				return;
+			}
+			if (!validMoves.includes(sel)) {
+				console.log("Not a valid move!");
+				return;
+			}
 			const index = validMoves.indexOf(sel);
 			console.log("valid move");
 			[board[sel], board[selectIndex]] = [board[selectIndex], board[sel]];
+			console.log("board1: ", board);
 			if (piecesToTake && piecesToTake[index]) {
 				//if jump
 				const remIndex = piecesToTake[index];
@@ -264,34 +272,33 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 					: board[sel] == "P" && sel <= 3
 					? "K"
 					: board[sel];
-			if (piecesToTake) {
+			if (piecesToTake && piecesToTake.length > 0) {
+				console.log("piecesToTake: ", piecesToTake);
 				const [moves, canTake] = findValidMoves(board, sel);
-				if (canTake) {
-					setPiecesToTake(canTake);
+				if (moves && canTake) {
+					console.log("More moves! Continuing...");
+					setSelectIndex(sel);
 					setValidMoves(moves);
+					setPiecesToTake(canTake);
+					setBoardStatus("move");
+					return;
+				} else {
+					console.log("BAD_ERROR: No more moves! While in move state!");
+					return;
 				}
 			} else {
+				console.log("No more moves! Submitting...");
+				setSelectIndex(-1);
+				setValidMoves([]);
+				setPiecesToTake(undefined);
 				setBoardStatus("submit");
+				onMove(board);
+				return;
 			}
-			//do while valid moves for selection available?
-			props.onMove(board);
-		} else {
-			console.log("BAD_ERROR: Invalid Move!");
 		}
-		/*  else if (reqSels && !reqSels.includes(sel)) {
-			console.log("Invalid Selection.");
-			console.log("Required Selections: ", reqSels);
-		} else if (boardStatus == "select") {
-			//Selection is valid
-			console.log("Valid Selection.");
-			setSelectIndex(sel);
-			const [valid, canTake] = findValidMoves(board, sel);
-			setPiecesToTake(canTake);
-			console.log("Valid Moves: ", valid);
-			setValidMoves(valid);
-		} */
 	}
-	const GameBoard = board.map((elem, index) => {
+	console.log("board2: ", board);
+	const GameBoard = curBoard.map((elem, index) => {
 		if (index % 4 == 0) {
 			isFlippedRow = !isFlippedRow;
 		}
@@ -375,7 +382,17 @@ export const CheckersWindow = ({
 		throw new Error("Bad Error: Socket/User Data not initialized.");
 	}
 	function handleMove(board: ValidTokens[]) {
-		setGameBoard(board);
+		if (socket && socket.connected) {
+			socket.emit("Room:Update_Server", {
+				roomInfo: {roomID: windowRoomID, roomType: socketRoomType},
+				data: {
+					boardState: zipGameState(board),
+					moves: [],
+				},
+			});
+		} else {
+			console.log("Error: Socket not connected!");
+		}
 	}
 	useEffect(() => {
 		console.log("Checkers Page RoomID: ", windowRoomID);
@@ -449,6 +466,12 @@ export const CheckersWindow = ({
 				console.log("Room Members Updated", args);
 			}
 		);
+		return () => {
+			socket.off("Room:Join_Res");
+			socket.off("Room:Init");
+			socket.off("Room:Update_Members");
+			socket.emit("Room:Leave_Req", {socketRoomType, roomID: windowRoomID});
+		};
 	}, []);
 	return (
 		<div id="CheckersPageWrapper">

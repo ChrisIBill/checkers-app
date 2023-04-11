@@ -146,15 +146,7 @@ const CheckersRoomsManager = {
         }
         room.init();
     },
-
-    leaveRoom(user: string, roomID?: string) {
-        console.log("CheckersRoomsManager: Leaving not implemented yet");
-    },
-    async updateRoom(
-        user: string,
-        roomID: string,
-        args: IPayload
-    ): Promise<CheckersRoom | null> {
+    /*     updateRoom(user: string, roomID: string, data: any) {
         const room = this.managerRoomsMap.get(roomID);
         if (!room) {
             throw new ReferenceError("Room does not exist");
@@ -164,7 +156,30 @@ const CheckersRoomsManager = {
         }
 
         try {
-            const success = await room.updateRoomState(user, args.data.moves);
+            const success = room.updateRoomState(user, data.moves, data.board);
+            if (success) {
+                return room;
+            } else return null;
+        } catch (error) {
+            console.log(error);
+            return null;
+        }
+    }, */
+
+    leaveRoom(user: string, roomID?: string) {
+        console.log("CheckersRoomsManager: Leaving not implemented yet");
+    },
+    updateRoom(user: string, roomID: string, data: any): CheckersRoom | null {
+        const room = this.managerRoomsMap.get(roomID);
+        if (!room) {
+            throw new ReferenceError("Room does not exist");
+        }
+        if (!room.players.includes(user)) {
+            throw new ReferenceError("User not in room");
+        }
+
+        try {
+            const success = room.updateRoomState(user, data.moves, data.board);
             if (success) {
                 return room;
             } else return null;
