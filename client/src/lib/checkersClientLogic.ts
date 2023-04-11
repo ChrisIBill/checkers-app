@@ -19,7 +19,7 @@ export function findValidMoves(boardState: ValidTokens[], selectIndex: number) {
 }
 
 /**Returns array of numbers containing valid move indexes and bool for if theyre required or not */
-function checkMoveValidity(
+export function checkMoveValidity(
 	boardState: ValidTokens[],
 	selToken: ValidTokens,
 	curPosition: number
