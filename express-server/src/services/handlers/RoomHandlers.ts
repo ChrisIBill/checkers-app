@@ -84,7 +84,6 @@ export const registerBaseRoomHandlers = (
         const roomManager = roomPayloadRouter(socketRoomType);
         if (!roomManager) {
             cb({ status: 400, data: { message: "Invalid Room Type" } });
-
             return;
         }
         const room = roomManager.managerRoomsMap.get(roomID);
@@ -167,10 +166,23 @@ export const registerBaseRoomHandlers = (
             cb({ status: 200, data: { rooms } });
         }
     );
-    socket.on(
-        "Room:Update_Server",
-        (args: IPayload, cb: (res: any) => void) => {}
-    );
+    socket.on("Room:Update_Server", (args: any, cb: (res: any) => void) => {
+        const { roomID, roomType } = args.roomInfo;
+        const { boardState, moves } = args.data;
+        console.log("Received Update Server", args);
+        const roomManager = roomPayloadRouter(roomType);
+        if (!roomManager) {
+            cb({ status: 400, data: { message: "Invalid Room Type" } });
+            return;
+        }
+        const room = roomManager.managerRoomsMap.get(roomID);
+        if (!room) {
+            cb({ status: 400, data: { message: "Invalid Room ID" } });
+            return;
+        }
+        roomID = room.updateRoom(boardState, moves);
+        io.to(`${roomType} ${roomID}`).emit("Room:Update_Client", {
+    });
     socket.on(
         "Room:Update_Req",
         (args: IPayload, cb: (res: any) => void) => {}
