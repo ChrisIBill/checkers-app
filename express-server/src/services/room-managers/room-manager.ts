@@ -23,7 +23,7 @@ export interface ISocketRoomsManager {
     leaveRoom: (...args: any) => any;
     findRoom: (...args: any) => any;
     initRoom: (...args: any) => any;
-    updateRoom: (...args: any) => any;
+    manageRoomUpdate: (...args: any) => any;
     listRooms: (...args: any) => any;
 }
 const SocketRoomsManager = {

@@ -133,24 +133,17 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
         return false;
     }
     /* updates board state and returns true if given boardstate is valid change, else returns false */
-    updateRoomState(
-        sender: string,
-        moves: number[],
-        board: ValidTokens[]
-    ): boolean {
+    updateRoomState(sender: string, moves: number[], board: ValidTokens[]) {
         if (sender != this.data.gameState.curPlayer) return false;
         console.log("Updating room state");
         console.log("Moves: ", moves);
         const boardState = this.getBoardState();
         const selToken = boardState[moves[0]];
         console.log(findValidMoves(boardState, moves[0]));
-        if (board.length != 32) {
-            console.log("Invalid board state length. NEED ERROR HANDLING");
-            return false;
-        }
+        if (board.length != 32) throw new RangeError("Invalid board length");
+
         console.log("Setting board state, ", board);
         this.data.gameState.boardState = board;
-        return true;
     }
     getPlayerName(playerID: string): string {
         return playerID;

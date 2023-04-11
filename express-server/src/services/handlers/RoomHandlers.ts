@@ -34,6 +34,8 @@ import { findUserFromToken } from "../myAuthService";
 import { findRoomForClient } from "../GamesService";
 import { ISocketRoomsManager } from "../room-managers/room-manager";
 import HttpStatusCodes from "@src/constants/HttpStatusCodes";
+import { unzipGameState } from "@src/util/CheckersUtil";
+import { IRoomInfo } from "../../../../client/src/interfaces/RoomInterfaces";
 
 /* handles rerouting to appropriate room handler */
 export const roomPayloadRouter = (
@@ -169,19 +171,32 @@ export const registerBaseRoomHandlers = (
     socket.on("Room:Update_Server", (args: any, cb: (res: any) => void) => {
         const { roomID, roomType } = args.roomInfo;
         const { boardState, moves } = args.data;
+        const board = unzipGameState(boardState);
         console.log("Received Update Server", args);
         const roomManager = roomPayloadRouter(roomType);
         if (!roomManager) {
             cb({ status: 400, data: { message: "Invalid Room Type" } });
             return;
         }
-        const room = roomManager.managerRoomsMap.get(roomID);
-        if (!room) {
-            cb({ status: 400, data: { message: "Invalid Room ID" } });
+        try {
+            const payload = roomManager.manageRoomUpdate(roomID, board);
+            if (!payload) {
+                console.log("BAD_ERROR: room update payload is null");
+                return;
+            }
+            io.to(`${roomType} ${roomID}`).emit("Room:Update_Room", {
+                roomInfo: payload.roomInfo,
+                data: payload.data,
+                callback: (res: any) => {
+                    console.log("Received Update callback: ", res);
+                },
+            });
+        } catch (error) {
+            console.log("Error: ", error);
+            cb({ status: 400, data: { message: error } });
             return;
         }
-        roomID = room.updateRoom(boardState, moves);
-        io.to(`${roomType} ${roomID}`).emit("Room:Update_Client", {
+        cb({ status: 200 });
     });
     socket.on(
         "Room:Update_Req",

@@ -383,13 +383,19 @@ export const CheckersWindow = ({
 	}
 	function handleMove(board: ValidTokens[]) {
 		if (socket && socket.connected) {
-			socket.emit("Room:Update_Server", {
-				roomInfo: {roomID: windowRoomID, roomType: socketRoomType},
-				data: {
-					boardState: zipGameState(board),
-					moves: [],
+			socket.emit(
+				"Room:Update_Server",
+				{
+					roomInfo: {roomID: windowRoomID, roomType: socketRoomType},
+					data: {
+						boardState: zipGameState(board),
+						moves: [],
+					},
 				},
-			});
+				(res: any) => {
+					console.log("Server res to update: ", res);
+				}
+			);
 		} else {
 			console.log("Error: Socket not connected!");
 		}
@@ -461,7 +467,7 @@ export const CheckersWindow = ({
 			setGameState(initState);
 		});
 		socket.on(
-			"Room:Update_Members",
+			"Room:Update_Room",
 			(args: IRoomPayload, cb: (res: any) => void) => {
 				console.log("Room Members Updated", args);
 			}
