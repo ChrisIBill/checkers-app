@@ -2,6 +2,7 @@ import { CheckersRoom } from "@src/models/CheckersRoom";
 import SocketRoomsManager, { ISocketRoomsManager } from "./room-manager";
 import { findRoomForClient } from "../GamesService";
 import { IPayload } from "@src/interfaces/SocketIO-Interfaces";
+import { ValidTokens } from "@src/interfaces/checkersInterfaces";
 
 /* export interface ICheckersRoomsManager{
     playersInRooms: Map<string, string>;
@@ -187,6 +188,25 @@ const CheckersRoomsManager = {
             console.log(error);
             return null;
         }
+    },
+    manageRoomUpdate(
+        user: string,
+        roomID: string,
+        moves?: [],
+        board?: ValidTokens[]
+    ) {
+        const room = this.managerRoomsMap.get(roomID);
+        if (!room) throw new Error("Room does not exist");
+        if (!room.players.includes(user))
+            throw new ReferenceError("User not in room");
+        if (room.data.gameState.curPlayer !== user)
+            try {
+                room.updateRoom();
+            } catch (err) {
+                console.log("Error updating room");
+                throw err;
+            }
+        return room.getUpdatePayload();
     },
 };
 
