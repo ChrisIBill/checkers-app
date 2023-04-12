@@ -79,9 +79,16 @@ const SocketRoomsManager = {
         console.log("ERROR: IN BASE ROOM MANAGER");
         return null;
     },
+    /**
+     * @deprecated Use manageRoomUpdate() instead
+     */
     updateRoom(roomID: string, room: SocketRoom): Promise<boolean> {
         console.log("ERROR: IN BASE ROOM MANAGER");
         return Promise.resolve(false);
+    },
+    manageRoomUpdate() {
+        console.log("ERROR: IN BASE ROOM MANAGER");
+        return null;
     },
 };
 

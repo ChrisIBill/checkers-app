@@ -170,8 +170,12 @@ const CheckersRoomsManager = {
     leaveRoom(user: string, roomID?: string) {
         console.log("CheckersRoomsManager: Leaving not implemented yet");
     },
-    updateRoom(user: string, roomID: string, data: any): CheckersRoom | null {
-        const room = this.managerRoomsMap.get(roomID);
+    /**
+     * @deprecated, use manageRoomUpdate() instead
+     */
+    updateRoom(user: string, roomID: string, data: any) {
+        console.log("CALL TO DEPRECATED updateRoom()");
+        /* const room = this.managerRoomsMap.get(roomID);
         if (!room) {
             throw new ReferenceError("Room does not exist");
         }
@@ -187,26 +191,29 @@ const CheckersRoomsManager = {
         } catch (error) {
             console.log(error);
             return null;
-        }
+        } */
     },
-    manageRoomUpdate(
-        user: string,
-        roomID: string,
-        moves?: [],
-        board?: ValidTokens[]
-    ) {
+    manageRoomUpdate(user: string, roomID: string, board: ValidTokens[]) {
         const room = this.managerRoomsMap.get(roomID);
         if (!room) throw new Error("Room does not exist");
-        if (!room.players.includes(user))
+        if (!room.players.includes(user)) {
+            console.log("User: ", user);
+            console.log("Players in rooms: ", room.players);
             throw new ReferenceError("User not in room");
-        if (room.data.gameState.curPlayer !== user)
+        }
+        if (room.data.gameState.curPlayer != user) {
             try {
-                room.updateRoom();
+                room.updateRoomState(board);
             } catch (err) {
                 console.log("Error updating room");
                 throw err;
             }
-        return room.getUpdatePayload();
+            return room.getUpdatePayload();
+        } else {
+            console.log(room.data.gameState.curPlayer);
+            console.log(user);
+            throw new Error("Player not current player");
+        }
     },
 };
 

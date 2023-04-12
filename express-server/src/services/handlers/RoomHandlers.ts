@@ -168,36 +168,50 @@ export const registerBaseRoomHandlers = (
             cb({ status: 200, data: { rooms } });
         }
     );
-    socket.on("Room:Update_Server", (args: any, cb: (res: any) => void) => {
-        const { roomID, roomType } = args.roomInfo;
-        const { boardState, moves } = args.data;
-        const board = unzipGameState(boardState);
-        console.log("Received Update Server", args);
-        const roomManager = roomPayloadRouter(roomType);
-        if (!roomManager) {
-            cb({ status: 400, data: { message: "Invalid Room Type" } });
-            return;
-        }
-        try {
-            const payload = roomManager.manageRoomUpdate(roomID, board);
-            if (!payload) {
-                console.log("BAD_ERROR: room update payload is null");
+    socket.on(
+        "Room:Update_Server",
+        async (args: any, cb: (res: any) => void) => {
+            const { roomID, roomType } = args.roomInfo;
+            const { boardState, moves } = args.data;
+            const token = socket.handshake.auth.token;
+            const user = await findUserFromToken(token);
+            if (!user) {
+                cb({ status: 400, data: { message: "Invalid User" } });
+                console.log("No user found for token: ", token);
                 return;
             }
-            io.to(`${roomType} ${roomID}`).emit("Room:Update_Room", {
-                roomInfo: payload.roomInfo,
-                data: payload.data,
-                callback: (res: any) => {
-                    console.log("Received Update callback: ", res);
-                },
-            });
-        } catch (error) {
-            console.log("Error: ", error);
-            cb({ status: 400, data: { message: error } });
-            return;
+            const board = unzipGameState(boardState);
+            console.log("Received Update Server", args);
+            const roomManager = roomPayloadRouter(roomType);
+            if (!roomManager) {
+                cb({ status: 400, data: { message: "Invalid Room Type" } });
+                return;
+            }
+            try {
+                const payload = roomManager.manageRoomUpdate(
+                    user.name,
+                    roomID,
+                    board
+                );
+                if (!payload) {
+                    console.log("BAD_ERROR: room update payload is null");
+                    return;
+                }
+                io.to(`${roomType} ${roomID}`).emit("Room:Update_Room", {
+                    roomInfo: payload.roomInfo,
+                    data: payload.data,
+                    callback: (res: any) => {
+                        console.log("Received Update callback: ", res);
+                    },
+                });
+            } catch (error) {
+                console.log("Error: ", error);
+                cb({ status: 400, data: { message: error } });
+                return;
+            }
+            cb({ status: 200 });
         }
-        cb({ status: 200 });
-    });
+    );
     socket.on(
         "Room:Update_Req",
         (args: IPayload, cb: (res: any) => void) => {}
