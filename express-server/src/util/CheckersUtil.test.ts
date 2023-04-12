@@ -108,6 +108,40 @@ describe("CheckersUtil", () => {
             "P",
             "P",
         ] as ValidTokens[];
+        const test3 = [
+            "p",
+            "p",
+            "p",
+            "p",
+            "p",
+            "p",
+            "p",
+            "p",
+            "p",
+            "E",
+            "p",
+            "p",
+            "E",
+            "E",
+            "p",
+            "E",
+            "E",
+            "E",
+            "E",
+            "E",
+            "P",
+            "P",
+            "P",
+            "P",
+            "P",
+            "P",
+            "P",
+            "P",
+            "P",
+            "P",
+            "P",
+            "K",
+        ] as ValidTokens[];
         expect(zipGameState(testCases[0]));
         expect(zipGameState(testCases[1]));
         expect(zipGameState(testCases[2]));
@@ -115,9 +149,43 @@ describe("CheckersUtil", () => {
         expect(zipGameState(testCases[4]));
         expect(zipGameState(testCases[5]));
         expect(zipGameState(test2));
+        expect(zipGameState(test3));
     });
     test("unzipGameState", () => {
-        expect(unzipGameState("E7pE3pEp6E11PE"));
-        expect(unzipGameState("K2EPkPpPK2k2EkP2kpE2KkEKEp2PKEKk"));
+        expect(unzipGameState("9pE2p2Ep5E11PK"));
+        expect(unzipGameState("E7pE3pEp6E11P"));
     });
 });
+[
+    "E",
+    "p",
+    "p",
+    "p",
+    "p",
+    "p",
+    "p",
+    "p",
+    "E",
+    "p",
+    "p",
+    "p",
+    "E",
+    "p",
+    "E",
+    "E",
+    "E",
+    "E",
+    "E",
+    "E",
+    "P",
+    "P",
+    "P",
+    "P",
+    "P",
+    "P",
+    "P",
+    "P",
+    "P",
+    "P",
+    "P",
+];

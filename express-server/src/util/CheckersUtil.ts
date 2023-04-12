@@ -33,18 +33,23 @@ export function unzipGameState(str: string): ValidTokens[] {
 export function zipGameState(gameState: ValidTokens[]): string {
     //[p,p,p,p,p,p,p,p,p,p,p,p,E,E,E,E...] -> p12/E8/P12/
     console.log("zipGameState: ", gameState);
-    let num = 0;
+    let num = -1;
     let prevChar: ValidTokens;
     const ret =
         gameState.reduce((acc, curVal) => {
-            if (curVal != prevChar) {
-                acc += (num > 1 ? num.toString() : "") + (prevChar ?? "");
+            if (!prevChar) {
+                prevChar = curVal;
+                num++;
+            } else if (curVal != prevChar) {
+                console.log;
+                acc += num > 0 ? (num + 1).toString() + prevChar : prevChar;
                 num = 0;
                 prevChar = curVal;
+            } else {
+                num++;
             }
-            num++;
             return acc as any;
-        }) +
+        }, "") +
         (num > 1 ? num.toString() : "") +
         prevChar!;
     console.log("Comp gameState: ", ret);

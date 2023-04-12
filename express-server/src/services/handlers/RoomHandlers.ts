@@ -122,7 +122,7 @@ export const registerBaseRoomHandlers = (
                 }
                 if (res === HttpStatusCodes.OK) {
                     room.playerConnected(user.name);
-                    if (room.status === "init") {
+                    if (room.status === "playing") {
                         const initPayload = room.getInitPayload();
                         console.log("Room is init, starting game", initPayload);
                         if (initPayload) {
@@ -145,7 +145,7 @@ export const registerBaseRoomHandlers = (
                         }
                     }
                 }
-                console.log("User Joined Room: ", roomID);
+                console.log("User Joined Room: ", room);
             });
         }
 

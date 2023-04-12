@@ -13,8 +13,7 @@ import {
 import { findValidMoves, zipGameState } from "@src/util/CheckersUtil";
 
 export const CheckersRoomStatus = {
-    p1turn: "p1turn",
-    p2turn: "p2turn",
+    playing: "playing",
     gameOver: "gameOver",
 } as const;
 export const AllCheckersRoomStatus = {
@@ -114,7 +113,7 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
         if (this.players.includes(user)) {
             this.numPlayersConnected++;
             if (this.numPlayersConnected == 2) {
-                this.status = AllCheckersRoomStatus.init;
+                this.status = AllCheckersRoomStatus.playing;
                 this.init();
             }
         } else {
@@ -139,6 +138,9 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
         if (board.length != 32) throw new RangeError("Invalid board length");
         console.log("Setting board state, ", board);
         this.data.gameState.boardState = board;
+        this.data.gameState.turnNum++;
+        this.data.gameState.curPlayer =
+            this.players[this.data.gameState.turnNum % 2]!;
     }
     getPlayerName(playerID: string): string {
         return playerID;
