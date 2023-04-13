@@ -65,13 +65,8 @@ export const registerBaseRoomHandlers = (
             cb({ status: 400, data: { message: "Invalid Request" } });
             return;
         }
-        const token = socket.handshake.auth.token;
-        const user = await findUserFromToken(token);
-        if (!user) {
-            cb({ status: 400, data: { message: "Invalid User" } });
-            return;
-        }
-        const roomID = roomManager.findRoom(user.name);
+        const userToken = socket.handshake.auth.token;
+        const roomID = roomManager.findRoom(userToken);
         if (roomID) {
             cb({
                 status: 200,
@@ -88,14 +83,36 @@ export const registerBaseRoomHandlers = (
             cb({ status: 400, data: { message: "Invalid Room Type" } });
             return;
         }
-        const room = roomManager.managerRoomsMap.get(roomID);
-        if (!room) {
-            cb({ status: 400, data: { message: "Invalid Room ID" } });
+        const token = socket.handshake.auth.token;
+        try {
+            const roomData = roomManager.joinRoom(token, roomID);
+            if (!roomData) {
+                cb({ status: 400, data: { message: "Invalid User" } });
+                console.log("No user found for token: ", token);
+                return;
+            } else {
+                console.log("Adding Socket to room: ", socketRoomType, roomID);
+                socket.join(`${socketRoomType} ${roomID}`);
+                cb({ status: 200, message: roomID });
+            }
+            socket.emit("Room:Join_Res", roomData, (res: any) => {
+                console.log(
+                    "Received Client Callback for Room:Join_Res, ",
+                    res
+                );
+                if (res !== HttpStatusCodes.OK) {
+                    console.log("Error: Client Callback Error", res);
+                    return;
+                } else {
+                    roomManager.memberConnected(token);
+                }
+            });
+        } catch (error) {
+            cb({ status: 400, data: { message: error.message } });
             return;
         }
-        const token = socket.handshake.auth.token;
-        const user = await findUserFromToken(token);
-        if (!user) {
+        const room = roomManager.managerRoomsMap.get(roomID);
+        if (!roomData) {
             cb({ status: 400, data: { message: "Invalid User" } });
             console.log("No user found for token: ", token);
             return;

@@ -19,9 +19,9 @@ export interface IRoomPayload {
 export interface ISocketRoomsManager {
     managerRoomsMap: Map<string, SocketRoom>;
     usersInRooms: Map<string, Set<string>>;
+    findRoom: (...args: any) => any;
     joinRoom: (...args: any) => IRoomPayload;
     leaveRoom: (...args: any) => any;
-    findRoom: (...args: any) => any;
     initRoom: (...args: any) => any;
     manageRoomUpdate: (...args: any) => any;
     listRooms: (...args: any) => any;
@@ -87,6 +87,10 @@ const SocketRoomsManager = {
         return Promise.resolve(false);
     },
     manageRoomUpdate() {
+        console.log("ERROR: IN BASE ROOM MANAGER");
+        return null;
+    },
+    memberConnected() {
         console.log("ERROR: IN BASE ROOM MANAGER");
         return null;
     },

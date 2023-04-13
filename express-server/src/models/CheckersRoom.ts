@@ -6,11 +6,14 @@ import {
 } from "@src/interfaces/checkersInterfaces";
 import {
     ISocketRoom,
+    ROOM_ERRORS,
+    RoomErrors,
     SocketRoom,
     SocketRoomStatus,
     ValueOf,
 } from "./SocketRoom";
 import { findValidMoves, zipGameState } from "@src/util/CheckersUtil";
+import { ParameterError } from "@src/util/Errors";
 
 export const CheckersRoomStatus = {
     playing: "playing",
@@ -37,71 +40,64 @@ export interface ICheckersRoomState {
 }
 export interface ICheckersRoom extends ISocketRoom {
     players: CheckersPlayers;
-    data: {
-        gameState: CheckersGameState;
-    };
+    data: CheckersGameState;
 }
 /**
  * @param
  */
 export class CheckersRoom extends SocketRoom implements ICheckersRoom {
     public players: CheckersPlayers;
-    public data: {
-        gameState: CheckersGameState;
-    };
+    public data: CheckersGameState;
     public status: CheckersRoomStatusType;
     public constructor(
         id: string,
-        data?: ICheckersRoomState,
+        data?: CheckersGameState,
         status?: CheckersRoomStatusType
     ) {
         super(id);
         this.members = new Set();
         this.players = [null, null];
         this.type = "checkers";
-        this.data = data ?? DEFAULT_CHECKERS_ROOM_STATE;
+        this.data = data ?? DEFAULT_GAME_STATE;
         this.status = status ?? AllCheckersRoomStatus.empty;
     }
     numPlayersConnected = 0;
-    getGameState(): CheckersGameState {
-        return this.data.gameState;
-    }
     setGameState(gameState: CheckersGameState): boolean {
-        this.data.gameState = gameState;
+        this.data = gameState;
         return true;
     }
     getBoardState(): ValidTokens[] {
-        return this.data.gameState.boardState;
+        return this.data.boardState;
     }
     getZippedBoardState(): string {
-        return zipGameState(this.data.gameState.boardState);
+        return zipGameState(this.data.boardState);
     }
     setBoardState(boardState: ValidTokens[]): boolean {
         if (boardState.length != 32)
             throw new Error("Invalid board state length");
-        this.data.gameState.boardState = boardState;
+        this.data.boardState = boardState;
         return true;
     }
 
     setValidSelections() {}
     init() {
-        if (this.players.includes(null)) throw new Error("Room not full");
+        if (this.players.includes(null))
+            throw new RoomErrors(ROOM_ERRORS.RoomNotFull);
         if (Math.random() > 0.5) {
             this.players = [this.players[1], this.players[0]];
         }
-        this.data.gameState.curPlayer = this.players[0]!;
+        this.data.curPlayer = this.players[0]!;
     }
     /** Returns Num players in room */
     addPlayer(user: string): number {
-        if (this.players.includes(user)) {
-            throw new ReferenceError("User already in room");
-        }
         const open = this.players.indexOf(null);
         if (open == -1) {
-            /* If full, return -1 instead of throwing to handle removing from room manager */
-            console.log("Error: Room is full, bad status ", this.status);
+            console.log("Error: Room is full, cant add player");
             this.status = AllCheckersRoomStatus.full;
-            throw new ReferenceError("Room was already full");
+            throw new RoomErrors(ROOM_ERRORS.RoomIsFull);
+        }
+        if (this.players.includes(user)) {
+            throw new RoomErrors(ROOM_ERRORS.UserInRoom);
         }
         this.players[open] = user;
         this.addMember(user);
@@ -117,7 +113,7 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
                 this.init();
             }
         } else {
-            throw new ReferenceError("User not in room");
+            throw new RoomErrors(ROOM_ERRORS.UserNotInRoom);
         }
     }
     removePlayer(user: string): boolean {
@@ -135,18 +131,18 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
     updateRoomState(board: ValidTokens[]) {
         console.log("Updating room state");
         console.log("New board: ", board);
-        if (board.length != 32) throw new RangeError("Invalid board length");
+        if (board.length != 32)
+            throw new ParameterError("Invalid board length");
         console.log("Setting board state, ", board);
-        this.data.gameState.boardState = board;
-        this.data.gameState.turnNum++;
-        this.data.gameState.curPlayer =
-            this.players[this.data.gameState.turnNum % 2]!;
+        this.data.boardState = board;
+        this.data.turnNum++;
+        this.data.curPlayer = this.players[this.data.turnNum % 2]!;
     }
     getPlayerName(playerID: string): string {
         return playerID;
     }
     async getCurrentPlayerName() {
-        const playerID = this.data.gameState.curPlayer;
+        const playerID = this.data.curPlayer;
         const playerName = this.getPlayerName(playerID);
         return playerName;
     }
@@ -154,9 +150,9 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
         return {
             boardState: this.getZippedBoardState(),
             roomStatus: this.status,
-            curPlayer: this.data.gameState.curPlayer,
-            turnNum: this.data.gameState.turnNum,
-            validSels: this.data.gameState.validSels,
+            curPlayer: this.data.curPlayer,
+            turnNum: this.data.turnNum,
+            validSels: this.data.validSels,
         };
     }
     getJoinPayload() {
@@ -181,8 +177,8 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
                 status: this.status,
                 boardState: this.getZippedBoardState(),
                 players: this.players,
-                curPlayer: this.data.gameState.curPlayer,
-                validSels: this.data.gameState.validSels,
+                curPlayer: this.data.curPlayer,
+                validSels: this.data.validSels,
             },
         };
     }
@@ -195,8 +191,8 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
             data: {
                 status: this.status,
                 boardState: this.getZippedBoardState(),
-                curPlayer: this.data.gameState.curPlayer,
-                validSels: this.data.gameState.validSels,
+                curPlayer: this.data.curPlayer,
+                validSels: this.data.validSels,
             },
         };
     }
