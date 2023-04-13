@@ -152,8 +152,9 @@ describe("CheckersUtil", () => {
         expect(zipGameState(test3));
     });
     test("unzipGameState", () => {
+        expect(unzipGameState("E7pE3pEp6E12P"));
         expect(unzipGameState("9pE2p2Ep5E11PK"));
-        expect(unzipGameState("E7pE3pEp6E11P"));
+        expect(unzipGameState("K2EPkPpPK2k2EkP2kpE2KkEKEp2PKEKk"));
     });
 });
 [

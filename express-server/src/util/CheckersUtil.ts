@@ -50,7 +50,7 @@ export function zipGameState(gameState: ValidTokens[]): string {
             }
             return acc as any;
         }, "") +
-        (num > 1 ? num.toString() : "") +
+        (num > 1 ? (num + 1).toString() : "") +
         prevChar!;
     console.log("Comp gameState: ", ret);
     return ret;

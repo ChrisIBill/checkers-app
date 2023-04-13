@@ -4,7 +4,6 @@ import {
 	CheckersGameState,
 	CompressedCheckersGameState,
 } from "./checkersInterfaces";
-import {UserData} from "./userInterfaces";
 
 export type PathsTypes = typeof PathsSet[number];
 /* 
@@ -38,7 +37,7 @@ export interface OldCheckersBoardProps {
 	reqSels?: number[];
 }
 export interface CheckersBoardProps {
-	onMove(arg: ValidTokens[]): void;
+	onMove(arg: ValidTokens[], type: "submit" | "move"): void;
 	gameState: CheckersGameState;
 }
 export interface CheckersHistoryProps {

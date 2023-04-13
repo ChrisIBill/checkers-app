@@ -1,13 +1,6 @@
 import {AppBar, Box, Button, Toolbar, Typography} from "@mui/material";
 import {ErrorBoundary} from "react-error-boundary";
-import {useOutletContext} from "react-router-dom";
-import {
-	IUser,
-	UserContextType,
-	UserData,
-} from "../../interfaces/userInterfaces";
-import {ISessionContext} from "../../interfaces/SessionInterfaces";
-import {SessionContext} from "../../context/SessionContext";
+import {IUser, UserData} from "../../interfaces/userInterfaces";
 import {UserRoles} from "../../context/userContext";
 
 const UserHeaderComponent = ({user}: {user: IUser}) => {
