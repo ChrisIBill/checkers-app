@@ -33,8 +33,8 @@ export function zipGameState(gameState: ValidTokens[]): string {
 				num++;
 			} else if (curVal != prevChar) {
 				console.log;
-				acc += num > 1 ? num.toString() + prevChar : prevChar;
-				num = 1;
+				acc += num > 0 ? (num + 1).toString() + prevChar : prevChar;
+				num = 0;
 				prevChar = curVal;
 			} else {
 				num++;
