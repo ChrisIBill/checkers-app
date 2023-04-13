@@ -38,7 +38,7 @@ export interface OldCheckersBoardProps {
 	reqSels?: number[];
 }
 export interface CheckersBoardProps {
-	onMove(arg: ValidTokens[]): void;
+	onMove(arg: ValidTokens[], type: "submit" | "move"): void;
 	gameState: CheckersGameState;
 }
 export interface CheckersHistoryProps {

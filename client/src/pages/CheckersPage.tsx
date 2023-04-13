@@ -200,7 +200,6 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 	const {onMove, gameState} = props;
 	const {boardState, validSels, reqSels, isCurPlayer, playerTokens, status} =
 		gameState;
-	const [curBoard, setCurBoard] = useState<ValidTokens[]>(boardState);
 	const [boardStatus, setBoardStatus] =
 		useState<CheckersBoardStatusTypes>("waiting"); //populate?, select, move, submit
 	const [selectIndex, setSelectIndex] = useState<number>(-1);
@@ -210,6 +209,7 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 	if (playerTokens && !playerPieces) {
 		setPlayerPieces(playerTokens);
 	}
+	console.log("Checking status: ", status, boardStatus);
 	if (
 		status &&
 		["init", "playing"].includes(status) &&
@@ -217,7 +217,7 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 	) {
 		setBoardStatus("select");
 	}
-	let board = curBoard;
+	let board = boardState;
 	let isFlippedRow = true;
 	function handleSquareClick(sel: number) {
 		console.log("click: ", sel);
@@ -236,6 +236,7 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 				return;
 			}
 			const [moves, canTake] = findValidMoves(board, sel);
+			console.log("moves: ", moves, "canTake: ", canTake);
 			if (!moves) {
 				console.log("No valid moves!");
 				return;
@@ -253,6 +254,7 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 				return;
 			}
 			if (!validMoves.length) {
+				console.log("validMoves: ", validMoves);
 				console.log("BAD_ERROR: No valid moves while in move state!");
 				return;
 			}
@@ -264,11 +266,6 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 			console.log("valid move");
 			[board[sel], board[selectIndex]] = [board[selectIndex], board[sel]];
 			console.log("board1: ", board);
-			if (piecesToTake && piecesToTake[index]) {
-				//if jump
-				const remIndex = piecesToTake[index];
-				board[remIndex] = "E";
-			}
 			//Logic for Kinging
 			board[sel] =
 				board[sel] == "p" && sel >= 28
@@ -276,8 +273,11 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 					: board[sel] == "P" && sel <= 3
 					? "K"
 					: board[sel];
-			if (piecesToTake && piecesToTake.length > 0) {
-				console.log("piecesToTake: ", piecesToTake);
+			if (piecesToTake && piecesToTake[index]) {
+				//if jump
+				const remIndex = piecesToTake[index];
+				board[remIndex] = "E";
+				console.log("Jumped piece at index: ", remIndex);
 				const [moves, canTake] = findValidMoves(board, sel);
 				if (moves && canTake) {
 					console.log("More moves! Continuing...");
@@ -285,9 +285,7 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 					setValidMoves(moves);
 					setPiecesToTake(canTake);
 					setBoardStatus("move");
-					return;
-				} else {
-					console.log("BAD_ERROR: No more moves! While in move state!");
+					onMove(board, "move");
 					return;
 				}
 			} else {
@@ -296,13 +294,13 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 				setValidMoves([]);
 				setPiecesToTake(undefined);
 				setBoardStatus("waiting");
-				onMove(board);
+				onMove(board, "submit");
 				return;
 			}
 		}
 	}
 	console.log("board2: ", board);
-	const GameBoard = curBoard.map((elem, index) => {
+	const GameBoard = board.map((elem, index) => {
 		if (index % 4 == 0) {
 			isFlippedRow = !isFlippedRow;
 		}
@@ -386,24 +384,28 @@ export const CheckersWindow = ({
 	if (!socket || !userData) {
 		throw new Error("Bad Error: Socket/User Data not initialized.");
 	}
-	function handleMove(board: ValidTokens[]) {
-		if (socket && socket.connected) {
-			socket.emit(
-				"Room:Update_Server",
-				{
-					roomInfo: {roomID: windowRoomID, roomType: socketRoomType},
-					data: {
-						boardState: zipGameState(board),
-						moves: [],
+	function handleMove(board: ValidTokens[], type: "move" | "submit") {
+		if (type == "submit") {
+			if (socket && socket.connected) {
+				socket.emit(
+					"Room:Update_Server",
+					{
+						roomInfo: {roomID: windowRoomID, roomType: socketRoomType},
+						data: {
+							boardState: zipGameState(board),
+							moves: [],
+						},
 					},
-				},
-				(res: any) => {
-					/* TODO: If bad res, need to reset board and redo turn */
-					console.log("Server res to update: ", res);
-				}
-			);
-		} else {
-			console.log("Error: Socket not connected!");
+					(res: any) => {
+						/* TODO: If bad res, need to reset board and redo turn */
+						console.log("Server res to update: ", res);
+					}
+				);
+			} else {
+				console.log("Error: Socket not connected!");
+			}
+		} else if (type == "move") {
+			setGameBoard(board);
 		}
 	}
 	useEffect(() => {
@@ -488,7 +490,7 @@ export const CheckersWindow = ({
 					boardState: board,
 					validSels: validSels,
 					isCurPlayer: curPlayer == userData.name,
-					status: "waiting",
+					status: status,
 				});
 			}
 		);
