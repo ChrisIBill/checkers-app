@@ -12,8 +12,6 @@ import {ErrorBoundary} from "react-error-boundary";
 import {authSocket} from "../../socket";
 import HttpStatusCode from "../../constants/HttpStatusCodes";
 import {IUser} from "../../interfaces/userInterfaces";
-import {SessionContext} from "../../context/SessionContext";
-import {useOutletContext} from "react-router-dom";
 
 enum EStatus {
 	Waiting,

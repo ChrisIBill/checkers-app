@@ -4,7 +4,6 @@ import {
 	CheckersGameState,
 	CompressedCheckersGameState,
 } from "./checkersInterfaces";
-import {UserData} from "./userInterfaces";
 
 export type PathsTypes = typeof PathsSet[number];
 /* 

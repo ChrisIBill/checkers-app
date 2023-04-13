@@ -1,4 +1,3 @@
-import React from "react";
 import ReactDOM from "react-dom/client";
 
 import "./index.css";
@@ -13,7 +12,6 @@ import {
 import {Paths} from "./paths/SocketPaths";
 import {RootPage} from "./pages/RootPage";
 import {ErrorPage} from "./pages/ErrorPage";
-import {GamesPage} from "./pages/GamesPage";
 import {AdminPage} from "./pages/AdminPage";
 const routes = [
 	{
@@ -24,11 +22,6 @@ const routes = [
 			{
 				path: Paths.App.Base,
 				indexElement: <MainPage />,
-				errorElement: <ErrorPage />,
-			},
-			{
-				path: Paths.Games.Base,
-				element: <GamesPage />,
 				errorElement: <ErrorPage />,
 			},
 		],
@@ -42,11 +35,6 @@ const elemRoutes = createRoutesFromElements(
 			element={<AdminPage />}
 			errorElement={<ErrorPage />}
 		/>
-		<Route
-			path={Paths.Games.Base}
-			element={<GamesPage />}
-			errorElement={<ErrorPage />}
-		></Route>
 		<Route index element={<MainPage />} errorElement={<ErrorPage />} />
 	</Route>
 );
