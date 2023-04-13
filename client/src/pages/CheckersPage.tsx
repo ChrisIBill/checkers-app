@@ -200,12 +200,17 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 	const {onMove, gameState} = props;
 	const {boardState, validSels, reqSels, isCurPlayer, playerTokens, status} =
 		gameState;
+	const [curBoard, setCurBoard] = useState<ValidTokens[]>(boardState);
+	console.log("Board state: ", curBoard);
 	const [boardStatus, setBoardStatus] =
 		useState<CheckersBoardStatusTypes>("waiting"); //populate?, select, move, submit
 	const [selectIndex, setSelectIndex] = useState<number>(-1);
 	const [validMoves, setValidMoves] = useState<number[]>([]);
 	const [piecesToTake, setPiecesToTake] = useState<number[] | undefined>([]);
 	const [playerPieces, setPlayerPieces] = useState<PlayerTokens>();
+	if (curBoard != boardState) {
+		setCurBoard(boardState);
+	}
 	if (playerTokens && !playerPieces) {
 		setPlayerPieces(playerTokens);
 	}
@@ -217,7 +222,7 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 	) {
 		setBoardStatus("select");
 	}
-	let board = boardState;
+	let board = curBoard;
 	let isFlippedRow = true;
 	function handleSquareClick(sel: number) {
 		console.log("click: ", sel);
@@ -285,7 +290,15 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 					setValidMoves(moves);
 					setPiecesToTake(canTake);
 					setBoardStatus("move");
-					onMove(board, "move");
+					setCurBoard(board);
+					return;
+				} else {
+					console.log("No more moves! Submitting...");
+					setSelectIndex(-1);
+					setValidMoves([]);
+					setPiecesToTake(undefined);
+					setBoardStatus("submit");
+					setCurBoard(board);
 					return;
 				}
 			} else {
@@ -293,14 +306,14 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 				setSelectIndex(-1);
 				setValidMoves([]);
 				setPiecesToTake(undefined);
-				setBoardStatus("waiting");
-				onMove(board, "submit");
+				setBoardStatus("submit");
+				setCurBoard(board);
 				return;
 			}
 		}
 	}
 	console.log("board2: ", board);
-	const GameBoard = board.map((elem, index) => {
+	const GameBoard = curBoard.map((elem, index) => {
 		if (index % 4 == 0) {
 			isFlippedRow = !isFlippedRow;
 		}
@@ -336,7 +349,13 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 			</div>
 		);
 	});
-	console.log(GameBoard);
+	useEffect(() => {
+		if (curBoard && boardStatus == "submit") {
+			console.log("Submitting move...");
+			onMove(curBoard, "submit");
+			setBoardStatus("waiting");
+		}
+	}, [curBoard, boardStatus]);
 	return <ul id="CheckersBoard">{GameBoard}</ul>;
 };
 const GameHistory: React.FC<CheckersHistoryProps> = (props) => {
@@ -369,9 +388,6 @@ export const CheckersWindow = ({
 		useState<ValidTokens[]>(EMPTY_CHECKERS_BOARD);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const [status, setStatus] = useState("loading"); //loading, init, waiting, playing, over, error
-	const [playerTokens, setPlayerTokens] = useState<PlayerTokens>();
-	const [isCurPlayer, setIsCurPlayer] = useState<boolean>(false);
-	const [turnNum, setTurnNum] = useState<number>(0);
 	const socketRoomType = ROOM_TYPES.checkers;
 
 	function validateCheckersPayload(roomInfo: IRoomInfo) {
@@ -405,7 +421,9 @@ export const CheckersWindow = ({
 				console.log("Error: Socket not connected!");
 			}
 		} else if (type == "move") {
-			setGameBoard(board);
+			setGameState({
+				boardState: board,
+			});
 		}
 	}
 	useEffect(() => {
