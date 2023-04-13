@@ -201,7 +201,7 @@ const CheckersRoomsManager = {
             console.log("Players in rooms: ", room.players);
             throw new ReferenceError("User not in room");
         }
-        if (room.data.gameState.curPlayer != user) {
+        if (room.data.gameState.curPlayer == user) {
             try {
                 room.updateRoomState(board);
             } catch (err) {

@@ -202,7 +202,7 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 		gameState;
 	const [curBoard, setCurBoard] = useState<ValidTokens[]>(boardState);
 	const [boardStatus, setBoardStatus] =
-		useState<CheckersBoardStatusTypes>("loading"); //populate?, select, move, submit
+		useState<CheckersBoardStatusTypes>("waiting"); //populate?, select, move, submit
 	const [selectIndex, setSelectIndex] = useState<number>(-1);
 	const [validMoves, setValidMoves] = useState<number[]>([]);
 	const [piecesToTake, setPiecesToTake] = useState<number[] | undefined>([]);
@@ -210,7 +210,11 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 	if (playerTokens && !playerPieces) {
 		setPlayerPieces(playerTokens);
 	}
-	if (isCurPlayer && ["waiting", "loading"].includes(boardStatus)) {
+	if (
+		status &&
+		["init", "playing"].includes(status) &&
+		boardStatus == "waiting"
+	) {
 		setBoardStatus("select");
 	}
 	let board = curBoard;
@@ -291,7 +295,7 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 				setSelectIndex(-1);
 				setValidMoves([]);
 				setPiecesToTake(undefined);
-				setBoardStatus("submit");
+				setBoardStatus("waiting");
 				onMove(board);
 				return;
 			}
@@ -373,6 +377,7 @@ export const CheckersWindow = ({
 	const socketRoomType = ROOM_TYPES.checkers;
 
 	function validateCheckersPayload(roomInfo: IRoomInfo) {
+		/* TODO: Move and improve */
 		const {roomID, roomType} = roomInfo;
 		if (roomID != windowRoomID) throw new Error("Bad RoomID");
 		if (roomType != socketRoomType) throw new Error("Bad RoomType");
@@ -393,6 +398,7 @@ export const CheckersWindow = ({
 					},
 				},
 				(res: any) => {
+					/* TODO: If bad res, need to reset board and redo turn */
 					console.log("Server res to update: ", res);
 				}
 			);
@@ -470,6 +476,20 @@ export const CheckersWindow = ({
 			"Room:Update_Room",
 			(args: IRoomPayload, cb: (res: any) => void) => {
 				console.log("Room Members Updated", args);
+				try {
+					validateCheckersPayload(args.roomInfo);
+				} catch (err) {
+					console.log("BAD_ERROR Updating Room Members: ", err);
+					cb(HttpStatusCode.BAD_REQUEST);
+				}
+				const {status, boardState, curPlayer, validSels} = args.data;
+				const board = unzipGameState(boardState);
+				setGameState({
+					boardState: board,
+					validSels: validSels,
+					isCurPlayer: curPlayer == userData.name,
+					status: "waiting",
+				});
 			}
 		);
 		return () => {
