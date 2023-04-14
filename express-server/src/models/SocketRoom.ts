@@ -19,6 +19,18 @@ export class RoomError extends Error {
     }
 }
 
+export enum MemberConnectionStatus {
+    Error = -1,
+    Disconnected = 0,
+    Reserved = 1,
+    Connected = 2,
+}
+
+export interface IRoomMember {
+    username?: string;
+    connectionStatus: MemberConnectionStatus;
+}
+
 export const SocketRoomStatus = {
     empty: "empty",
     open: "open",
@@ -38,35 +50,36 @@ export type SocketRoomStatusType = ValueOf<typeof SocketRoomStatus>;
  */
 export interface ISocketRoom {
     id: string;
-    members: Set<string>;
+    members: Map<string, IRoomMember>;
     data: any;
     status: string;
 }
 export class SocketRoom implements ISocketRoom {
     [x: string]: any;
     public id: string;
-    public members: Set<string>;
+    public members: Map<string, IRoomMember>;
     public type: RoomTypes;
     public data: any;
     public status: string;
     public constructor(
         id: string | number,
-        members?: Set<string>,
+        members?: Map<string, IRoomMember>,
         type?: RoomTypes,
         data?: any,
         status?: string
     ) {
         this.id = typeof id === "number" ? id.toString() : id;
-        this.members = members ?? new Set();
+        this.members = members ?? new Map();
         this.type = type ?? "basic";
         this.data = data ?? {};
         this.status = status ?? SocketRoomStatus.empty;
     }
 
-    public addMember(username: string): boolean {
-        if (this.members.has(username) || this.status == "private")
-            return false;
-        this.members.add(username);
+    public addMember(userID: string): boolean {
+        if (this.members.has(userID) || this.status == "private") return false;
+        this.members.set(userID, {
+            connectionStatus: MemberConnectionStatus.Connected,
+        });
         return true;
     }
 

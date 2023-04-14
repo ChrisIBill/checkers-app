@@ -5,6 +5,7 @@ import {
     ValidTokens,
 } from "@src/interfaces/checkersInterfaces";
 import {
+    IRoomMember,
     ISocketRoom,
     ROOM_ERROR_MESSAGES,
     RoomError,
@@ -34,7 +35,11 @@ export type PlayerType = typeof PLAYER_TYPE[number];
 
 /* export type PlayerType = [string, (PlayerTokens | null)]; */
 
-export type CheckersPlayers = [string | null, string | null];
+export type CheckersPlayers = {
+    length: 2;
+    [0]: IRoomMember | null;
+    [1]: IRoomMember | null;
+};
 
 export interface ICheckersRoomState {
     gameState: CheckersGameState;
@@ -56,7 +61,7 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
         status?: CheckersRoomStatusType
     ) {
         super(id);
-        this.members = new Set();
+        this.members = new Map();
         this.players = [null, null];
         this.type = "checkers";
         this.data = data ?? DEFAULT_GAME_STATE;
@@ -97,28 +102,29 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
         this.data.curPlayer = this.players[0]!;
     }
     /** Returns Num players in room */
-    addPlayer(user: string): number {
+    addPlayer(userID: string): number {
         const open = this.players.indexOf(null);
         if (open == -1) {
             console.log("Error: Room is full, cant add player");
             this.status = AllCheckersRoomStatus.full;
             throw new RoomError(ROOM_ERROR_MESSAGES.RoomIsFull);
         }
-        if (this.players.includes(user)) {
+        if (this.players.includes(userID)) {
             throw new RoomError(ROOM_ERROR_MESSAGES.UserInRoom);
         }
-        this.players[open] = user;
-        this.addMember(user);
+        this.players[open] = userID;
+        this.addMember(userID);
         const numPlayers = this.players.filter((p) => p != null).length;
         if (numPlayers == 2) this.status = AllCheckersRoomStatus.full;
         return numPlayers;
     }
-    memberConnected(user: string) {
+    memberConnected(userID: string) {
         console.log("Member connected, ", user);
         console.log("Players: ", this.players);
         console.log("Members: ", this.members);
-        if (this.players.includes(user)) {
-            this.numPlayersConnected++;
+        if (this.players.includes(userID) && this.members.has(userID)) {
+            const memberData = this.members.get(userID);
+
             if (this.numPlayersConnected == 2) {
                 this.start();
             } else this.status = AllCheckersRoomStatus.init;
