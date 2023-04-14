@@ -67,11 +67,8 @@ const CheckersRoomsManager = {
     },
     addPlayerToRoom(roomID: string, user: string) {
         const room = this.managerRoomsMap.get(roomID);
-        if (!room) {
-            throw new RoomManagerError(MANAGER_ERROR_MESSAGES.RoomIDNotInMap);
-        }
         try {
-            room.addPlayer(user);
+            room!.addPlayer(user);
             this.playersInRooms.set(user, roomID);
         } catch (e) {
             if (
@@ -82,6 +79,10 @@ const CheckersRoomsManager = {
             }
             throw e;
         }
+    },
+    reserveRoomForPlayer(roomID: string, user: string) {
+        /* TODO */
+        const room = this.managerRoomsMap.get(roomID);
     },
     getBoardState(roomID: string) {
         const room = this.managerRoomsMap.get(roomID);
@@ -119,7 +120,7 @@ const CheckersRoomsManager = {
         if (!room) {
             throw new RoomManagerError(MANAGER_ERROR_MESSAGES.RoomIDNotInMap);
         }
-        if (!room.players.includes(user)) {
+        if (!room.players.has(user)) {
             console.log("User not in room, attempting to add");
             try {
                 this.addPlayerToRoom(roomID, user);

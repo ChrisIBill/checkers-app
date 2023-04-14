@@ -58,6 +58,8 @@ export const registerBaseRoomHandlers = (
 ) => {
     console.log("Base Room Handler");
     socket.on("Room:Find_Req", async (args: any, cb: (res: any) => void) => {
+        const userToken = socket.handshake.auth.token;
+        const username = await findUserFromToken(userToken);
         console.log("Received Find Room Request", args);
         const { roomType, roomStyle } = args;
         console.log("type: ", roomType, "id: ", roomStyle);
@@ -66,8 +68,7 @@ export const registerBaseRoomHandlers = (
             cb({ status: 400, data: { message: "Invalid Request" } });
             return;
         }
-        const userToken = socket.handshake.auth.token;
-        const roomID = roomManager.findRoom(userToken);
+        const roomID = roomManager.findRoom(userToken, username);
         if (roomID) {
             cb({
                 status: 200,

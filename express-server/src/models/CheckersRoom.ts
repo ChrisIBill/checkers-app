@@ -17,6 +17,8 @@ import { findValidMoves, zipGameState } from "@src/util/CheckersUtil";
 import { ParameterError } from "@src/util/Errors";
 import { USER_NOT_FOUND_ERR } from "../services/myUserService";
 import { IRoomPayload } from "@src/interfaces/SocketIO-Interfaces";
+import { findUserFromToken } from "@src/services/myAuthService";
+import { getRandomKey } from "@src/util/misc";
 
 export const CheckersRoomStatus = {
     gameOver: "gameOver",
@@ -34,25 +36,29 @@ export const DEFAULT_CHECKERS_ROOM_STATE: ICheckersRoomState = {
 export type PlayerType = typeof PLAYER_TYPE[number];
 
 /* export type PlayerType = [string, (PlayerTokens | null)]; */
-
-export type CheckersPlayers = {
-    length: 2;
-    [0]: IRoomMember | null;
-    [1]: IRoomMember | null;
-};
-
+export enum MemberConnectionStatus {
+    Error = -1,
+    Disconnected = 0,
+    Reserved = 1,
+    Connected = 2,
+}
+export interface IRoomMember {
+    username?: string;
+    connectionStatus: MemberConnectionStatus;
+}
+export type CheckersPlayer = IRoomMember | null;
 export interface ICheckersRoomState {
     gameState: CheckersGameState;
 }
 export interface ICheckersRoom extends ISocketRoom {
-    players: CheckersPlayers;
+    players: Map<string, CheckersPlayer>;
     data: CheckersGameState;
 }
 /**
  * @param
  */
 export class CheckersRoom extends SocketRoom implements ICheckersRoom {
-    public players: CheckersPlayers;
+    public players: Map<string, CheckersPlayer>;
     public data: CheckersGameState;
     public status: CheckersRoomStatusType;
     public constructor(
@@ -62,7 +68,7 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
     ) {
         super(id);
         this.members = new Map();
-        this.players = [null, null];
+        this.players = new Map();
         this.type = "checkers";
         this.data = data ?? DEFAULT_GAME_STATE;
         this.status = status ?? AllCheckersRoomStatus.empty;
@@ -84,61 +90,74 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
         this.data.boardState = boardState;
         return true;
     }
-    isCurPlayer(user: string): boolean {
-        if (!this.players.includes(user)) {
+    isCurPlayer(userID: string): boolean {
+        if (!this.players.has(userID)) {
             throw new RoomError(ROOM_ERROR_MESSAGES.UserNotInRoom);
         }
-        return this.data.curPlayer == user;
+        return this.data.curPlayer == userID;
     }
     setValidSelections() {}
     start() {
-        if (this.players.includes(null))
+        if (this.players.size != 2)
             throw new RoomError(ROOM_ERROR_MESSAGES.RoomNotFull);
-        if (Math.random() > 0.5) {
-            this.players = [this.players[1], this.players[0]];
-        }
         this.data.turnNum = 0;
         this.status = AllCheckersRoomStatus.active;
-        this.data.curPlayer = this.players[0]!;
+        this.data.curPlayer = getRandomKey(this.players);
     }
     /** Returns Num players in room */
-    addPlayer(userID: string): number {
-        const open = this.players.indexOf(null);
-        if (open == -1) {
+    addPlayer(userID: string, username: string): number {
+        const size = this.players.size;
+        if (this.players.size >= 2) {
             console.log("Error: Room is full, cant add player");
             this.status = AllCheckersRoomStatus.full;
             throw new RoomError(ROOM_ERROR_MESSAGES.RoomIsFull);
         }
-        if (this.players.includes(userID)) {
+        if (this.players.has(userID)) {
             throw new RoomError(ROOM_ERROR_MESSAGES.UserInRoom);
         }
-        this.players[open] = userID;
+        this.players.set(userID, {
+            username,
+            connectionStatus: MemberConnectionStatus.Reserved,
+        });
         this.addMember(userID);
-        const numPlayers = this.players.filter((p) => p != null).length;
+        const numPlayers = this.players.size;
         if (numPlayers == 2) this.status = AllCheckersRoomStatus.full;
+        else if (numPlayers > 2)
+            throw new RoomError(ROOM_ERROR_MESSAGES.BadState);
         return numPlayers;
     }
     memberConnected(userID: string) {
-        console.log("Member connected, ", user);
         console.log("Players: ", this.players);
         console.log("Members: ", this.members);
-        if (this.players.includes(userID) && this.members.has(userID)) {
-            const memberData = this.members.get(userID);
-
+        const playerData = this.players.get(userID);
+        const memberData = this.members.get(userID);
+        if (
+            playerData &&
+            playerData.connectionStatus != MemberConnectionStatus.Connected
+        ) {
+            playerData.connectionStatus = MemberConnectionStatus.Connected;
+            this.numPlayersConnected++;
             if (this.numPlayersConnected == 2) {
                 this.start();
             } else this.status = AllCheckersRoomStatus.init;
-        } else if (!this.members.has(user)) {
+        } else if (memberData) {
+            /* TODO */
+            memberData.connectionStatus = MemberConnectionStatus.Connected;
+        } else {
             throw new RoomError(ROOM_ERROR_MESSAGES.UserNotInRoom);
         }
     }
-    removePlayer(user: string): boolean {
-        if (this.players.includes(user)) {
-            const index = this.players.indexOf(user);
-            this.players[index] = null;
-            this.removeMember(user);
-            if (this.players.includes(null)) this.status = "open";
-            else this.status = AllCheckersRoomStatus.full;
+    removePlayer(userID: string): boolean {
+        if (this.players.has(userID)) {
+            this.players.delete(userID);
+            this.removeMember(userID);
+            this.players.size == 0
+                ? (this.status = AllCheckersRoomStatus.empty)
+                : this.players.size == 1
+                ? (this.status = AllCheckersRoomStatus.open)
+                : this.players.size == 2
+                ? (this.status = AllCheckersRoomStatus.full)
+                : (this.status = AllCheckersRoomStatus.error);
             return true;
         }
         return false;
@@ -152,7 +171,9 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
         console.log("Setting board state, ", board);
         this.data.boardState = board;
         this.data.turnNum++;
-        this.data.curPlayer = this.players[this.data.turnNum % 2]!;
+        /* TODO */
+        /* Definitely can be improved */
+        this.data.curPlayer = this.players.forEach;
     }
     getPlayerName(playerID: string): string {
         return playerID;

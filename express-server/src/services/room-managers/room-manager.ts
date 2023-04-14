@@ -31,6 +31,7 @@ export interface ISocketRoomsManager {
     startRoom: (...args: any) => any;
     manageRoomUpdate: (...args: any) => any;
     listRooms: (...args: any) => any;
+    TEST_ROOM: (...args: any) => any;
 }
 const SocketRoomsManager = {
     /* room-id -> Room */
