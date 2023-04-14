@@ -40,13 +40,14 @@ interface ClientToServerEvents {
 interface InterServerEvents {
     ping: () => void;
 }
-
-export interface IRoomPayloadCall {
+export interface IRoomPayload {
     roomInfo: {
         roomType: RoomTypes;
         roomID: string;
     };
     data: object;
+}
+export interface IRoomPayloadCall extends IRoomPayload {
     callback: (res: any) => void;
 }
 

@@ -1,4 +1,4 @@
-import { CheckersRoom } from "@src/models/CheckersRoom";
+import { AllCheckersRoomStatus, CheckersRoom } from "@src/models/CheckersRoom";
 import SocketRoomsManager, {
     ISocketRoomsManager,
     MANAGER_ERROR_MESSAGES,
@@ -71,7 +71,7 @@ const CheckersRoomsManager = {
             throw new RoomManagerError(MANAGER_ERROR_MESSAGES.RoomIDNotInMap);
         }
         try {
-            room.addPlayer;
+            room.addPlayer(user);
             this.playersInRooms.set(user, roomID);
         } catch (e) {
             if (
@@ -136,12 +136,26 @@ const CheckersRoomsManager = {
         }
         return room.getJoinPayload();
     },
+    /** @deprecated */
     initRoom(roomID: string) {
         const room = this.managerRoomsMap.get(roomID);
         if (!room) {
             throw new ReferenceError("Room does not exist");
         }
         room.init();
+    },
+    startRoom(roomID: string) {
+        /* TODO */
+        /* Should probably improve room state checking to ensure everything is good to go */
+        /* However, room state really should be valid */
+        const room = this.managerRoomsMap.get(roomID);
+        if (!room) {
+            throw new RoomManagerError(MANAGER_ERROR_MESSAGES.RoomIDNotInMap);
+        }
+        if (room.status !== AllCheckersRoomStatus.active) {
+            throw new RoomError(ROOM_ERROR_MESSAGES.BadState);
+        }
+        return room.getInitPayload();
     },
     /*     updateRoom(user: string, roomID: string, data: any) {
         const room = this.managerRoomsMap.get(roomID);
@@ -191,6 +205,7 @@ const CheckersRoomsManager = {
         } catch (e) {
             throw e;
         }
+        return room.getUpdatePayload();
     },
 };
 

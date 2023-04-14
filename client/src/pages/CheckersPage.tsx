@@ -41,6 +41,8 @@ import {useSessionContextType} from "../interfaces/SessionInterfaces";
 import {ROOM_TYPES} from "../constants/RoomConsts";
 import {IRoomInfo, IRoomPayload} from "../interfaces/RoomInterfaces";
 
+const token = localStorage.getItem("token");
+
 const CheckersSquare = ({
 	elem,
 	index,
@@ -217,8 +219,9 @@ const CheckersBoard: React.FC<CheckersBoardProps> = (props) => {
 	console.log("Checking status: ", status, boardStatus);
 	if (
 		status &&
-		["init", "playing"].includes(status) &&
-		boardStatus == "waiting"
+		status == "active" &&
+		boardStatus == "waiting" &&
+		isCurPlayer
 	) {
 		setBoardStatus("select");
 	}
@@ -414,7 +417,7 @@ export const CheckersWindow = ({
 					},
 					(res: any) => {
 						/* TODO: If bad res, need to reset board and redo turn */
-						console.log("Server res to update: ", res);
+						console.log("Server res to Room:Update_server: ", res);
 					}
 				);
 			} else {
@@ -480,7 +483,7 @@ export const CheckersWindow = ({
 				cb(HttpStatusCode.BAD_REQUEST);
 			}
 			const data = args.data;
-			const isCurPlayer = data.curPlayer == userData.name;
+			const isCurPlayer = data.curPlayer == token;
 			const playerTokens = isCurPlayer ? "pk" : "PK";
 			const initState: CheckersGameState = {
 				boardState: unzipGameState(data.boardState),
@@ -507,7 +510,7 @@ export const CheckersWindow = ({
 				setGameState({
 					boardState: board,
 					validSels: validSels,
-					isCurPlayer: curPlayer == userData.name,
+					isCurPlayer: curPlayer == token,
 					status: status,
 				});
 			}

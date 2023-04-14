@@ -15,6 +15,7 @@ import {
 import { findValidMoves, zipGameState } from "@src/util/CheckersUtil";
 import { ParameterError } from "@src/util/Errors";
 import { USER_NOT_FOUND_ERR } from "../services/myUserService";
+import { IRoomPayload } from "@src/interfaces/SocketIO-Interfaces";
 
 export const CheckersRoomStatus = {
     gameOver: "gameOver",
@@ -113,6 +114,9 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
         return numPlayers;
     }
     memberConnected(user: string) {
+        console.log("Member connected, ", user);
+        console.log("Players: ", this.players);
+        console.log("Members: ", this.members);
         if (this.players.includes(user)) {
             this.numPlayersConnected++;
             if (this.numPlayersConnected == 2) {
@@ -161,7 +165,7 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
             validSels: this.data.validSels,
         };
     }
-    getJoinPayload() {
+    getJoinPayload(): IRoomPayload {
         return {
             roomInfo: {
                 roomType: this.type,
@@ -173,7 +177,7 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
             },
         };
     }
-    getInitPayload() {
+    getInitPayload(): IRoomPayload {
         return {
             roomInfo: {
                 roomType: this.type,
@@ -188,7 +192,7 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
             },
         };
     }
-    getUpdatePayload() {
+    getUpdatePayload(): IRoomPayload {
         return {
             roomInfo: {
                 roomType: this.type,

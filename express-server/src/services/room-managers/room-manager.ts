@@ -28,7 +28,7 @@ export interface ISocketRoomsManager {
     joinRoom: (...args: any) => IRoomPayload;
     memberConnected: (...args: any) => any;
     leaveRoom: (...args: any) => any;
-    initRoom: (...args: any) => any;
+    startRoom: (...args: any) => any;
     manageRoomUpdate: (...args: any) => any;
     listRooms: (...args: any) => any;
 }
