@@ -2,7 +2,7 @@ import { SOCKET_ROOM_STATUS_TYPES } from "@src/constants/SocketConsts";
 import { IUser } from "./User";
 import { RoomTypes } from "@src/interfaces/SocketIO-Interfaces";
 
-export const ROOM_ERRORS = {
+export const ROOM_ERROR_MESSAGES = {
     RoomIsFull: "Room is full",
     UserInRoom: "User is already in room",
     RoomNotFull: "Room is not full",
@@ -10,9 +10,10 @@ export const ROOM_ERRORS = {
     BadState: "Bad room state",
 } as const;
 
-export type RoomErrorsType = typeof ROOM_ERRORS[keyof typeof ROOM_ERRORS];
+export type RoomErrorsType =
+    typeof ROOM_ERROR_MESSAGES[keyof typeof ROOM_ERROR_MESSAGES];
 
-export class RoomErrors extends Error {
+export class RoomError extends Error {
     constructor(message: RoomErrorsType) {
         super(message);
     }
@@ -24,6 +25,7 @@ export const SocketRoomStatus = {
     full: "full",
     private: "private",
     init: "init",
+    active: "active",
     error: "error",
 } as const;
 export type ValueOf<T> = T[keyof T];

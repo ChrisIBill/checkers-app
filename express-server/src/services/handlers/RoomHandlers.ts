@@ -36,6 +36,7 @@ import { ISocketRoomsManager } from "../room-managers/room-manager";
 import HttpStatusCodes from "@src/constants/HttpStatusCodes";
 import { unzipGameState } from "@src/util/CheckersUtil";
 import { IRoomInfo } from "../../../../client/src/interfaces/RoomInterfaces";
+import { SocketRoomStatus } from "@src/models/SocketRoom";
 
 /* handles rerouting to appropriate room handler */
 export const roomPayloadRouter = (
@@ -86,15 +87,9 @@ export const registerBaseRoomHandlers = (
         const token = socket.handshake.auth.token;
         try {
             const roomData = roomManager.joinRoom(token, roomID);
-            if (!roomData) {
-                cb({ status: 400, data: { message: "Invalid User" } });
-                console.log("No user found for token: ", token);
-                return;
-            } else {
                 console.log("Adding Socket to room: ", socketRoomType, roomID);
                 socket.join(`${socketRoomType} ${roomID}`);
                 cb({ status: 200, message: roomID });
-            }
             socket.emit("Room:Join_Res", roomData, (res: any) => {
                 console.log(
                     "Received Client Callback for Room:Join_Res, ",
@@ -103,9 +98,10 @@ export const registerBaseRoomHandlers = (
                 if (res !== HttpStatusCodes.OK) {
                     console.log("Error: Client Callback Error", res);
                     return;
-                } else {
-                    roomManager.memberConnected(token);
                 }
+                const status = roomManager.memberConnected(token);
+                if (status === SocketRoomStatus.active) {
+                    getInitPayload
             });
         } catch (error) {
             cb({ status: 400, data: { message: error.message } });

@@ -1,9 +1,13 @@
 import { CheckersRoom } from "@src/models/CheckersRoom";
-import SocketRoomsManager, { ISocketRoomsManager } from "./room-manager";
+import SocketRoomsManager, {
+    ISocketRoomsManager,
+    MANAGER_ERROR_MESSAGES,
+    RoomManagerError,
+} from "./room-manager";
 import { findRoomForClient } from "../GamesService";
 import { IPayload } from "@src/interfaces/SocketIO-Interfaces";
 import { ValidTokens } from "@src/interfaces/checkersInterfaces";
-import { ROOM_ERRORS, RoomErrors } from "@src/models/SocketRoom";
+import { ROOM_ERROR_MESSAGES, RoomError } from "@src/models/SocketRoom";
 
 /* export interface ICheckersRoomsManager{
     playersInRooms: Map<string, string>;
@@ -53,7 +57,7 @@ const CheckersRoomsManager = {
     getRoomPayload(roomID: string) {
         const room = this.managerRoomsMap.get(roomID);
         if (!room) {
-            throw new ReferenceError("Room does not exist");
+            throw new RoomManagerError(MANAGER_ERROR_MESSAGES.RoomIDNotInMap);
         }
         const payload = {
             ...room.getPayload(),
@@ -64,15 +68,15 @@ const CheckersRoomsManager = {
     addPlayerToRoom(roomID: string, user: string) {
         const room = this.managerRoomsMap.get(roomID);
         if (!room) {
-            throw new ReferenceError("Room does not exist");
+            throw new RoomManagerError(MANAGER_ERROR_MESSAGES.RoomIDNotInMap);
         }
         try {
             room.addPlayer;
             this.playersInRooms.set(user, roomID);
         } catch (e) {
             if (
-                e instanceof RoomErrors &&
-                e.message === ROOM_ERRORS.RoomIsFull
+                e instanceof RoomError &&
+                e.message === ROOM_ERROR_MESSAGES.RoomIsFull
             ) {
                 this.openRooms.delete(roomID);
             }
@@ -82,7 +86,7 @@ const CheckersRoomsManager = {
     getBoardState(roomID: string) {
         const room = this.managerRoomsMap.get(roomID);
         if (!room) {
-            throw new ReferenceError("Room does not exist");
+            throw new RoomManagerError(MANAGER_ERROR_MESSAGES.RoomIDNotInMap);
         }
         return room.getBoardState();
     },
@@ -93,16 +97,6 @@ const CheckersRoomsManager = {
         }
         return room.getCurrentPlayerName();
     },
-    getPlayerID(roomID: string, user: string) {
-        const room = this.managerRoomsMap.get(roomID);
-        if (!room) {
-            throw new ReferenceError("Room does not exist");
-        }
-        if (!room.players.includes(user)) {
-            throw new ReferenceError("User not in room");
-        }
-        return user;
-    },
     listRooms() {
         console.log("Listing rooms");
         this.managerRoomsMap.forEach((room) => {
@@ -112,30 +106,32 @@ const CheckersRoomsManager = {
 
     /* Services */
     findRoom(user: string) {
+        /* TODO */
+        /* Need to reserve space in room for user token for short time */
         const roomID =
             this.getUserRoom(user) ?? this.getNextOpenRoom() ?? this.newRoom();
-        if (!roomID) throw new Error("Could not find room for client");
+        if (!roomID)
+            throw new RoomManagerError(MANAGER_ERROR_MESSAGES.NoRoomFound);
         return roomID;
     },
     joinRoom(user: string, roomID: string) {
         const room = this.managerRoomsMap.get(roomID);
         if (!room) {
-            throw new ReferenceError("Room does not exist");
+            throw new RoomManagerError(MANAGER_ERROR_MESSAGES.RoomIDNotInMap);
         }
         if (!room.players.includes(user)) {
             console.log("User not in room, attempting to add");
             try {
                 this.addPlayerToRoom(roomID, user);
-            } catch (error) {
-                console.log("Error adding player to room: " + error);
+            } catch (e) {
+                console.log("Error adding player to room: " + e);
                 if (
-                    error instanceof ReferenceError &&
-                    error.message == "User already in room"
+                    e instanceof RoomError &&
+                    e.message == ROOM_ERROR_MESSAGES.UserInRoom
                 ) {
                     console.log("User already in room, returning roomID");
                     return room.getJoinPayload();
-                }
-                return null;
+                } else throw e;
             }
         }
         return room.getJoinPayload();
@@ -166,33 +162,34 @@ const CheckersRoomsManager = {
             return null;
         }
     }, */
-
+    memberConnected(user: string, roomID: string) {
+        const room = this.managerRoomsMap.get(roomID);
+        if (!room) {
+            throw new RoomManagerError(MANAGER_ERROR_MESSAGES.RoomIDNotInMap);
+        }
+        try {
+            room.memberConnected(user);
+        } catch (e) {
+            throw e;
+        }
+        return room.status;
+    },
     leaveRoom(user: string, roomID?: string) {
         console.log("CheckersRoomsManager: Leaving not implemented yet");
     },
-    /**
-     * @deprecated, use manageRoomUpdate() instead
-     */
     manageRoomUpdate(user: string, roomID: string, board: ValidTokens[]) {
         const room = this.managerRoomsMap.get(roomID);
-        if (!room) throw new Error("Room does not exist");
-        if (!room.players.includes(user)) {
-            console.log("User: ", user);
-            console.log("Players in rooms: ", room.players);
-            throw new ReferenceError("User not in room");
-        }
-        if (room.data.curPlayer == user) {
-            try {
-                room.updateRoomState(board);
-            } catch (err) {
-                console.log("Error updating room");
-                throw err;
+        if (!room)
+            throw new RoomManagerError(MANAGER_ERROR_MESSAGES.RoomIDNotInMap);
+        try {
+            if (!room.isCurPlayer(user)) {
+                throw new RoomManagerError(
+                    MANAGER_ERROR_MESSAGES.NotCurrentPlayer
+                );
             }
-            return room.getUpdatePayload();
-        } else {
-            console.log(room.data.curPlayer);
-            console.log(user);
-            throw new Error("Player not current player");
+            room.updateRoomState(board);
+        } catch (e) {
+            throw e;
         }
     },
 };

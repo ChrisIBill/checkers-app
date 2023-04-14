@@ -6,17 +6,17 @@ import {
 } from "@src/interfaces/checkersInterfaces";
 import {
     ISocketRoom,
-    ROOM_ERRORS,
-    RoomErrors,
+    ROOM_ERROR_MESSAGES,
+    RoomError,
     SocketRoom,
     SocketRoomStatus,
     ValueOf,
 } from "./SocketRoom";
 import { findValidMoves, zipGameState } from "@src/util/CheckersUtil";
 import { ParameterError } from "@src/util/Errors";
+import { USER_NOT_FOUND_ERR } from "../services/myUserService";
 
 export const CheckersRoomStatus = {
-    playing: "playing",
     gameOver: "gameOver",
 } as const;
 export const AllCheckersRoomStatus = {
@@ -74,18 +74,25 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
     }
     setBoardState(boardState: ValidTokens[]): boolean {
         if (boardState.length != 32)
-            throw new Error("Invalid board state length");
+            throw new RoomError(ROOM_ERROR_MESSAGES.BadState);
         this.data.boardState = boardState;
         return true;
     }
-
+    isCurPlayer(user: string): boolean {
+        if (!this.players.includes(user)) {
+            throw new RoomError(ROOM_ERROR_MESSAGES.UserNotInRoom);
+        }
+        return this.data.curPlayer == user;
+    }
     setValidSelections() {}
-    init() {
+    start() {
         if (this.players.includes(null))
-            throw new RoomErrors(ROOM_ERRORS.RoomNotFull);
+            throw new RoomError(ROOM_ERROR_MESSAGES.RoomNotFull);
         if (Math.random() > 0.5) {
             this.players = [this.players[1], this.players[0]];
         }
+        this.data.turnNum = 0;
+        this.status = AllCheckersRoomStatus.active;
         this.data.curPlayer = this.players[0]!;
     }
     /** Returns Num players in room */
@@ -94,10 +101,10 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
         if (open == -1) {
             console.log("Error: Room is full, cant add player");
             this.status = AllCheckersRoomStatus.full;
-            throw new RoomErrors(ROOM_ERRORS.RoomIsFull);
+            throw new RoomError(ROOM_ERROR_MESSAGES.RoomIsFull);
         }
         if (this.players.includes(user)) {
-            throw new RoomErrors(ROOM_ERRORS.UserInRoom);
+            throw new RoomError(ROOM_ERROR_MESSAGES.UserInRoom);
         }
         this.players[open] = user;
         this.addMember(user);
@@ -105,15 +112,14 @@ export class CheckersRoom extends SocketRoom implements ICheckersRoom {
         if (numPlayers == 2) this.status = AllCheckersRoomStatus.full;
         return numPlayers;
     }
-    playerConnected(user: string) {
+    memberConnected(user: string) {
         if (this.players.includes(user)) {
             this.numPlayersConnected++;
             if (this.numPlayersConnected == 2) {
-                this.status = AllCheckersRoomStatus.playing;
-                this.init();
-            }
-        } else {
-            throw new RoomErrors(ROOM_ERRORS.UserNotInRoom);
+                this.start();
+            } else this.status = AllCheckersRoomStatus.init;
+        } else if (!this.members.has(user)) {
+            throw new RoomError(ROOM_ERROR_MESSAGES.UserNotInRoom);
         }
     }
     removePlayer(user: string): boolean {

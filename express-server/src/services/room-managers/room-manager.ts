@@ -2,16 +2,21 @@
 rooms. */
 import { SocketRoom } from "@src/models/SocketRoom";
 
-/* export interface ISocketRoomsManager {
-    SocketRoomsMap: Map<string, SocketRoom>;
-    usersInRooms: Map<string, Set<string>>;
-    newRoom: (roomID?: string) => string;
-    getUserRooms: (user: string) => Set<string>;
-    joinRoom: (user: string, roomID: string) => SocketRoom;
-    leaveRoom: (user: string, roomID?: string) => void;
-    findRoom: (user: string) => SocketRoom | null;
-    updateRoom: (roomID: string, room: SocketRoom) => Promise<boolean>;
-} */
+export const MANAGER_ERROR_MESSAGES = {
+    RoomIDNotInMap: "No room found in map with given ID",
+    NoRoomFound: "No room found",
+    NotCurrentPlayer: "Invalid user ID to update room",
+} as const;
+
+export type RoomErrorsType =
+    typeof MANAGER_ERROR_MESSAGES[keyof typeof MANAGER_ERROR_MESSAGES];
+
+export class RoomManagerError extends Error {
+    constructor(message: RoomErrorsType) {
+        super(message);
+    }
+}
+
 export interface IRoomPayload {
     roomInfo: {};
     data: {};
@@ -21,6 +26,7 @@ export interface ISocketRoomsManager {
     usersInRooms: Map<string, Set<string>>;
     findRoom: (...args: any) => any;
     joinRoom: (...args: any) => IRoomPayload;
+    memberConnected: (...args: any) => any;
     leaveRoom: (...args: any) => any;
     initRoom: (...args: any) => any;
     manageRoomUpdate: (...args: any) => any;
